@@ -1,0 +1,225 @@
+<meta content="text/html;charset=utf-8" http-equiv="Content-Type">
+<meta content="utf-8" http-equiv="encoding">
+<html>
+
+<head>
+    <title>Matrix Whiteboard</title>
+    <script src="browser-matrix.js"></script>
+    <script src="drawing.js"></script>
+    <script src="helper.js"></script>
+    <script src="input.js"></script>
+    <script src="actions.js"></script>
+    <script src="matrix-client.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@simonwep/pickr/dist/pickr.min.js"></script>
+    <script src="picker.js"></script>
+
+    <!-- One of the following themes -->
+    <!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@simonwep/pickr/dist/themes/classic.min.css"/> <!-- 'classic' theme -->
+    <!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@simonwep/pickr/dist/themes/monolith.min.css"/> 'monolith' theme -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@simonwep/pickr/dist/themes/nano.min.css" />
+    <!-- 'nano' theme -->
+
+    <!-- Modern or es5 bundle -->
+    <!-- <script src="https://cdn.jsdelivr.net/npm/@simonwep/pickr/dist/pickr.es5.min.js"></script> -->
+
+
+    <style>
+        html,
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            /* font-size: 1.2em; */
+            width: 100%;
+            height: 100%;
+            margin: 0px;
+            border: 0px;
+            /* overflow: hidden;  */
+            display: flex;
+            flex-direction: column;
+            /* display: block;  No floating content on sides */
+        }
+
+        #container {
+            min-height: 0;
+            min-width: 0;
+            padding: 4px;
+            flex: 1 1;
+            background-color: #ddd;
+            /* height: 100%;
+            width: 100%; */
+            /* align-items: center; */
+        }
+
+        #loginContainer {
+            display: block;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 25em;
+            height: 15em;
+            background-color: rgb(240, 240, 240);
+            border-radius: 1em;
+            padding: 2em;
+            border-color: grey;
+            border-width: 5px;
+        }
+
+        #topbar {
+            overflow: hidden;
+            flex: 0 0 3.5em;
+            display: flex;
+        }
+        .pcr-button {
+            height: auto;
+            min-width: 3.5em;
+        }
+        #topbar button {
+            height: auto;
+            min-width: 6em;
+        }
+        .pickr {
+            position: relative;
+            overflow: visible;
+            transform: translateY(0);
+            display: flex;
+        }
+
+        #leftbar {
+            flex: 0 0 16em;
+            display: flex;
+            flex-direction: column;
+            overflow-y: scroll;
+        }
+
+        #leftbar span {
+            color: white;
+            width: auto;
+        }
+        .room-button{
+            border:solid;
+            border-color: rgb(211, 211, 211);
+            text-align: center;
+            width: auto;
+            margin: 0.1em;
+            padding: 0.3em 0.1em;
+            background-color: rgb(211, 211, 211);
+            border-radius: 0.3em;
+            transition: background-color 0.5s;
+            transition: border-color 1s;
+        }
+        .room-button:hover {
+            background-color: rgb(208, 210, 214);
+            border-color: black;
+        }
+        button {
+            margin: 0.4em;
+        }
+
+        #canvas {
+            min-height: 0;
+            min-width: 0;
+            /* width: 100%;
+            height: 100%; */
+        }
+
+        #loading {
+            display: none;
+            position: absolute;
+            top: 0px;
+            left: 0px;
+            width: 100%;
+            height: 3.5em;
+            background-color: rgba(0.5, 0.5, 0.5, 0.6);
+        }
+
+        /* form{
+            margin: 2em;
+        } */
+        input[type=text],
+        select {
+            width: 100%;
+            padding: 12px 20px;
+            margin: 8px 0;
+            display: inline-block;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        [type=password],
+        select {
+            width: 100%;
+            padding: 12px 20px;
+            margin: 8px 0;
+            display: inline-block;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        button.submit {
+            width: 100%;
+            background-color: #4CAF50;
+            color: white;
+            padding: 14px 20px;
+            margin: 8px 0;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        button.submit:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+
+<body onload="init_body()" onresize="onResize()">
+    <div id="topbar">
+        <div id="loading">
+            <div style="display: flex; align-content: center; height: 100%;">
+                <span id="loading-span"
+                    style="font-family:sans-serif ;font-size: x-large; color: white; width: 100%; align-self: center; text-align: center;">Loading</span>
+            </div>
+        </div>
+        <!-- <img src="icon.svg" style="height: 2em"></img> -->
+        <div class="color-picker"></div>
+        <!-- <button onclick="sendRandomPath(matrixClient, currentRoomId)">RandomPath</button> -->
+        <button onclick="sendRandomWalk(matrixClient, currentRoomId)">RandomWalk</button>
+        <!-- <button onclick="sendCustomEvent(matrixClient, currentRoomId)">sendCustomEvent (p.Whiteboard.object of type p.path)</button> -->
+        <!-- <button onclick="sendRandomText(matrixClient, currentRoomId)">RandomText</button> -->
+        <button onclick="redactLastAction(matrixClient, currentRoomId)">redact Last</button>
+        <br />
+        <button onclick="scrollback(currentRoomId).then(function(){reloadCacheCanvas();updateDisplayCanvas();});">scrollback</button>
+        <button onclick="reloadCacheCanvas();updateDisplayCanvas();">reload Canvas</button>
+        <button onclick="resetCanvasOffset()">go Home</button>
+        <button onclick="loginClicked()">login</button>
+        <button onclick="resetCanvasZoom()">reset Zoom</button>
+        <button id="grid" onclick="toggleGrid()">toggle Grid</button>
+        <button id="tool" onclick="toggleTool()">Tool: pen</button>
+
+        <span id="userIdLabel"
+            style="overflow:scroll; font-size: 1em; font-family: cursive; font-weight: 100; height: 100%; background-color: aquamarine;"></span>
+    </div>
+    <div style="flex-grow: 1; display: flex; flex-direction: row; min-height: 0;">
+        <div id="leftbar">
+        </div>
+        <div id="container">
+            <canvas id="canvas" style="background-color: #fff">
+            </canvas>
+        </div>
+
+    </div>
+
+    <div id="loginContainer">
+        <form id="login-form">
+            <label for="username">username:</label><br>
+            <input type="text" id="login-form-username" name="username" placeholder="Your matrix id..."><br>
+            <label for="login-form-password">password:</label><br>
+            <input type="password" id="login-form-password" name="password"  placeholder="your password..."><br><br>
+        </form>
+        <button id="login-submit" class="submit" onclick="loginClicked();">Login</button>
+    </div>
+</body>
+
+</html>
