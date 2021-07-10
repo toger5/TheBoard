@@ -69,14 +69,17 @@
             flex: 0 0 3.5em;
             display: flex;
         }
+
         .pcr-button {
             height: auto;
             min-width: 3.5em;
         }
+
         #topbar button {
             height: auto;
             min-width: 6em;
         }
+
         .pickr {
             position: relative;
             overflow: visible;
@@ -95,8 +98,9 @@
             color: white;
             width: auto;
         }
-        .room-button{
-            border:solid;
+
+        .room-button {
+            border: solid;
             border-color: rgb(211, 211, 211);
             text-align: center;
             width: auto;
@@ -107,10 +111,12 @@
             transition: background-color 0.5s;
             transition: border-color 1s;
         }
+
         .room-button:hover {
             background-color: rgb(208, 210, 214);
             border-color: black;
         }
+
         button {
             margin: 0.4em;
         }
@@ -171,6 +177,15 @@
         button.submit:hover {
             background-color: #45a049;
         }
+
+        #userIdLabel {
+            font-weight: 300;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            /* border: 2px dashed #f69c55; */
+        }
     </style>
 </head>
 
@@ -190,7 +205,8 @@
         <!-- <button onclick="sendRandomText(matrixClient, currentRoomId)">RandomText</button> -->
         <button onclick="redactLastAction(matrixClient, currentRoomId)">redact Last</button>
         <br />
-        <button onclick="scrollback(currentRoomId).then(function(){reloadCacheCanvas();updateDisplayCanvas();});">scrollback</button>
+        <button
+            onclick="scrollback(currentRoomId).then(function(){reloadCacheCanvas();updateDisplayCanvas();});">scrollback</button>
         <button onclick="reloadCacheCanvas();updateDisplayCanvas();">reload Canvas</button>
         <button onclick="resetCanvasOffset()">go Home</button>
         <button onclick="loginClicked()">login</button>
@@ -198,8 +214,7 @@
         <button id="grid" onclick="toggleGrid()">toggle Grid</button>
         <button id="tool" onclick="toggleTool()">Tool: pen</button>
 
-        <span id="userIdLabel"
-            style="overflow:scroll; font-size: 1em; font-family: cursive; font-weight: 100; height: 100%; background-color: aquamarine;"></span>
+        <div id="userIdLabel"></div>
     </div>
     <div style="flex-grow: 1; display: flex; flex-direction: row; min-height: 0;">
         <div id="leftbar">
@@ -212,11 +227,11 @@
     </div>
 
     <div id="loginContainer">
-        <!-- <form id="login-form"> -->
-            <label for="username">username:</label><br>
-            <input type="text" id="login-form-username" name="username" placeholder="Your matrix id..."><br>
-            <label for="login-form-password">password:</label><br>
-            <input type="password" id="login-form-password" name="password"  placeholder="your password..."><br><br>
+        <!-- <form id="login-form" onsubmit="return formSubmit(event)"> -->
+        <label for="username">username:</label><br>
+        <input type="text" id="login-form-username" name="username" placeholder="Your matrix id..."><br>
+        <label for="login-form-password">password:</label><br>
+        <input type="password" id="login-form-password" name="password" placeholder="your password..."><br><br>
         <!-- </form> -->
         <button id="login-submit" class="submit" onclick="loginClicked();">Login</button>
     </div>

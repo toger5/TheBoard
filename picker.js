@@ -42,4 +42,24 @@ function load_pickr() {
             }
         }
     });
+    pickr.on('init', instance => {
+        console.log('Event: "init"', instance);
+    }).on('hide', instance => {
+        console.log('Event: "hide"', instance);
+    }).on('show', (color, instance) => {
+        console.log('Event: "show"', color, instance);
+    }).on('save', (color, instance) => {
+        console.log('Event: "save"', color, instance);
+    }).on('clear', instance => {
+        console.log('Event: "clear"', instance);
+    }).on('change', (color, source, instance) => {
+        pickr.applyColor(true);
+        console.log('Event: "change"', color, source, instance);
+    }).on('changestop', (source, instance) => {
+        console.log('Event: "changestop"', source, instance);
+    }).on('cancel', instance => {
+        console.log('Event: "cancel"', instance);
+    }).on('swatchselect', (color, instance) => {
+        console.log('Event: "swatchselect"', color, instance);
+    });
 }
