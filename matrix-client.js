@@ -2,7 +2,7 @@ console.log("Loading browser sdk");
 
 var currentRoomId = "";
 const matrixClient = matrixcs.createClient({
-    baseUrl: "http://matrix.org",
+    baseUrl: "https://matrix.org",
 });
 
 async function updateRoomList() {
