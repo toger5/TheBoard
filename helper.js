@@ -12,3 +12,6 @@ function pathStringToArray(p_path, objpos){
     }
     return returnval;
 }
+function dist(p,q){
+    return Math.sqrt((p.x-q.x)**2+(p.y-q.y)**2);
+}
