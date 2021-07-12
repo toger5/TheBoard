@@ -53,14 +53,14 @@ function resetCanvasZoom() {
     ctx.translate(-pt.x, -pt.y);
     updateDisplayCanvas()
 }
-function drawEvent(event, animated, updateDisplay=true) {
+function drawEvent(event, animated, updateDisplay = true) {
     if (event.content.objtype == "p.path") {
         let points = pathStringToArray(event.content.path, event.content.objpos);
         if (animated) {
             asyncDrawPath(points, event.content.objcolor);
         } else {
             drawPath(cache_ctx, points, event.content.objcolor);
-            if(updateDisplay){updateDisplayCanvas(true);}
+            if (updateDisplay) { updateDisplayCanvas(true); }
         }
     }
 }
@@ -172,7 +172,7 @@ function reloadCacheCanvas(animated = false) {
             drawEvent(obj, animated, animated);
         }
     });
-    console.log("!! Cache Canvas redraw DONE in", Date.now()-starttime);
+    console.log("!! Cache Canvas redraw DONE in", Date.now() - starttime);
 }
 
 function updateDisplayCanvas(clear = true) {
@@ -206,24 +206,53 @@ function clearDisplayCanvas() {
     const ctx = canvas.getContext("2d");
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 }
-function onResize() {
-    let box = document.getElementById("container");
-    // window.getComputedStyle(box, null).getPropertyValue('padding')
-    // box.style.padding
-    let padding = 4;
-    let w = box.getBoundingClientRect().width - 2 * padding;
-    let h = box.getBoundingClientRect().height - 2 * padding;
-    let t = display_ctx.getTransform();
-    display_canvas.width = w;
-    display_canvas.height = h;
-    // display_canvas.style.width = w + 'px';
-    // display_canvas.style.height = h + 'px';
-    display_ctx.setTransform(t);
-    updateDisplayCanvas();
+function onResize(entries) {
+    let target;
+    let w;
+    let h;
+    for (const entry of entries) {
+        let width;
+        let height;
+        let dpr = window.devicePixelRatio;
+        if (entry.devicePixelContentBoxSize) {
+            // NOTE: Only this path gives the correct answer
+            // The other paths are imperfect fallbacks
+            // for browsers that don't provide anyway to do this
+            width = entry.devicePixelContentBoxSize[0].inlineSize;
+            height = entry.devicePixelContentBoxSize[0].blockSize;
+            dpr = 1; // it's already in width and height
+        } else if (entry.contentBoxSize) {
+            if (entry.contentBoxSize[0]) {
+                width = entry.contentBoxSize[0].inlineSize;
+                height = entry.contentBoxSize[0].blockSize;
+            } else {
+                width = entry.contentBoxSize.inlineSize;
+                height = entry.contentBoxSize.blockSize;
+            }
+        } else {
+            width = entry.contentRect.width;
+            height = entry.contentRect.height;
+        }
+        w = Math.round(width * dpr);
+        h = Math.round(height * dpr);
+        target = entry.target;
+    }
+    if (target == display_canvas){
+        let t = display_ctx.getTransform();
+        display_canvas.width = w;
+        display_canvas.height = h;
+        display_ctx.setTransform(t);
+        updateDisplayCanvas();
+    }
 }
 function init_drawing() {
     display_canvas = document.getElementById('canvas');
     display_ctx = display_canvas.getContext("2d");
     display_ctx.imageSmoothingEnabled = true;
-    onResize();
+    const resizeObserver = new ResizeObserver(onResize);
+    try {
+      resizeObserver.observe(canvas, {box: 'device-pixel-content-box'});
+    } catch (ex) {
+      resizeObserver.observe(canvas, {box: 'content-box'});
+    }
 }
