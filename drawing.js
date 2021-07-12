@@ -111,7 +111,7 @@ async function asyncDrawPath(points, color) {
         let a = await sleep(points[p][0]);
         // console.log("after");
     }
-    updateDisplayCanvas(false);
+    updateDisplayCanvas(true);
 }
 
 function drawSegment(ctx, segment_points, color) {

@@ -20,7 +20,8 @@ class Tool {
 var tool = new Tool;
 
 function getTransformedPointer(x, y) {
-    pt = new DOMPoint(x, y);
+    let dpr = window.devicePixelRatio;
+    pt = new DOMPoint(x*dpr, y*dpr);
     return pt.matrixTransform(display_ctx.getTransform().inverse());
 }
 function over_handler(event) { }
@@ -140,7 +141,7 @@ function init_input() {
             if (touchesCache.length > 1) {
                 toolcancel();
             } else {
-                tooldown();
+                tooldown(e.offsetX, e.offsetY, e.pressure);
             }
         } else {
             tooldown(e.offsetX, e.offsetY, e.pressure);
