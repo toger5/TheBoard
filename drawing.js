@@ -21,7 +21,7 @@ function update_canvasOffset(delta) {
 }
 function update_canvasZoom(factor, originX, originY) {
     let ctx = display_ctx;
-    let pt = getTransformedMouse(originX, originY);
+    let pt = getTransformedPointer(originX, originY);
     ctx.translate(pt.x, pt.y);
 
     ctx.scale(factor, factor);
@@ -44,7 +44,7 @@ function resetCanvasOffset() {
 }
 function resetCanvasZoom() {
     let ctx = display_ctx;
-    let pt = getTransformedMouse(canvas.width / 2, canvas.height / 2);
+    let pt = getTransformedPointer(canvas.width / 2, canvas.height / 2);
     ctx.translate(pt.x, pt.y);
     let t = ctx.getTransform();
     t.a = 1;
