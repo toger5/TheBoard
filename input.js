@@ -1,6 +1,6 @@
 
 // Handle input:
-let mouse_path = "";
+let mouse_path = [];
 let mouse_path_last_time = Date.now();
 let last_pos = []
 const toolType = {
@@ -21,8 +21,9 @@ var tool = new Tool;
 
 function getTransformedPointer(x, y) {
     let dpr = window.devicePixelRatio;
-    pt = new DOMPoint(x*dpr, y*dpr);
-    return pt.matrixTransform(display_ctx.getTransform().inverse());
+    pt = new DOMPoint(x * dpr, y * dpr);
+    let tr = pt.matrixTransform(display_ctx.getTransform().inverse());
+    return new DOMPoint(Math.round(tr.x), Math.round(tr.y));
 }
 function over_handler(event) { }
 function enter_handler(event) { }
@@ -32,9 +33,8 @@ function tooldown(offsetX, offsetY, pressure) {
         case toolType.draw:
             let pt = getTransformedPointer(offsetX, offsetY);
             mouse_path_start_time = Date.now();
-            mouse_path = "";
             last_pos = [0, pt.x, pt.y, pressure];
-            mouse_path += 0 + " " + pt.x + " " + pt.y + " " + pressure * 4 + " ";
+            mouse_path = [[0, pt.x, pt.y, pressure * 4]];
             break;
         case toolType.erase:
             // let pt = getTransformedPointer(event.offsetX, event.offsetY);
@@ -46,7 +46,7 @@ function tooldown(offsetX, offsetY, pressure) {
 function toolmove(offsetX, offsetY, pressure) {
     switch (tool.type) {
         case toolType.draw:
-            if (mouse_path == "") {
+            if (mouse_path.length == 0) {
                 break;
             }
             let x = offsetX;
@@ -61,7 +61,7 @@ function toolmove(offsetX, offsetY, pressure) {
             // let thickness_factor = 1.5 - velocity / 8.0;
             let thickness_factor = 1
             mouse_path_last_time = Date.now();
-            mouse_path += time_delta + " " + x + " " + y + " " + (pressure * 4 + Math.min(3, Math.max(0.0, thickness_factor))) + " ";
+            mouse_path.push([time_delta, x, y, (pressure * 4 + Math.min(3, Math.max(0.0, thickness_factor)))]);
             break;
         case toolType.erase: break;
     }
@@ -69,7 +69,7 @@ function toolmove(offsetX, offsetY, pressure) {
 function toolcancel() {
     switch (tool.type) {
         case toolType.draw:
-            mouse_path = "";
+            mouse_path = [];
             mouse_path_last_time = Date.now();
             last_pos = []
             break;
@@ -81,7 +81,11 @@ function toolup(offsetX, offsetY) {
     switch (tool.type) {
         case toolType.draw:
             if (objectStore.hasRoom(currentRoomId)) {
-                sendPath(matrixClient, currentRoomId, mouse_path, pickr.getColor().toHEXA().toString(), [0, 0]);
+                let [corrected_mouse_path, pos, size] = pathPosSizeCorrection(mouse_path);
+                let string_path = mousePathToString(corrected_mouse_path);
+                sendPath(matrixClient, currentRoomId,
+                    string_path,
+                    pickr.getColor().toHEXA().toString(), pos, size);
             } else {
                 console.log("NO ROOM SELECTED TO DRAW IN!")
                 updateDisplayCanvas();
@@ -171,7 +175,7 @@ function init_input() {
         e.preventDefault();
         if (e.ctrlKey) {
             //ctrl is used as the indicator for pinch gestures... (Not a fan...)
-            zoom(e.offsetX,e.offsetY,1+e.wheelDeltaY);
+            zoom(e.offsetX, e.offsetY, 1 + e.wheelDeltaY);
         } else {
             let scroll_speed = 0.5;
             update_canvasOffset([e.wheelDeltaX * scroll_speed, e.wheelDeltaY * scroll_speed]);
@@ -269,81 +273,81 @@ function handlePanZoom() {
 
 
 
-function down_handler(event) {
-    switch (tool.type) {
-        case toolType.draw:
-            let pt = getTransformedPointer(event.offsetX, event.offsetY);
-            mouse_path_start_time = Date.now();
-            mouse_path = "";
-            last_pos = [0, pt.x, pt.y, event.pressure];
-            mouse_path += 0 + " " + pt.x + " " + pt.y + " " + event.pressure * 4 + " ";
-            break;
-        case toolType.erase:
-            // let pt = getTransformedPointer(event.offsetX, event.offsetY);
-            break;
-    }
+// function down_handler(event) {
+//     switch (tool.type) {
+//         case toolType.draw:
+//             let pt = getTransformedPointer(event.offsetX, event.offsetY);
+//             mouse_path_start_time = Date.now();
+//             mouse_path = "";
+//             last_pos = [0, pt.x, pt.y, event.pressure];
+//             mouse_path += 0 + " " + pt.x + " " + pt.y + " " + event.pressure * 4 + " ";
+//             break;
+//         case toolType.erase:
+//             // let pt = getTransformedPointer(event.offsetX, event.offsetY);
+//             break;
+//     }
 
-    console.log("start pressing");
-}
-function move_handler(event) {
-    switch (tool.type) {
-        case toolType.draw:
-            if (event.buttons > 0) {
-                let pt = getTransformedPointer(event.offsetX, event.offsetY);
-                let x = pt.x;
-                let y = pt.y;
-                let current_pos = [0, x, y, event.pressure];
-                // console.log(pickr.getColor().toHEXA().toString());
-                drawSegmentDisplay([last_pos, current_pos], pickr.getColor().toHEXA().toString());
-                let dist = (current_pos[0] - last_pos[0]) ** 2 + (current_pos[1] - last_pos[1]) ** 2
-                last_pos = current_pos;
+//     console.log("start pressing");
+// }
+// function move_handler(event) {
+//     switch (tool.type) {
+//         case toolType.draw:
+//             if (event.buttons > 0) {
+//                 let pt = getTransformedPointer(event.offsetX, event.offsetY);
+//                 let x = pt.x;
+//                 let y = pt.y;
+//                 let current_pos = [0, x, y, event.pressure];
+//                 // console.log(pickr.getColor().toHEXA().toString());
+//                 drawSegmentDisplay([last_pos, current_pos], pickr.getColor().toHEXA().toString());
+//                 let dist = (current_pos[0] - last_pos[0]) ** 2 + (current_pos[1] - last_pos[1]) ** 2
+//                 last_pos = current_pos;
 
-                time_delta = Math.min(80, Date.now() - mouse_path_last_time);
-                // let velocity = dist / Math.max(1, time_delta);
-                // let thickness_factor = 1.5 - velocity / 8.0;
-                let thickness_factor = 1
-                mouse_path_last_time = Date.now();
-                mouse_path += time_delta + " " + x + " " + y + " " + (event.pressure * 4 + Math.min(3, Math.max(0.0, thickness_factor))) + " ";
-            }
-            break;
-        case toolType.erase: break;
-    }
-}
-function up_handler(event) {
-    switch (tool.type) {
-        case toolType.draw:
-            if (objectStore.hasRoom(currentRoomId)) {
-                sendPath(matrixClient, currentRoomId, mouse_path, pickr.getColor().toHEXA().toString(), [0, 0]);
-            } else {
-                console.log("NO ROOM SELECTED TO DRAW IN!")
-                updateDisplayCanvas();
-            }
-            console.log("stop pressing");
-            break;
-        case toolType.erase:
-            console.log("try to erase");
-            let pt = getTransformedPointer(event.offsetX, event.offsetY);
-            let sortedEvents = objectStore.allSorted();
-            var id = ""
-            let eraser_size = 70;
-            let userId = matrixClient.getUserId();
-            for (let i = sortedEvents.length - 1; i >= 0; i--) {
-                let event = sortedEvents[i];
-                if (event.type == "p.whiteboard.object" && event.sender == userId) {
-                    let points = pathStringToArray(event.content.path, event.content.objpos);
-                    for (j in points) {
-                        let p = points[j];
-                        if ((pt.x - p[1]) ** 2 + (pt.y - p[2]) ** 2 < eraser_size) {
-                            id = event.event_id;
-                            break;
-                        }
-                    }
-                }
-            }
-            matrixClient.redactEvent(currentRoomId, id).then(t => {
-                console.log("redacted (eraser): ", t);
-            });
-            break;
-    }
+//                 time_delta = Math.min(80, Date.now() - mouse_path_last_time);
+//                 // let velocity = dist / Math.max(1, time_delta);
+//                 // let thickness_factor = 1.5 - velocity / 8.0;
+//                 let thickness_factor = 1
+//                 mouse_path_last_time = Date.now();
+//                 mouse_path += time_delta + " " + x + " " + y + " " + (event.pressure * 4 + Math.min(3, Math.max(0.0, thickness_factor))) + " ";
+//             }
+//             break;
+//         case toolType.erase: break;
+//     }
+// }
+// function up_handler(event) {
+//     switch (tool.type) {
+//         case toolType.draw:
+//             if (objectStore.hasRoom(currentRoomId)) {
+//                 sendPath(matrixClient, currentRoomId, mouse_path, pickr.getColor().toHEXA().toString(), [0, 0]);
+//             } else {
+//                 console.log("NO ROOM SELECTED TO DRAW IN!")
+//                 updateDisplayCanvas();
+//             }
+//             console.log("stop pressing");
+//             break;
+//         case toolType.erase:
+//             console.log("try to erase");
+//             let pt = getTransformedPointer(event.offsetX, event.offsetY);
+//             let sortedEvents = objectStore.allSorted();
+//             var id = ""
+//             let eraser_size = 70;
+//             let userId = matrixClient.getUserId();
+//             for (let i = sortedEvents.length - 1; i >= 0; i--) {
+//                 let event = sortedEvents[i];
+//                 if (event.type == "p.whiteboard.object" && event.sender == userId) {
+//                     let points = pathStringToArray(event.content.path, event.content.objpos);
+//                     for (j in points) {
+//                         let p = points[j];
+//                         if ((pt.x - p[1]) ** 2 + (pt.y - p[2]) ** 2 < eraser_size) {
+//                             id = event.event_id;
+//                             break;
+//                         }
+//                     }
+//                 }
+//             }
+//             matrixClient.redactEvent(currentRoomId, id).then(t => {
+//                 console.log("redacted (eraser): ", t);
+//             });
+//             break;
+//     }
 
-}
+// }

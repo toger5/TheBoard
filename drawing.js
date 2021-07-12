@@ -1,8 +1,9 @@
 
-var cache_canvas = document.createElement('canvas');
-cache_canvas.width = 3000;
-cache_canvas.height = 8000;
-var cache_ctx = cache_canvas.getContext("2d");
+// var cache_canvas = document.createElement('canvas');
+// cache_canvas.width = 3000;
+// cache_canvas.height = 8000;
+// var cache_ctx = cache_canvas.getContext("2d");
+var cache_canvas = new UnlimitedCanvas();
 var setting_grid = "";
 var display_canvas;
 var display_ctx;
@@ -53,12 +54,21 @@ function resetCanvasZoom() {
     ctx.translate(-pt.x, -pt.y);
     updateDisplayCanvas()
 }
-function drawEvent(event, animated, updateDisplay = true) {
+function drawEvent(event, animated, updateDisplay = true, bounding_box = false) {
     if (event.content.objtype == "p.path") {
         let points = pathStringToArray(event.content.path, event.content.objpos);
         if (animated) {
             asyncDrawPath(points, event.content.objcolor);
         } else {
+            if(bounding_box){
+                let pos = (event.content.objpos || "0 0").split(" ");
+                let size = (event.content.objsize || "1000 1000").split(" ");
+                cache_ctx.beginPath();
+                cache_ctx.strokeStyle = "#EE111180";
+                cache_ctx.lineWidth = 1;
+                cache_ctx.rect(parseInt(pos[0]),parseInt(pos[1]),parseInt(size[0]),parseInt(size[1]));
+                cache_ctx.stroke();
+            }
             drawPath(cache_ctx, points, event.content.objcolor);
             if (updateDisplay) { updateDisplayCanvas(true); }
         }
@@ -160,20 +170,25 @@ function drawGrid(ctx, grid, size, gridsize, color) {
         ctx.stroke();
     }
 }
+var DRAW_BOUNDING_BOX = false;
 function reloadCacheCanvas(animated = false) {
-    cache_ctx.fillStyle = "#eee";
-    cache_ctx.fillRect(0, 0, cache_canvas.width, cache_canvas.height);
-    cache_ctx.clearRect(3, 3, cache_canvas.width - 6, cache_canvas.height - 6);
-    drawGrid(cache_ctx, setting_grid, [cache_canvas.width, cache_canvas.height], 50, cache_ctx.fillStyle)
-    console.log("!! Cache Canvas redraw START");
-    let starttime = Date.now()
-    objectStore.allSorted().forEach(obj => {
-        if (obj.type == "p.whiteboard.object") {
-            drawEvent(obj, animated, animated);
-        }
-    });
-    console.log("!! Cache Canvas redraw DONE in", Date.now() - starttime);
+    cache_canvas.reload();
 }
+// function reloadCacheCanvas(animated = false) {
+//     cache_ctx.fillStyle = "#eee";
+//     cache_ctx.fillRect(0, 0, cache_canvas.width, cache_canvas.height);
+//     cache_ctx.clearRect(3, 3, cache_canvas.width - 6, cache_canvas.height - 6);
+//     drawGrid(cache_ctx, setting_grid, [cache_canvas.width, cache_canvas.height], 50, cache_ctx.fillStyle)
+//     console.log("!! Cache Canvas redraw START");
+//     let starttime = Date.now()
+//     objectStore.allSorted().forEach(obj => {
+//         if (obj.type == "p.whiteboard.object") {
+//             drawEvent(obj, animated, animated, DRAW_BOUNDING_BOX);
+//         }
+//     });
+//     console.log("!! Cache Canvas redraw DONE in", Date.now() - starttime);
+// }
+
 
 function updateDisplayCanvas(clear = true) {
     const canvas = document.getElementById("canvas");
@@ -184,8 +199,22 @@ function updateDisplayCanvas(clear = true) {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         ctx.restore();
     }
-    ctx.drawImage(cache_canvas, 0, 0);
+    for(c of cache_canvas.getKeys()){
+        ctx.drawImage(cache_canvas.canvasChunks[c], c[0], c[1]);
+    }
 }
+
+// function updateDisplayCanvas(clear = true) {
+//     const canvas = document.getElementById("canvas");
+//     const ctx = canvas.getContext("2d");
+//     if (clear) {
+//         ctx.save();
+//         ctx.setTransform(1, 0, 0, 1, 0, 0);
+//         ctx.clearRect(0, 0, canvas.width, canvas.height);
+//         ctx.restore();
+//     }
+//     ctx.drawImage(cache_canvas, 0, 0);
+// }
 
 // OLD!!
 // function reloadCanvas(animated = false) {
@@ -201,11 +230,11 @@ function updateDisplayCanvas(clear = true) {
 // }
 
 // only for button...
-function clearDisplayCanvas() {
-    const canvas = document.getElementById("canvas");
-    const ctx = canvas.getContext("2d");
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-}
+// function clearDisplayCanvas() {
+//     const canvas = document.getElementById("canvas");
+//     const ctx = canvas.getContext("2d");
+//     ctx.clearRect(0, 0, canvas.width, canvas.height);
+// }
 function onResize(entries) {
     let target;
     let w;
