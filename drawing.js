@@ -35,6 +35,25 @@ function update_canvasZoom(factor, originX, originY) {
     ctx.translate(-pt.x, -pt.y);
     updateDisplayCanvas()
 }
+function set_canvasZoom(zoom_factor, originX, originY) {
+    let ctx = display_ctx;
+    let pt = getTransformedPointer(originX, originY);
+
+    ctx.translate(pt.x, pt.y);
+    let t = ctx.getTransform();
+    t.a = Math.min(zoom_factor, 1.2);
+    t.d = Math.min(zoom_factor, 1.2);
+    t.a = Math.max(zoom_factor, 0.2);
+    t.d = Math.max(zoom_factor, 0.2);
+    ctx.setTransform(t.a, t.b, t.c, t.d, t.e, t.f);
+
+    ctx.translate(-pt.x, -pt.y);
+    updateDisplayCanvas()
+}
+function get_canvasZoom() {
+    let t = display_ctx.getTransform();
+    return t.a;
+}
 function resetCanvasOffset() {
     // canvasOffset = [0,0];
     let canvas = document.getElementById("canvas");

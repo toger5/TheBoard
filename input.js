@@ -144,13 +144,14 @@ function init_input() {
     el.onpointerdown = function (e) {
         console.log("onpointerdown");
         if (e.pointerType == "touch") {
+            if (touchesCache.length == 0) {
+                tooldown(e.offsetX, e.offsetY, e.pressure);
+            } else {
+                toolcancel();
+                touchZoomCache = get_canvasZoom();
+            }
             touchesCacheBegin.push(e);
             touchesCache.push(e);
-            if (touchesCache.length > 1) {
-                toolcancel();
-            } else {
-                tooldown(e.offsetX, e.offsetY, e.pressure);
-            }
         } else {
             tooldown(e.offsetX, e.offsetY, e.pressure);
         }
@@ -162,6 +163,7 @@ function init_input() {
             let pt = getTransformedPointer(e.offsetX, e.offsetY);
             toolmove(pt.x, pt.y, e.pressure);
         } else if (touchesCache.length == 2 && e.pointerType == "touch") {
+            console.log("e.offsetX", e.offsetX);
             let index = touchesCache.findIndex((el) => { return e.pointerId === el.pointerId });
             touchesCache[index] = e;
             handlePanZoom();
@@ -238,19 +240,22 @@ function init_input() {
 var touchZoomCache = 0;
 var touchPanCache = new DOMPoint(0, 0);
 function handlePanZoom() {
-    let start1 = getTransformedPointer(touchesCacheBegin[0].clientX, touchesCacheBegin[0].clientY);
-    let start2 = getTransformedPointer(touchesCacheBegin[1].clientX, touchesCacheBegin[1].clientY);
-    let current1 = getTransformedPointer(touchesCache[0].clientX, touchesCache[0].clientY);
-    let current2 = getTransformedPointer(touchesCache[1].clientX, touchesCache[1].clientY);
+    let cx = display_canvas.getBoundingClientRect().x;
+    let cy = display_canvas.getBoundingClientRect().y;
+    console.log("begin offset:",touchesCacheBegin[0].offsetX)
+    let start1 = getTransformedPointer(touchesCacheBegin[0].clientX-cx, touchesCacheBegin[0].clientY-cy);
+    let start2 = getTransformedPointer(touchesCacheBegin[1].clientX-cx, touchesCacheBegin[1].clientY-cy);
+    let current1 = getTransformedPointer(touchesCache[0].clientX-cx, touchesCache[0].clientY-cy);
+    let current2 = getTransformedPointer(touchesCache[1].clientX-cx, touchesCache[1].clientY-cy);
     // console.log("start1: ",start1);
     // console.log("start2: ",start2);
     // console.log("current1: ",current1);
     // console.log("current2: ",current2);
-    var PINCH_THRESHOLD = display_canvas.clientWidth / 10;
+    var PINCH_THRESHOLD = display_canvas.clientWidth / 40;
     if (dist(start1, current1) >= PINCH_THRESHOLD || dist(start2, current2) >= PINCH_THRESHOLD) {
         var offset = new DOMPoint(0.5 * (start1.x - current1.x + start2.x - current2.x),
             0.5 * (start1.y - current1.y + start2.y - current2.y));
-        console.log("offset: ", offset);
+        // console.log("offset: ", offset);
         var offsetDiff = new DOMPoint(touchPanCache.x - offset.x, touchPanCache.y - offset.y);
         touchPanCache = offset;
         console.log("offsetDiff: ", offsetDiff.x, offsetDiff.y);
@@ -259,10 +264,11 @@ function handlePanZoom() {
         var distStart = dist(start1, start2);
         var distCurrent = dist(current1, current2);
         var currentZoomFactor = distCurrent / distStart;
+        console.log("zoomFactor: ", currentZoomFactor);
         //TODO some log or exp to make absolute zoom...
         var startCenter = [(start1.x + start2.x) / 2, (start1.y + start2.y) / 2]
-        // update_canvasZoom(currentZoomFactor - touchZoomCache, startCenter[0], startCenter[1]);
-        touchZoomCache = distCurrent / distStart;
+        set_canvasZoom(touchZoomCache*currentZoomFactor, startCenter[0], startCenter[1]);
+        // touchZoomCache = distCurrent / distStart;
     }
 }
 
