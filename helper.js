@@ -1,4 +1,4 @@
-function pathStringToArray(p_path, objpos) {
+function parsePath(p_path, objpos) {
     let arr = p_path.split(" ");
     var offset = objpos.split(" ");
     var returnval = [];
@@ -33,6 +33,13 @@ function pathPosSizeCorrection(points) {
     // path pos size
     return [correctedPoints, posMin, [width, height]];
 }
+function pathChunkPosCorrection(chunk, points){
+    return points.map((p) => { return [p[0], p[1] - chunk[0], p[2] - chunk[1], p[3]] });
+}
 function dist(p, q) {
     return Math.sqrt((p.x - q.x) ** 2 + (p.y - q.y) ** 2);
+}
+function parsePoint(string){
+    let arr = (string || "0 0").split(" ");
+    return [parseInt(arr[0]),parseInt(arr[1])];
 }

@@ -24,7 +24,6 @@ function update_canvasZoom(factor, originX, originY) {
     let ctx = display_ctx;
     let pt = getTransformedPointer(originX, originY);
     ctx.translate(pt.x, pt.y);
-
     ctx.scale(factor, factor);
     let t = ctx.getTransform();
     t.a = Math.min(t.a, 1.2);
@@ -54,89 +53,45 @@ function resetCanvasZoom() {
     ctx.translate(-pt.x, -pt.y);
     updateDisplayCanvas()
 }
-function drawEvent(event, animated, updateDisplay = true, bounding_box = false) {
+function drawEvent(event, animated, updateDisplay = true) {
     if (event.content.objtype == "p.path") {
-        let points = pathStringToArray(event.content.path, event.content.objpos);
+        let points = parsePath(event.content.path, event.content.objpos);
+        let pos = parsePoint(event.content.objpos);
+        let size = parsePoint(event.content.objsize);
         if (animated) {
-            asyncDrawPath(points, event.content.objcolor);
+            asyncDrawPath(pos, points, event.content.objcolor);
         } else {
-            if(bounding_box){
-                let pos = (event.content.objpos || "0 0").split(" ");
-                let size = (event.content.objsize || "1000 1000").split(" ");
-                cache_ctx.beginPath();
-                cache_ctx.strokeStyle = "#EE111180";
-                cache_ctx.lineWidth = 1;
-                cache_ctx.rect(parseInt(pos[0]),parseInt(pos[1]),parseInt(size[0]),parseInt(size[1]));
-                cache_ctx.stroke();
-            }
-            drawPath(cache_ctx, points, event.content.objcolor);
+            cache_canvas.drawBoundingBox([pos, size]);
+            cache_canvas.drawPath(points, event.content.objcolor, [pos, size]);
             if (updateDisplay) { updateDisplayCanvas(true); }
         }
     }
-}
-// function drawEventLive(event, offset, animated) {
-//     if (event.content.objtype == "p.path") {
-//         let points = pathStringToArray(event.content.path, event.content.objpos, offset);
-//         if (animated) {
-//             asyncDrawPath(cache_ctx, points, event.content.objcolor);
-//         } else {
-//             drawPath(cache_ctx, context, points, event.content.objcolor);
-
-//         }  
-//     }
-// }
-function drawPath(context, points, color) {
-    // const canvas = document.getElementById("canvas");
-    // const ctx = canvas.getContext("2d");
-    let ctx = context;
-    ctx.lineCap = "round";
-    ctx.beginPath();
-    for (let p = 1; p < points.length; p++) {
-        ctx.moveTo(points[p - 1][1], points[p - 1][2]);
-        ctx.strokeStyle = color;
-        ctx.lineWidth = points[p][3];
-        ctx.lineTo(points[p][1], points[p][2]);
-    }
-    ctx.stroke();
 }
 
 const sleep = ms => {
     return new Promise(resolve => setTimeout(resolve, ms))
 }
-async function asyncDrawPath(points, color) {
+
+async function asyncDrawPath(pos, points, color) {
     for (let p = 1; p < points.length; p++) {
-        // let ctx = canvas.getContext("2d");
-        // let ctx = context;
-        // ctx.lineCap = "round";
         drawSegmentDisplay([points[p - 1], points[p]], color);
-        drawSegment(cache_ctx, [points[p - 1], points[p]], color);
-        // const canvas = document.getElementById("canvas");
-        // console.log("going to wait for " + points[p][0]);
-        // ctx.beginPath();
-        // ctx.moveTo(points[p-1][1], points[p-1][2]);
-        // ctx.strokeStyle = color;
-        // ctx.lineWidth = points[p][3];
-        // ctx.lineTo(points[p][1], points[p][2]);
-        // ctx.stroke();
-        let a = await sleep(points[p][0]);
-        // console.log("after");
+        cache_canvas.drawSegment([points[p - 1], points[p]], color);
+        await sleep(points[p][0]);
     }
     updateDisplayCanvas(true);
+    // cache_canvas.drawPath(points,color);
+    // cache_canvas.drawSegment([points[p - 1], points[p]], color);
 }
-
-function drawSegment(ctx, segment_points, color) {
-
+function drawSegmentDisplay(segment_points, color) {
+    let canvas = document.getElementById("canvas");
+    let ctx = canvas.getContext("2d");
     ctx.beginPath();
     ctx.moveTo(segment_points[0][1], segment_points[0][2]);
     ctx.strokeStyle = color;
     ctx.lineWidth = segment_points[1][3];
     ctx.lineTo(segment_points[1][1], segment_points[1][2]);
     ctx.stroke();
-}
-function drawSegmentDisplay(segment_points, color) {
-    let canvas = document.getElementById("canvas");
-    let ctx = canvas.getContext("2d");
-    drawSegment(ctx, segment_points, color);
+    // drawSegment(ctx, segment_points, color);
 }
 function drawGrid(ctx, grid, size, gridsize, color) {
     ctx.fillStyle = color;
@@ -170,7 +125,7 @@ function drawGrid(ctx, grid, size, gridsize, color) {
         ctx.stroke();
     }
 }
-var DRAW_BOUNDING_BOX = false;
+
 function reloadCacheCanvas(animated = false) {
     cache_canvas.reload();
 }
@@ -191,15 +146,15 @@ function reloadCacheCanvas(animated = false) {
 
 
 function updateDisplayCanvas(clear = true) {
-    const canvas = document.getElementById("canvas");
-    const ctx = canvas.getContext("2d");
+    let canvas = document.getElementById("canvas");
+    let ctx = canvas.getContext("2d");
     if (clear) {
         ctx.save();
         ctx.setTransform(1, 0, 0, 1, 0, 0);
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         ctx.restore();
     }
-    for(c of cache_canvas.getKeys()){
+    for (c of cache_canvas.getKeys()) {
         ctx.drawImage(cache_canvas.canvasChunks[c], c[0], c[1]);
     }
 }
@@ -266,7 +221,7 @@ function onResize(entries) {
         h = Math.round(height * dpr);
         target = entry.target;
     }
-    if (target == display_canvas){
+    if (target == display_canvas) {
         let t = display_ctx.getTransform();
         display_canvas.width = w;
         display_canvas.height = h;
@@ -280,8 +235,8 @@ function init_drawing() {
     display_ctx.imageSmoothingEnabled = true;
     const resizeObserver = new ResizeObserver(onResize);
     try {
-      resizeObserver.observe(canvas, {box: 'device-pixel-content-box'});
+        resizeObserver.observe(canvas, { box: 'device-pixel-content-box' });
     } catch (ex) {
-      resizeObserver.observe(canvas, {box: 'content-box'});
+        resizeObserver.observe(canvas, { box: 'content-box' });
     }
 }
