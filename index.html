@@ -14,6 +14,8 @@
     <script src="matrix-client.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@simonwep/pickr/dist/pickr.min.js"></script>
     <script src="picker.js"></script>
+    <script src="node_modules/paper/dist/paper-core.js"></script>
+    <script src="node_modules/simplify-js/simplify.js"></script>
 
     <!-- One of the following themes -->
     <!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@simonwep/pickr/dist/themes/classic.min.css"/> <!-- 'classic' theme -->
@@ -194,7 +196,7 @@
     </style>
 </head>
 
-<body onload="init_body()">
+<body>
     <div id="topbar">
         <div id="loading">
             <div style="display: flex; align-content: center; height: 100%;">
@@ -225,7 +227,12 @@
         <div id="leftbar">
         </div>
         <div id="container">
-            <canvas id="canvas" style="background-color: #fff">
+            <svg id="svg-board">
+
+            </svg>
+            <canvas id="paper">
+            </canvas>
+            <canvas id="canvas">
             </canvas>
         </div>
 

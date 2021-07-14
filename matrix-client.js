@@ -1,9 +1,46 @@
+// const { Point } = require("paper/dist/paper-core");
+
 console.log("Loading browser sdk");
 
 var currentRoomId = "";
 const matrixClient = matrixcs.createClient({
     baseUrl: "https://matrix.org",
 });
+
+window.onload = function() {
+    init_drawing();
+    init_input();
+    load_pickr();
+
+
+    var pwd_input = document.getElementById("login-form-password");
+
+    pwd_input.addEventListener("keypress", function (event) {
+        // Number 13 is the "Enter" key on the keyboard
+        if (event.key === "Enter") {
+            event.preventDefault();
+            document.getElementById("login-submit").click();
+        }
+    });
+
+    // Get a reference to the canvas object
+    var canvas = document.getElementById('paper');
+    // Create an empty project and a view for the canvas:
+    paper.setup(canvas);
+    // Create a Paper.js Path to draw a line into it:
+    var path = new paper.Path();
+    // Give the stroke a color
+    path.strokeColor = 'black';
+    var start = new paper.Point(100, 100);
+    // Move to start and draw a line from there
+    path.moveTo(start);
+    // Note that the plus operator on Point objects does not work
+    // in JavaScript. Instead, we need to call the add() function:
+    path.lineTo(start.add([ 200, -50 ]));
+    path.position = new paper.Point(100,100);
+    // Draw the view now:
+    paper.view.draw();
+}
 
 async function updateRoomList() {
     let visibleRooms = await matrixClient.getVisibleRooms();
@@ -185,7 +222,7 @@ matrixClient.on("Room.timeline", function (msg, room, toStartOfTimeline) {
     if (msg.getType() == "p.whiteboard.object") {
         // console.log("event from : ", new Date(), msg.getDate());
         if (Date.now() - msg.getDate().getTime() < 200000) {
-            drawEvent(msg.event, true);
+            drawEvent(msg.event, false);
         }
         if (msg.status == null) {
             //event is not sending but loaded from scrollback
@@ -257,20 +294,7 @@ function scrollback(roomId, scrollback_count = 200) {
 }
 
 function init_body() {
-    init_drawing();
-    init_input();
-    load_pickr();
-
-
-    var pwd_input = document.getElementById("login-form-password");
-
-    pwd_input.addEventListener("keypress", function (event) {
-        // Number 13 is the "Enter" key on the keyboard
-        if (event.key === "Enter") {
-            event.preventDefault();
-            document.getElementById("login-submit").click();
-        }
-    });
+    
 }
 
 

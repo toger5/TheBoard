@@ -1,0 +1,1 @@
+let svgBoard = document.getElementById("svg-board");
