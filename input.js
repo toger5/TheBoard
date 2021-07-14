@@ -46,29 +46,34 @@ function tooldown(offsetX, offsetY, pressure) {
     console.log("tooldown");
 }
 function toolmove(offsetX, offsetY, pressure) {
+    console.log("toolmove");
     switch (tool.type) {
         case toolType.draw:
             if (mouse_path.length == 0) {
                 break;
             }
+            // no pressure for now
+            pressure = 1;
             let x = offsetX;
             let y = offsetY;
-            let current_pos = [0, x, y, pressure];
-            drawSegmentDisplay([last_pos, current_pos], pickr.getColor().toHEXA().toString());
-            let dist = (current_pos[0] - last_pos[0]) ** 2 + (current_pos[1] - last_pos[1]) ** 2
-            last_pos = current_pos;
-
             time_delta = Math.min(80, Date.now() - mouse_path_last_time);
-            // let velocity = dist / Math.max(1, time_delta);
-            // let thickness_factor = 1.5 - velocity / 8.0;
             let thickness_factor = 1
             mouse_path_last_time = Date.now();
-            mouse_path.push([time_delta, x, y, (pressure * 4 + Math.min(3, Math.max(0.0, thickness_factor)))]);
+            let current_pos = [time_delta, x, y, (pressure * 2 + Math.min(3, Math.max(0.0, thickness_factor)))];
+            let dist = (current_pos[1] - last_pos[1]) ** 2 + (current_pos[2] - last_pos[2]) ** 2
+            
+            // let velocity = dist / Math.max(1, time_delta);
+            // let thickness_factor = 1.5 - velocity / 8.0;
+            // todo fix pressure
+            mouse_path.push(current_pos);
+            drawSegmentDisplay([last_pos, current_pos], pickr.getColor().toHEXA().toString());
+            last_pos = current_pos;
             break;
         case toolType.erase: break;
     }
 }
 function toolcancel() {
+    console.log("CANCEL");
     switch (tool.type) {
         case toolType.draw:
             mouse_path = [];
@@ -85,6 +90,12 @@ function toolup(offsetX, offsetY) {
     switch (tool.type) {
         case toolType.draw:
             if (objectStore.hasRoom(currentRoomId)) {
+                let before = mouse_path.length;
+                console.log("pointsBefore: ",mouse_path.length);
+                let simplePoints = simplify(mouse_path.map((p)=>{return {x:p[1],y:p[2]}}),1,false);
+                mouse_path = simplePoints.map((el)=>{return [30,el.x,el.y,mouse_path[0][3]]});
+                console.log("pointsAfter : ",mouse_path.length,"---",100*mouse_path.length/before,"%");
+
                 let [corrected_mouse_path, pos, size] = pathPosSizeCorrection(mouse_path);
                 let string_path = mousePathToString(corrected_mouse_path);
                 sendPath(matrixClient, currentRoomId,
@@ -158,8 +169,8 @@ function init_input() {
     };
     el.onpointermove = function (e) {
         console.log("onpointermove");
-        console.log("cache: ", touchesCache);
-        if (e.buttons == 0 && touchesCache.length < 2) {
+        console.log("buttons: ", e.buttons);
+        if (e.buttons == 1 && touchesCache.length < 2) {
             let pt = getTransformedPointer(e.offsetX, e.offsetY);
             toolmove(pt.x, pt.y, e.pressure);
         } else if (touchesCache.length == 2 && e.pointerType == "touch") {
