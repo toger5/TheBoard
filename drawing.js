@@ -37,7 +37,7 @@ function update_canvasZoom(factor, originX, originY) {
 }
 function set_canvasZoom(zoom_factor, originX, originY) {
     let ctx = display_ctx;
-    let pt = getTransformedPointer(originX, originY);
+    // let pt = getTransformedPointer(originX, originY);
 
     ctx.translate(pt.x, pt.y);
     let t = ctx.getTransform();

@@ -277,8 +277,8 @@ function handlePanZoom() {
         var currentZoomFactor = distCurrent / distStart;
         console.log("zoomFactor: ", currentZoomFactor);
         //TODO some log or exp to make absolute zoom...
-        var startCenter = [(start1.x + start2.x) / 2, (start1.y + start2.y) / 2]
-        set_canvasZoom(touchZoomCache*currentZoomFactor, startCenter[0], startCenter[1]);
+        var currentCenter = [(current1.x + current2.x) / 2, (current1.y + current2.y) / 2]
+        set_canvasZoom(touchZoomCache*currentZoomFactor, currentCenter[0], currentCenter[1]);
         // touchZoomCache = distCurrent / distStart;
     }
 }
