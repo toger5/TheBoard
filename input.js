@@ -90,11 +90,11 @@ function toolup(offsetX, offsetY) {
     switch (tool.type) {
         case toolType.draw:
             if (objectStore.hasRoom(currentRoomId)) {
-                let before = mouse_path.length;
-                console.log("pointsBefore: ",mouse_path.length);
-                let simplePoints = simplify(mouse_path.map((p)=>{return {x:p[1],y:p[2]}}),1,false);
+                // let before = mouse_path.length;
+                // console.log("pointsBefore: ",mouse_path.length);
+                // let simplePoints = simplify(mouse_path.map((p)=>{return {x:p[1],y:p[2]}}),1,false);
                 // mouse_path = simplePoints.map((el)=>{return [30,el.x,el.y,mouse_path[0][3]]});
-                console.log("pointsAfter : ",mouse_path.length,"---",100*mouse_path.length/before,"%");
+                // console.log("pointsAfter : ",mouse_path.length,"---",100*mouse_path.length/before,"%");
 
                 let [corrected_mouse_path, pos, size] = pathPosSizeCorrection(mouse_path);
                 let string_path = mousePathToString(corrected_mouse_path);
