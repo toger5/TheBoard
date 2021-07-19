@@ -73,3 +73,16 @@ function parsePoint(string) {
     let arr = (string || "0 0").split(" ");
     return [parseFloat(arr[0]), parseFloat(arr[1])];
 }
+
+function setAlpha(color, opacity) {
+    // coerce values so ti is between 0 and 1.
+    const _opacity = Math.round(Math.min(Math.max(opacity || 1, 0), 1) * 255);
+    const _opStr = _opacity.toString(16).toUpperCase();
+    if (color.length == 7){
+        return color + _opStr;
+    }else if (color.length == 9){
+        color[7] = _opStr[0];
+        color[8] = _opStr[1];
+        return color;
+    }
+}

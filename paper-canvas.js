@@ -1,4 +1,5 @@
 
+
 class PaperCanvas {
     constructor() {
         this.css_id = "paper";
@@ -43,9 +44,24 @@ class PaperCanvas {
         this.setZoom(1);
     }
 
-    asyncAddPathV2(pos, points, color) {
+    asyncAddPathV2(segments, color, strokeWidth, [pos, size]) {
         // TODO make async animation using dash
-        this.addPathV2(points, color, [pos, [0, 0]]);
+        let p = this.addPathV2(segments, color, strokeWidth, [pos, [0, 0]]);
+        let length = 0;
+        for (let curveLength of p.curves.map(e => e.length)) {
+            if (!Number.isNaN(curveLength)) {
+                length += curveLength;
+            }
+        }
+        p.dashArray = [length, length];
+        // TODO dont hardcode the speed. instead get it from the event
+        // "drawSpeed": "20 50 50 20 12"
+        // 20ms for the first 50 px length, 50 ms for the second px length...
+        p.tween({ dashOffset: length }, { dashOffset: 0 }, 6*length).then(()=>{
+            p.dashArray = []
+        }
+        )
+        // p.tween({ dashArray: [10, 10] }, { dashArray: [1000, 10] }, 3000);
     }
 
     addPathV2(segments, color, strokeWidth, [pos, size]) {
@@ -53,6 +69,7 @@ class PaperCanvas {
         p.strokeColor = color;
         p.strokeWidth = strokeWidth;
         p.strokeCap = "round";
+        return p;
         // p.moveTo(new paper.Point(points[0][1], points[0][2]));
         // for (let i = 1; i < points.length; i++) {
         //     p.lineTo(new paper.Point(points[i][1], points[i][2]));
@@ -71,10 +88,12 @@ class PaperCanvas {
     drawSegmentDisplay(segment_points, color) {
         if (this.dispPath === null) {
             this.dispPath = new paper.Path(segment_points.map((p) => { return [p[1], p[2]] }));
-            this.dispPath.strokeColor = color;
+            let colorAlpha = setAlpha(color, 0.3);
+            console.log("COLOR: ",colorAlpha);
+            this.dispPath.strokeColor = colorAlpha;
             this.dispPath.strokeWidth = 2;
             this.dispPath.strokeCap = "round"
-        }else{
+        } else {
             this.dispPath.lineTo(new paper.Point(segment_points[1][1], segment_points[1][2]));
         }
         // var p = new paper.Path(segment_points.map((p)=>{return [p[1],p[2]]}));
@@ -83,14 +102,18 @@ class PaperCanvas {
         // this.displayPaths.push(p);
     }
     updateDisplay() {
-        if(this.dispPath !== null){
-            this.dispPath.remove();
+        if (this.dispPath !== null) {
+            // this.dispPath.remove();
+            this.displayPaths.push(this.dispPath);
             this.dispPath = null;
         }
-        this.displayPaths.forEach((p) => { p.remove() });
         // for(p of this.displayPaths){
-        //     p.remove();
-        // }
+            //     p.remove();
+            // }
+    }
+    // TODO call this function in a moment where ne drawing animaiotn is running
+    clearDisplayPaths(){
+        this.displayPaths.forEach((p) => { p.remove() });
     }
     clear() {
         var length = paper.project.activeLayer.removeChildren();

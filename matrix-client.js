@@ -11,6 +11,7 @@ window.onload = function() {
 
     init_input(document.getElementById(drawing_canvas.css_id));
     load_pickr();
+    init_color_picker();
     drawing_canvas.init();
 
     var pwd_input = document.getElementById("login-form-password");
@@ -206,7 +207,8 @@ matrixClient.on("Room.timeline", function (msg, room, toStartOfTimeline) {
     if (msg.getType() == "p.whiteboard.object") {
         // console.log("event from : ", new Date(), msg.getDate());
         if (Date.now() - msg.getDate().getTime() < 200000) {
-            drawEvent(msg.event, false);
+            // ANIMATED toggle
+            drawEvent(msg.event, true);
         }
         if (msg.status == null) {
             //event is not sending but loaded from scrollback

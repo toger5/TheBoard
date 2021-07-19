@@ -13,6 +13,7 @@
     <script src="input.js"></script>
     <script src="actions.js"></script>
     <script src="matrix-client.js"></script>
+    <script src="color-picker.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@simonwep/pickr/dist/pickr.min.js"></script>
     <script src="picker.js"></script>
     <script src="node_modules/paper/dist/paper-core.js"></script>
@@ -49,6 +50,7 @@
             min-height: 0;
             min-width: 0;
             padding: 4px;
+            display: none;
             flex: 1 1;
             /* z-index: -2; */
             background-color: #ddd;
@@ -147,7 +149,7 @@
             width: 100%;
             height: 100%;
             /* z-index: -1; */
-            background-color: #ff000011;
+            /* background-color: #ff000011; */
             top: 0;
             left: 0;
             position: absolute;
@@ -211,6 +213,14 @@
             width: 100%;
             /* border: 2px dashed #f69c55; */
         }
+        #color-picker-canvas{
+            position: absolute;
+            bottom: 1em;
+            left: 1em;
+            width: 13em;
+            height: 13em;
+            z-index: 1;
+        }
     </style>
 </head>
 
@@ -244,14 +254,19 @@
     <div style="flex-grow: 1; display: flex; flex-direction: row; min-height: 0;">
         <div id="leftbar">
         </div>
+        <canvas id="paper" resize>
+        </canvas>
         <div id="container">
             <svg id="svg-board" style="display: none;">
             </svg>
-            <canvas id="paper" resize>
-            </canvas>
             <canvas id="canvas" style="display: none;">
             </canvas>
         </div>
+        <!-- <object id="svg-icon-color-picker" data="colorToolPicker.svg" type="image/svg+xml" width="600" height="600"> -->
+            <!-- Für Browser ohne SVG-Unterstützung -->
+            <!-- <img src="fruity-icons.png" width="600" height="193" alt="Alternatives PNG-Bild"> -->
+        <!-- </object> -->
+        <canvas id="color-picker-canvas" resize></canvas>
 
     </div>
 

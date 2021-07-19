@@ -32,7 +32,8 @@ function drawEvent(event, animated, updateDisplay = true) {
             let size = parsePoint(event.content.objsize);
             let strokeWidth = parseFloat(event.content.pathStroke);
             if (animated) {
-                drawing_canvas.asyncAddPathV2(pos, segments, event.content.objcolor);
+                drawing_canvas.updateDisplay(true);
+                drawing_canvas.asyncAddPathV2(segments, event.content.objcolor, strokeWidth, [pos, size]);
             } else {
                 // drawing_canvas.drawBoundingBox([pos, size]);
                 drawing_canvas.addPathV2(segments, event.content.objcolor, strokeWidth, [pos, size]);

@@ -60,7 +60,7 @@ function toolmove(offsetX, offsetY, pressure) {
             // let thickness_factor = 1.5 - velocity / 8.0;
             // todo fix pressure
             mouse_path.push(current_pos);
-            drawing_canvas.drawSegmentDisplay([last_pos, current_pos], pickr.getColor().toHEXA().toString());
+            drawing_canvas.drawSegmentDisplay([last_pos, current_pos], colorPickerSvg.getColor().toCSS(true));
             last_pos = current_pos;
             break;
         case toolType.erase: break;
@@ -104,7 +104,7 @@ function toolup(offsetX, offsetY) {
                 }
                 sendPath(matrixClient, currentRoomId,
                     string_path,
-                    pickr.getColor().toHEXA().toString(), pos, size, version);
+                    colorPickerSvg.getColor().toCSS(true), pos, size, version);
             } else {
                 console.log("NO ROOM SELECTED TO DRAW IN!")
                 drawing_canvas.updateDisplay();
