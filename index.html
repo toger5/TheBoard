@@ -7,6 +7,7 @@
     <title>Matrix Whiteboard</title>
     <script src="browser-matrix.js"></script>
     <script src="unlimitedCanvas.js"></script>
+    <script src="paper-canvas.js"></script>
     <script src="drawing.js"></script>
     <script src="helper.js"></script>
     <script src="input.js"></script>
@@ -49,6 +50,7 @@
             min-width: 0;
             padding: 4px;
             flex: 1 1;
+            /* z-index: -2; */
             background-color: #ddd;
             touch-action: none;
             /* height: 100%;
@@ -67,14 +69,17 @@
             background-color: rgb(240, 240, 240);
             border-radius: 1em;
             padding: 2em;
+            z-index: 100;
             border-color: grey;
             border-width: 5px;
         }
+
 
         #topbar {
             overflow: hidden;
             flex: 0 0 3.5em;
             display: flex;
+            z-index: 1;
         }
 
         .pcr-button {
@@ -99,6 +104,7 @@
             display: flex;
             flex-direction: column;
             overflow-y: scroll;
+            z-index: 1;
         }
 
         #leftbar span {
@@ -133,6 +139,18 @@
             min-width: 0;
             width: 100%;
             height: 100%;
+        }
+
+        #paper {
+            min-height: 0;
+            min-width: 0;
+            width: 100%;
+            height: 100%;
+            /* z-index: -1; */
+            background-color: #ff000011;
+            top: 0;
+            left: 0;
+            position: absolute;
         }
 
         #loading {
@@ -213,11 +231,11 @@
         <button onclick="redactLastAction(matrixClient, currentRoomId)">redact Last</button>
         <br />
         <button
-            onclick="scrollback(currentRoomId).then(function(){reloadCacheCanvas();updateDisplayCanvas();});">scrollback</button>
-        <button onclick="reloadCacheCanvas();updateDisplayCanvas();">reload Canvas</button>
-        <button onclick="resetCanvasOffset()">go Home</button>
+            onclick="scrollback(currentRoomId).then(function(){reloadCacheCanvas();drawing_canvas.updateDisplay();});">scrollback</button>
+        <button onclick="reloadCacheCanvas();drawing_canvas.updateDisplay();">reload Canvas</button>
+        <button onclick="drawing_canvas.resetOffset()">go Home</button>
         <button onclick="loginClicked()">login</button>
-        <button onclick="resetCanvasZoom()">reset Zoom</button>
+        <button onclick="drawing_canvas.resetZoom()">reset Zoom</button>
         <button id="grid" onclick="toggleGrid()">toggle Grid</button>
         <button id="tool" onclick="toggleTool()">Tool: pen</button>
 
@@ -227,12 +245,11 @@
         <div id="leftbar">
         </div>
         <div id="container">
-            <svg id="svg-board">
-
+            <svg id="svg-board" style="display: none;">
             </svg>
-            <canvas id="paper">
+            <canvas id="paper" resize>
             </canvas>
-            <canvas id="canvas">
+            <canvas id="canvas" style="display: none;">
             </canvas>
         </div>
 

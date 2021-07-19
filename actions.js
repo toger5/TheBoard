@@ -21,7 +21,7 @@ function toggleGrid(){
         setting_grid = "";
     }
     reloadCacheCanvas();
-    updateDisplayCanvas();
+    drawing_canvas.updateDisplay();
 }
 function toggleTool(){
     if (tool.type === toolType.draw){
@@ -76,15 +76,17 @@ function sendCustomEvent(client, room){
         console.log(err);
     });
 }
-function sendPath(client, room, string_path, color, offset, size){
+function sendPath(client, room, string_path, color, offset, size, version){
     console.log("send random path: ...")
     const content = {
+        "version": version,
         "svg": "none",
         "objtype": "p.path",
         "objpos": offset[0]+" "+offset[1],
         "objsize": size[0]+" "+size[1],
         "objcolor": color == "" ? "#"+["F55","5F5","55F"][Math.floor(Math.random()*3)]: color,
         "path": string_path,
+        "pathStroke": "2",
     };
     client.sendEvent(room, "p.whiteboard.object", content, "", (err, res) => {
         console.log(err);

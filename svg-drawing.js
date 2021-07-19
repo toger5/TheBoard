@@ -1,1 +1,12 @@
-let svgBoard = document.getElementById("svg-board");
+let svgHTML = document.getElementById("svg-board");
+class svgCanvas{
+    init_drawing(){
+    
+    }
+    drawElement(){
+
+    }
+    drawLine(){
+
+    }
+}

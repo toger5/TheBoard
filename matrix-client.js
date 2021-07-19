@@ -6,12 +6,12 @@ var currentRoomId = "";
 const matrixClient = matrixcs.createClient({
     baseUrl: "https://matrix.org",
 });
-
+// var paper_canvas = new PaperCanvas();
 window.onload = function() {
-    init_drawing();
-    init_input();
-    load_pickr();
 
+    init_input(document.getElementById(drawing_canvas.css_id));
+    load_pickr();
+    drawing_canvas.init();
 
     var pwd_input = document.getElementById("login-form-password");
 
@@ -23,23 +23,7 @@ window.onload = function() {
         }
     });
 
-    // Get a reference to the canvas object
-    var canvas = document.getElementById('paper');
-    // Create an empty project and a view for the canvas:
-    paper.setup(canvas);
-    // Create a Paper.js Path to draw a line into it:
-    var path = new paper.Path();
-    // Give the stroke a color
-    path.strokeColor = 'black';
-    var start = new paper.Point(100, 100);
-    // Move to start and draw a line from there
-    path.moveTo(start);
-    // Note that the plus operator on Point objects does not work
-    // in JavaScript. Instead, we need to call the add() function:
-    path.lineTo(start.add([ 200, -50 ]));
-    path.position = new paper.Point(100,100);
-    // Draw the view now:
-    paper.view.draw();
+   
 }
 
 async function updateRoomList() {
@@ -234,7 +218,7 @@ matrixClient.on("Room.timeline", function (msg, room, toStartOfTimeline) {
         if (Date.now() - msg.event.origin_server_ts < 200000) {
             objectStore.redactById(msg.event.redacts, msg.event.room_id);
             reloadCacheCanvas();
-            updateDisplayCanvas(true);
+            drawing_canvas.updateDisplay(true);
         }
     }
     if (msg.getType() !== "m.room.message") {
@@ -257,7 +241,7 @@ function loadRoom(roomId, scrollback_count = -1) {
     showLoading("load room history");
     scrollback(currentRoomId, s_back).then(function(){ 
         reloadCacheCanvas();
-        updateDisplayCanvas();
+        drawing_canvas.updateDisplay();
     });
 }
 function scrollback(roomId, scrollback_count = 200) {

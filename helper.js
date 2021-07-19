@@ -3,20 +3,50 @@ function parsePath(p_path, objpos) {
     var offset = objpos.split(" ");
     var returnval = [];
     for (let i = 0; i < arr.length; i += 4) {
-        let time = parseInt(arr[i]);
-        let x = parseInt(arr[i + 1]) + parseInt(offset[0]);
-        let y = parseInt(arr[i + 2]) + parseInt(offset[1]);
+        let time = parseFloat(arr[i]);
+        let x = parseFloat(arr[i + 1]) + parseFloat(offset[0]);
+        let y = parseFloat(arr[i + 2]) + parseFloat(offset[1]);
         let lineWidth = parseFloat(arr[i + 3]);
         returnval.push([time, x, y, lineWidth]);
     }
     return returnval;
 }
+function parseBezierPath(p_path, objpos) {
+    let arr = p_path.split(" ");
+    var offset = objpos.split(" ");
+    var returnval = [];
+    for (let i = 0; i < arr.length; i += 6) {
+        let seg = new paper.Segment(
+            new paper.Point(parseFloat(arr[i + 0]) + parseFloat(offset[0]),
+                parseFloat(arr[i + 1]) + parseFloat(offset[1])),
+            new paper.Point(parseFloat(arr[i + 2]), parseFloat(arr[i + 3])),
+            new paper.Point(parseFloat(arr[i + 4]), parseFloat(arr[i + 5])))
+        // let time = parseFloat(arr[i]);
+        // let x = parseFloat(arr[i + 1]) + parseFloat(offset[0]);
+        // let y = parseFloat(arr[i + 2]) + parseFloat(offset[1]);
+        // let lineWidth = parseFloat(arr[i + 3]);
+        returnval.push(seg);
+    }
+    return returnval;
+}
 function mousePathToString(points) {
+    //format:
+    // time x y width
     let mouse_path_string = "";
     for (p of points) {
         mouse_path_string += p[0] + " " + p[1] + " " + p[2] + " " + p[3] + " ";
     }
     return mouse_path_string;
+}
+function paperPathToString(path) {
+    //format:
+    // x y handleInX handleInY handleOutX handleOutY
+    let paper_path_string = "";
+    var precision = 3;
+    for (s of path.segments) {
+        paper_path_string += s.point.x.toFixed(precision) + " " + s.point.y.toFixed(precision) + " " + s.handleIn.x.toFixed(precision) + " " + s.handleIn.y.toFixed(precision) + " " + s.handleOut.x.toFixed(precision) + " " + s.handleOut.y.toFixed(precision) + " ";
+    }
+    return paper_path_string;
 }
 function pathPosSizeCorrection(points) {
     let posMin = [Number.MAX_VALUE, Number.MAX_VALUE];
@@ -33,13 +63,13 @@ function pathPosSizeCorrection(points) {
     // path pos size
     return [correctedPoints, posMin, [width, height]];
 }
-function pathChunkPosCorrection(chunk, points){
+function pathChunkPosCorrection(chunk, points) {
     return points.map((p) => { return [p[0], p[1] - chunk[0], p[2] - chunk[1], p[3]] });
 }
 function dist(p, q) {
     return Math.sqrt((p.x - q.x) ** 2 + (p.y - q.y) ** 2);
 }
-function parsePoint(string){
+function parsePoint(string) {
     let arr = (string || "0 0").split(" ");
-    return [parseInt(arr[0]),parseInt(arr[1])];
+    return [parseFloat(arr[0]), parseFloat(arr[1])];
 }

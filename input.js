@@ -20,12 +20,6 @@ class Tool {
 }
 var tool = new Tool;
 
-function getTransformedPointer(x, y) {
-    let dpr = window.devicePixelRatio;
-    pt = new DOMPoint(x * dpr, y * dpr);
-    let tr = pt.matrixTransform(display_ctx.getTransform().inverse());
-    return new DOMPoint(Math.round(tr.x), Math.round(tr.y));
-}
 function over_handler(event) { }
 function enter_handler(event) { }
 
@@ -33,7 +27,7 @@ function tooldown(offsetX, offsetY, pressure) {
     tool_canceled = false;
     switch (tool.type) {
         case toolType.draw:
-            let pt = getTransformedPointer(offsetX, offsetY);
+            let pt = drawing_canvas.getTransformedPointer(offsetX, offsetY);
             mouse_path_start_time = Date.now();
             last_pos = [0, pt.x, pt.y, pressure];
             mouse_path = [[0, pt.x, pt.y, pressure * 4]];
@@ -61,12 +55,12 @@ function toolmove(offsetX, offsetY, pressure) {
             mouse_path_last_time = Date.now();
             let current_pos = [time_delta, x, y, (pressure * 2 + Math.min(3, Math.max(0.0, thickness_factor)))];
             let dist = (current_pos[1] - last_pos[1]) ** 2 + (current_pos[2] - last_pos[2]) ** 2
-            
+
             // let velocity = dist / Math.max(1, time_delta);
             // let thickness_factor = 1.5 - velocity / 8.0;
             // todo fix pressure
             mouse_path.push(current_pos);
-            drawSegmentDisplay([last_pos, current_pos], pickr.getColor().toHEXA().toString());
+            drawing_canvas.drawSegmentDisplay([last_pos, current_pos], pickr.getColor().toHEXA().toString());
             last_pos = current_pos;
             break;
         case toolType.erase: break;
@@ -95,21 +89,31 @@ function toolup(offsetX, offsetY) {
                 // let simplePoints = simplify(mouse_path.map((p)=>{return {x:p[1],y:p[2]}}),1,false);
                 // mouse_path = simplePoints.map((el)=>{return [30,el.x,el.y,mouse_path[0][3]]});
                 // console.log("pointsAfter : ",mouse_path.length,"---",100*mouse_path.length/before,"%");
-
                 let [corrected_mouse_path, pos, size] = pathPosSizeCorrection(mouse_path);
-                let string_path = mousePathToString(corrected_mouse_path);
+                let string_path;
+                let version;
+                if (drawing_canvas instanceof UnlimitedCanvas) {
+                    string_path = mousePathToString(corrected_mouse_path);
+                    version = 1;
+                }
+                else if (drawing_canvas instanceof PaperCanvas) {
+                    let paper_mouse_path = new paper.Path(corrected_mouse_path.map((s) => { return [s[1], s[2]] }));
+                    paper_mouse_path.simplify();
+                    string_path = paperPathToString(paper_mouse_path);
+                    version = 2;
+                }
                 sendPath(matrixClient, currentRoomId,
                     string_path,
-                    pickr.getColor().toHEXA().toString(), pos, size);
+                    pickr.getColor().toHEXA().toString(), pos, size, version);
             } else {
                 console.log("NO ROOM SELECTED TO DRAW IN!")
-                updateDisplayCanvas();
+                drawing_canvas.updateDisplay();
             }
             console.log("stop pressing");
             break;
         case toolType.erase:
             console.log("try to erase");
-            let pt = getTransformedPointer(offsetX, offsetY);
+            let pt = drawing_canvas.getTransformedPointer(offsetX, offsetY);
             let sortedEvents = objectStore.allSorted();
             var id = ""
             let eraser_size = 70;
@@ -136,21 +140,21 @@ function toolup(offsetX, offsetY) {
 }
 function scroll(deltaX, deltaY) {
     let scroll_speed = 0.5;
-    // update_canvasOffset([event.wheelDeltaX * scroll_speed, event.wheelDeltaY * scroll_speed]);
-    update_canvasOffset([deltaX * scroll_speed, deltaY * scroll_speed]);
+    // drawing_canvas.offset(new paper.Point(event.wheelDeltaX * scroll_speed, event.wheelDeltaY * scroll_speed));
+    drawing_canvas.offset(new paper.Point(deltaX * scroll_speed, deltaY * scroll_speed));
 }
 function zoom(offsetX, offsetY, factor) {
     let zoom_speed = 0.002;
     // update_canvasZoom(1 + event.wheelDeltaY * zoom_speed, event.offsetX, event.offsetY);
-    update_canvasZoom(1 + factor * zoom_speed, offsetX, offsetY);
+    drawing_canvas.zoom(1 + factor * zoom_speed, new paper.Point(offsetX, offsetY));
 }
 var touchesCache = [];
 var touchesCacheBegin = [];
 var touchZoomCache = 0;
 var touchPanCache = new DOMPoint(0, 0);
-function init_input() {
-    var el = document.getElementById("canvas");
-
+function init_input(element) {
+    // var el = document.getElementById("canvas");
+    var el = element;
     // POINTER
     el.onpointerdown = function (e) {
         console.log("onpointerdown");
@@ -169,9 +173,9 @@ function init_input() {
     };
     el.onpointermove = function (e) {
         console.log("onpointermove");
-        console.log("buttons: ", e.buttons);
+        // console.log("buttons: ", e.buttons);
         if (e.buttons == 1 && touchesCache.length < 2) {
-            let pt = getTransformedPointer(e.offsetX, e.offsetY);
+            let pt = drawing_canvas.getTransformedPointer(e.offsetX, e.offsetY);
             toolmove(pt.x, pt.y, e.pressure);
         } else if (touchesCache.length == 2 && e.pointerType == "touch") {
             console.log("e.offsetX", e.offsetX);
@@ -198,7 +202,7 @@ function init_input() {
             zoom(e.offsetX, e.offsetY, 1 + e.wheelDeltaY);
         } else {
             let scroll_speed = 0.5;
-            update_canvasOffset([e.wheelDeltaX * scroll_speed, e.wheelDeltaY * scroll_speed]);
+            drawing_canvas.offset(new paper.Point(e.wheelDeltaX * scroll_speed, e.wheelDeltaY * scroll_speed));
         }
     };
     // TOUCH
@@ -253,32 +257,32 @@ var touchPanCache = new DOMPoint(0, 0);
 function handlePanZoom() {
     let cx = display_canvas.getBoundingClientRect().x;
     let cy = display_canvas.getBoundingClientRect().y;
-    console.log("begin offset:",touchesCacheBegin[0].offsetX)
-    let start1 = getTransformedPointer(touchesCacheBegin[0].clientX-cx, touchesCacheBegin[0].clientY-cy);
-    let start2 = getTransformedPointer(touchesCacheBegin[1].clientX-cx, touchesCacheBegin[1].clientY-cy);
-    let current1 = getTransformedPointer(touchesCache[0].clientX-cx, touchesCache[0].clientY-cy);
-    let current2 = getTransformedPointer(touchesCache[1].clientX-cx, touchesCache[1].clientY-cy);
+    console.log("begin offset:", touchesCacheBegin[0].offsetX)
+    let start1 = drawing_canvas.getTransformedPointer(touchesCacheBegin[0].clientX - cx, touchesCacheBegin[0].clientY - cy);
+    let start2 = drawing_canvas.getTransformedPointer(touchesCacheBegin[1].clientX - cx, touchesCacheBegin[1].clientY - cy);
+    let current1 = drawing_canvas.getTransformedPointer(touchesCache[0].clientX - cx, touchesCache[0].clientY - cy);
+    let current2 = drawing_canvas.getTransformedPointer(touchesCache[1].clientX - cx, touchesCache[1].clientY - cy);
     // console.log("start1: ",start1);
     // console.log("start2: ",start2);
     // console.log("current1: ",current1);
     // console.log("current2: ",current2);
     var PINCH_THRESHOLD = display_canvas.clientWidth / 40;
     if (dist(start1, current1) >= PINCH_THRESHOLD || dist(start2, current2) >= PINCH_THRESHOLD) {
-        var offset = new DOMPoint(0.5 * (start1.x - current1.x + start2.x - current2.x),
-            0.5 * (start1.y - current1.y + start2.y - current2.y));
+        var currentCenter = [(current1.x + current2.x) / 2, (current1.y + current2.y) / 2]
+        var startCenter = [(start1.x + start2.x) / 2, (start1.y + start2.y) / 2]
+        var offset = new DOMPoint(startCenter[0] - currentCenter[0], startCenter[1] - currentCenter[1]);
         // console.log("offset: ", offset);
         var offsetDiff = new DOMPoint(touchPanCache.x - offset.x, touchPanCache.y - offset.y);
         touchPanCache = offset;
         console.log("offsetDiff: ", offsetDiff.x, offsetDiff.y);
-        update_canvasOffset([offsetDiff.x, offsetDiff.y]);
+        drawing_canvas.offset(new paper.Point(offsetDiff.x, offsetDiff.y));
 
         var distStart = dist(start1, start2);
         var distCurrent = dist(current1, current2);
         var currentZoomFactor = distCurrent / distStart;
         console.log("zoomFactor: ", currentZoomFactor);
         //TODO some log or exp to make absolute zoom...
-        var currentCenter = [(current1.x + current2.x) / 2, (current1.y + current2.y) / 2]
-        set_canvasZoom(touchZoomCache*currentZoomFactor, currentCenter[0], currentCenter[1]);
+        drawing_canvas.setZoom(touchZoomCache * currentZoomFactor, new paper.Point(currentCenter[0], currentCenter[1]));
         // touchZoomCache = distCurrent / distStart;
     }
 }

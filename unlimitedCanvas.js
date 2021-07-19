@@ -3,10 +3,22 @@ var SHOW_CHUNK_BORDER = true;
 var DRAW_BOUNDING_BOX = false;
 class UnlimitedCanvas {
     constructor() {
+        this.css_id = "canvas";
         this.canvasChunks = {};
         this.addCacheCanvas([0, 0]);
         this.addCacheCanvas([1000, 0]);
         this.addCacheCanvas([1000, 1000]);
+    }
+    init() {
+        display_canvas = document.getElementById('canvas');
+        display_ctx = display_canvas.getContext("2d");
+        display_ctx.imageSmoothingEnabled = true;
+        const resizeObserver = new ResizeObserver(this.onResize);
+        try {
+            resizeObserver.observe(canvas, { box: 'device-pixel-content-box' });
+        } catch (ex) {
+            resizeObserver.observe(canvas, { box: 'content-box' });
+        }
     }
     canvasList() {
         return Object.keys(this.canvasChunks).map(key => this.canvasChunks[key]);
@@ -85,7 +97,17 @@ class UnlimitedCanvas {
             ctx.stroke();
         }
     }
-    drawPath(points, color, boundingbox) {
+    drawSegmentDisplay(segment_points, color) {
+        let canvas = document.getElementById("canvas");
+        let ctx = canvas.getContext("2d");
+        ctx.beginPath();
+        ctx.moveTo(segment_points[0][1], segment_points[0][2]);
+        ctx.strokeStyle = color;
+        ctx.lineWidth = segment_points[1][3];
+        ctx.lineTo(segment_points[1][1], segment_points[1][2]);
+        ctx.stroke();
+    }
+    addPathV1(points, color, boundingbox) {
         let chunks = this.getChunksForArea(boundingbox[0], boundingbox[1]);
         // this maybe should be part of getChunksForArea?
         this.createCanvasForChunks(chunks);
@@ -103,6 +125,16 @@ class UnlimitedCanvas {
             }
             ctx.stroke();
         }
+    }
+    async asyncAddPathV1(pos, points, color) {
+        for (let p = 1; p < points.length; p++) {
+            drawSegmentDisplay([points[p - 1], points[p]], color);
+            this.drawSegment([points[p - 1], points[p]], color);
+            await sleep(points[p][0]);
+        }
+        this.updateDisplay(true);
+        // cache_canvas.drawPath(points,color);
+        // cache_canvas.drawSegment([points[p - 1], points[p]], color);
     }
     createCanvasForChunks(chunks) {
         for (let chunk of chunks) {
@@ -147,4 +179,128 @@ class UnlimitedCanvas {
         return chunks;
 
     }
+
+
+    setZoom(zoom_factor, origin) {
+        let ctx = display_ctx;
+        let pt = this.getTransformedPointer(origin.x, origin.y);
+    
+        ctx.translate(pt.x, pt.y);
+        let t = ctx.getTransform();
+        t.a = Math.min(zoom_factor, 1.2);
+        t.d = Math.min(zoom_factor, 1.2);
+        t.a = Math.max(zoom_factor, 0.2);
+        t.d = Math.max(zoom_factor, 0.2);
+        ctx.setTransform(t.a, t.b, t.c, t.d, t.e, t.f);
+    
+        ctx.translate(-pt.x, -pt.y);
+        this.updateDisplay()
+    }
+    zoom(factor, origin) {
+    let ctx = display_ctx;
+    let pt = drawing_canvas.getTransformedPointer(origin.x, origin.y);
+    ctx.translate(pt.x, pt.y);
+    ctx.scale(factor, factor);
+    let t = ctx.getTransform();
+    t.a = Math.min(t.a, 1.2);
+    t.d = Math.min(t.a, 1.2);
+    t.a = Math.max(t.a, 0.2);
+    t.d = Math.max(t.a, 0.2);
+    ctx.setTransform(t.a, t.b, t.c, t.d, t.e, t.f);
+
+    ctx.translate(-pt.x, -pt.y);
+    this.updateDisplay()
+}
+    getZoom() {
+        let t = display_ctx.getTransform();
+        return t.a;
+    }
+    offset(delta) {
+        let canvas = document.getElementById("canvas");
+        let ctx = canvas.getContext("2d");
+        ctx.translate(delta.x, delta.y);
+        this.updateDisplay()
+    }
+    resetOffset() {
+        // canvasOffset = [0,0];
+        let canvas = document.getElementById("canvas");
+        let ctx = canvas.getContext("2d");
+        ctx.resetTransform();
+        this.updateDisplay();
+    }
+    resetZoom() {
+        let ctx = display_ctx;
+        let pt = this.getTransformedPointer(canvas.width / 2, canvas.height / 2);
+        ctx.translate(pt.x, pt.y);
+        let t = ctx.getTransform();
+        t.a = 1;
+        t.d = 1;
+        ctx.setTransform(t.a, t.b, t.c, t.d, t.e, t.f);
+        ctx.translate(-pt.x, -pt.y);
+        this.updateDisplay()
+    }
+
+    getTransformedPointer(x, y) {
+        let dpr = window.devicePixelRatio;
+        pt = new DOMPoint(x * dpr, y * dpr);
+        let tr = pt.matrixTransform(display_ctx.getTransform().inverse());
+        return new DOMPoint(Math.round(tr.x), Math.round(tr.y));
+    }
+
+    onResize(entries) {
+        let target;
+        let w;
+        let h;
+        for (const entry of entries) {
+            let width;
+            let height;
+            let dpr = window.devicePixelRatio;
+            if (entry.devicePixelContentBoxSize) {
+                // NOTE: Only this path gives the correct answer
+                // The other paths are imperfect fallbacks
+                // for browsers that don't provide anyway to do this
+                width = entry.devicePixelContentBoxSize[0].inlineSize;
+                height = entry.devicePixelContentBoxSize[0].blockSize;
+                dpr = 1; // it's already in width and height
+            } else if (entry.contentBoxSize) {
+                if (entry.contentBoxSize[0]) {
+                    width = entry.contentBoxSize[0].inlineSize;
+                    height = entry.contentBoxSize[0].blockSize;
+                } else {
+                    width = entry.contentBoxSize.inlineSize;
+                    height = entry.contentBoxSize.blockSize;
+                }
+            } else {
+                width = entry.contentRect.width;
+                height = entry.contentRect.height;
+            }
+            w = Math.round(width * dpr);
+            h = Math.round(height * dpr);
+            target = entry.target;
+        }
+        if (target == display_canvas) {
+            let t = display_ctx.getTransform();
+            display_canvas.width = w;
+            display_canvas.height = h;
+            display_ctx.setTransform(t);
+            this.updateDisplay();
+        }
+    }
+    updateDisplay(clear = true) {
+        let canvas = document.getElementById("canvas");
+        let ctx = canvas.getContext("2d");
+        if (!(drawing_canvas instanceof UnlimitedCanvas)){
+            return
+        }
+        if (clear) {
+            ctx.save();
+            ctx.setTransform(1, 0, 0, 1, 0, 0);
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.restore();
+        }
+        for (c of drawing_canvas.getKeys()) {
+            ctx.drawImage(drawing_canvas.canvasChunks[c], c[0], c[1]);
+        }
+    }
+    
 }
