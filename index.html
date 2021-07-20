@@ -72,8 +72,11 @@
 
         #topbar {
             overflow: hidden;
-            flex: 0 0 3.5em;
+            /* flex: 0 0 2em; */
             display: flex;
+            position: absolute;
+            bottom: 0.5em;
+            right:0.5em;
             z-index: 1;
         }
 
@@ -104,7 +107,7 @@
             /* flex-direction: column; */
             position: absolute;
             left: 1.5em;
-            top: 4.5em;
+            top: 1.5em;
             background-color: white;
             box-shadow: 0px 0px 20px #999;
             border-radius: 1em;
@@ -304,29 +307,28 @@
 </head>
 
 <body>
-    <div id="topbar">
-        <div id="loading">
-            <div style="display: flex; align-content: center; height: 100%;">
-                <span id="loading-span"
-                    style="font-family:sans-serif ;font-size: x-large; color: white; width: 100%; align-self: center; text-align: center;">Loading</span>
-            </div>
+    <div id="loading">
+        <div style="display: flex; align-content: center; height: 100%;">
+            <span id="loading-span"
+                style="font-family:sans-serif ;font-size: x-large; color: white; width: 100%; align-self: center; text-align: center;">Loading</span>
         </div>
+    </div>
+    <div id="topbar">
         <!-- <img src="icon.svg" style="height: 2em"></img> -->
         <!-- <div class="color-picker"></div> -->
         <!-- <button onclick="sendRandomPath(matrixClient, currentRoomId)">RandomPath</button> -->
-        <button onclick="sendRandomWalk(matrixClient, currentRoomId)">RandomWalk</button>
+        <!-- <button onclick="sendRandomWalk(matrixClient, currentRoomId)">RandomWalk</button> -->
         <!-- <button onclick="sendCustomEvent(matrixClient, currentRoomId)">sendCustomEvent (p.Whiteboard.object of type p.path)</button> -->
         <!-- <button onclick="sendRandomText(matrixClient, currentRoomId)">RandomText</button> -->
         <button onclick="redactLastAction(matrixClient, currentRoomId)">redact Last</button>
         <br />
-        <button
-            onclick="scrollback(currentRoomId).then(function(){reloadCacheCanvas();drawing_canvas.updateDisplay();});">scrollback</button>
+        <button onclick="scrollback(currentRoomId).then(function(){reloadCacheCanvas();drawing_canvas.updateDisplay();});">scrollback</button>
         <button onclick="reloadCacheCanvas();drawing_canvas.updateDisplay();">reload Canvas</button>
         <button onclick="drawing_canvas.resetOffset()">go Home</button>
-        <button onclick="loginClicked()">login</button>
+        <!-- <button onclick="loginClicked()">login</button> -->
         <button onclick="drawing_canvas.resetZoom()">reset Zoom</button>
         <button id="grid" onclick="toggleGrid()">toggle Grid</button>
-        <button id="tool" onclick="toggleTool()">Tool: pen</button>
+        <!-- <button id="tool" onclick="toggleTool()">Tool: pen</button> -->
     </div>
 
     <div id="leftbar">
