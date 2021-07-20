@@ -10,7 +10,6 @@ const matrixClient = matrixcs.createClient({
 window.onload = function() {
 
     init_input(document.getElementById(drawing_canvas.css_id));
-    load_pickr();
     init_color_picker();
     drawing_canvas.init();
 
@@ -31,7 +30,7 @@ async function updateRoomList() {
     let visibleRooms = await matrixClient.getVisibleRooms();
     // var rooms = matrixClient.getRooms();
     // let idLabel = document.getElementById("userIdLabel");
-    let leftbar = document.getElementById("leftbar");
+    let leftbarBody = document.getElementById("leftbar-body");
     for (r in visibleRooms) {
         var roomButton = document.createElement("div");
         let id = visibleRooms[r].roomId;
@@ -41,7 +40,7 @@ async function updateRoomList() {
         var roomText = document.createElement("p");
         roomText.innerText = visibleRooms[r].name;
         roomButton.appendChild(roomText);
-        leftbar.appendChild(roomButton);
+        leftbarBody.appendChild(roomButton);
     }
     console.log(visibleRooms);
 }
@@ -173,6 +172,7 @@ async function login(username, password) {
     })
     console.log(registerResult);
     document.getElementById("userIdLabel").innerHTML = registerResult.user_id;
+    // document.getElementById("userIdLabel").innerHTML = registerResult.user_id;
     showLoading("start client");
     let startedResult = await matrixClient.startClient({ initialSyncLimit: 0 });
     showLoading("initial sync");

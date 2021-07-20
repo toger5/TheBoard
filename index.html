@@ -14,19 +14,7 @@
     <script src="actions.js"></script>
     <script src="matrix-client.js"></script>
     <script src="color-picker.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@simonwep/pickr/dist/pickr.min.js"></script>
-    <script src="picker.js"></script>
     <script src="node_modules/paper/dist/paper-core.js"></script>
-    <script src="node_modules/simplify-js/simplify.js"></script>
-
-    <!-- One of the following themes -->
-    <!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@simonwep/pickr/dist/themes/classic.min.css"/> <!-- 'classic' theme -->
-    <!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@simonwep/pickr/dist/themes/monolith.min.css"/> 'monolith' theme -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@simonwep/pickr/dist/themes/nano.min.css" />
-    <!-- 'nano' theme -->
-
-    <!-- Modern or es5 bundle -->
-    <!-- <script src="https://cdn.jsdelivr.net/npm/@simonwep/pickr/dist/pickr.es5.min.js"></script> -->
 
 
     <style>
@@ -67,10 +55,11 @@
             left: 50%;
             transform: translate(-50%, -50%);
             width: 25em;
-            height: 15em;
+            height: auto;
             background-color: rgb(240, 240, 240);
             border-radius: 1em;
             padding: 2em;
+            padding-top: 0.5em;
             z-index: 100;
             border-color: grey;
             border-width: 5px;
@@ -102,11 +91,50 @@
         }
 
         #leftbar {
-            flex: 0 0 16em;
+            width: 13em;
             display: flex;
             flex-direction: column;
-            overflow-y: scroll;
+            max-height: 60%;
+            /* flex: 0 0 16em; */
+            /* display: flex; */
+            /* flex-direction: column; */
+            position: absolute;
+            left: 1.5em;
+            top: 4.5em;
+            background-color: white;
+            box-shadow: 0px 0px 20px #999;
+            border-radius: 2em;
+            /* overflow-y: scroll; */
             z-index: 1;
+        }
+        #leftbar-header{
+            padding-top: 0.5em;
+            padding-left: 1em;
+            padding-right: 1em;
+            text-align: center;
+            height: 3em;
+            border-style: solid;
+            border-width: 0px;
+            border-bottom-width: 1px;
+            border-color: #999;
+        }
+        
+        #leftbar-body{
+            overflow-y: scroll;
+            scrollbar-width: thin;
+            /* flex: 1 0; */
+            /* width: 100%; */
+            /* height: auto; */
+        }
+        #leftbar-footer{
+            padding:0.3em;
+            /* padding-left: 1em;
+            padding-right: 1em; */
+            background-color: #999;
+            border-bottom-left-radius: 1em;
+            border-bottom-right-radius: 1em;
+            /* height:2em; */
+            text-align: center;
         }
 
         #leftbar span {
@@ -119,17 +147,19 @@
             border-color: rgb(211, 211, 211);
             text-align: center;
             width: auto;
-            margin: 0.1em;
-            padding: 0.3em 0.1em;
-            background-color: rgb(211, 211, 211);
-            border-radius: 0.3em;
-            transition: background-color 0.5s;
-            transition: border-color 1s;
+            /* margin: 0.1em; */
+            padding: 0.2em 0.2em;
+            transition: 0.5s;
+            transition: 1s;
+            border-width: 0px;
+            border-bottom-width: 1px;
         }
-
+        .room-button p {
+            margin: 0.5em;
+        }
         .room-button:hover {
-            background-color: rgb(208, 210, 214);
-            border-color: black;
+            background-color: rgb(152, 166, 194);
+            /* border-color: black; */
         }
 
         button {
@@ -233,7 +263,7 @@
             </div>
         </div>
         <!-- <img src="icon.svg" style="height: 2em"></img> -->
-        <div class="color-picker"></div>
+        <!-- <div class="color-picker"></div> -->
         <!-- <button onclick="sendRandomPath(matrixClient, currentRoomId)">RandomPath</button> -->
         <button onclick="sendRandomWalk(matrixClient, currentRoomId)">RandomWalk</button>
         <!-- <button onclick="sendCustomEvent(matrixClient, currentRoomId)">sendCustomEvent (p.Whiteboard.object of type p.path)</button> -->
@@ -248,12 +278,16 @@
         <button onclick="drawing_canvas.resetZoom()">reset Zoom</button>
         <button id="grid" onclick="toggleGrid()">toggle Grid</button>
         <button id="tool" onclick="toggleTool()">Tool: pen</button>
-
-        <div id="userIdLabel"></div>
     </div>
+
+    <div id="leftbar">
+        <div id='leftbar-header'><div id="userIdLabel"></div></div> 
+        <div id='leftbar-body'></div>
+        <div id='leftbar-footer'>^</div>
+    </div>
+
+    
     <div style="flex-grow: 1; display: flex; flex-direction: row; min-height: 0;">
-        <div id="leftbar">
-        </div>
         <canvas id="paper" resize>
         </canvas>
         <div id="container">
@@ -261,16 +295,12 @@
             </svg>
             <canvas id="canvas" style="display: none;">
             </canvas>
-        </div>
-        <!-- <object id="svg-icon-color-picker" data="colorToolPicker.svg" type="image/svg+xml" width="600" height="600"> -->
-            <!-- Für Browser ohne SVG-Unterstützung -->
-            <!-- <img src="fruity-icons.png" width="600" height="193" alt="Alternatives PNG-Bild"> -->
-        <!-- </object> -->
-        <canvas id="color-picker-canvas" resize></canvas>
-
+        </div>        
     </div>
+    <canvas id="color-picker-canvas" resize></canvas>
 
     <div id="loginContainer">
+        <p><span style="font-size: 3em;white-space: pre;font-weight: 100;">The Board</span></p>
         <!-- <form id="login-form" onsubmit="return formSubmit(event)"> -->
         <label for="username">username:</label><br>
         <input type="text" id="login-form-username" name="username" placeholder="Your matrix id..."><br>
