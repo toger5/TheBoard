@@ -76,7 +76,7 @@ function sendCustomEvent(client, room){
         console.log(err);
     });
 }
-function sendPath(client, room, string_path, color, offset, size, version){
+function sendPath(client, room, string_path, color, offset, size, strokeWidth, version){
     console.log("send random path: ...")
     const content = {
         "version": version,
@@ -86,7 +86,7 @@ function sendPath(client, room, string_path, color, offset, size, version){
         "objsize": size[0]+" "+size[1],
         "objcolor": color == "" ? "#"+["F55","5F5","55F"][Math.floor(Math.random()*3)]: color,
         "path": string_path,
-        "pathStroke": "2",
+        "strokeWidth": strokeWidth,
     };
     client.sendEvent(room, "p.whiteboard.object", content, "", (err, res) => {
         console.log(err);

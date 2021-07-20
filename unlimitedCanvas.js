@@ -128,7 +128,7 @@ class UnlimitedCanvas {
     }
     async asyncAddPathV1(pos, points, color) {
         for (let p = 1; p < points.length; p++) {
-            drawSegmentDisplay([points[p - 1], points[p]], color);
+            this.drawSegmentDisplay([points[p - 1], points[p]], color);
             this.drawSegment([points[p - 1], points[p]], color);
             await sleep(points[p][0]);
         }

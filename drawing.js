@@ -16,7 +16,7 @@ function drawEvent(event, animated, updateDisplay = true) {
             let points = parsePath(event.content.path, event.content.objpos);
             let pos = parsePoint(event.content.objpos);
             let size = parsePoint(event.content.objsize);
-            // let strokeWidth = parseFloat(event.content.pathStroke);
+            // let strokeWidth = parseFloat(event.content.strokeWidth);
             if (animated) {
                 drawing_canvas.asyncAddPathV1(pos, points, event.content.objcolor);
             } else {
@@ -30,7 +30,7 @@ function drawEvent(event, animated, updateDisplay = true) {
             let segments = parseBezierPath(event.content.path, event.content.objpos);
             let pos = parsePoint(event.content.objpos);
             let size = parsePoint(event.content.objsize);
-            let strokeWidth = parseFloat(event.content.pathStroke);
+            let strokeWidth = parseFloat(event.content.strokeWidth);
             if (animated) {
                 drawing_canvas.updateDisplay(true);
                 drawing_canvas.asyncAddPathV2(segments, event.content.objcolor, strokeWidth, [pos, size]);

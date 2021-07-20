@@ -57,7 +57,7 @@ class PaperCanvas {
         // TODO dont hardcode the speed. instead get it from the event
         // "drawSpeed": "20 50 50 20 12"
         // 20ms for the first 50 px length, 50 ms for the second px length...
-        p.tween({ dashOffset: length }, { dashOffset: 0 }, 6*length).then(()=>{
+        p.tween({ dashOffset: length }, { dashOffset: 0 }, 2*length).then(()=>{
             p.dashArray = []
         }
         )

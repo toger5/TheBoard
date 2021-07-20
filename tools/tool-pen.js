@@ -1,0 +1,84 @@
+
+class ToolPen {
+    constructor() {
+
+        // Tool state
+        this.mouse_path = [];
+        this.mouse_path_last_time = Date.now();
+        this.last_pos = []
+        this.tool_canceled = false;
+
+        // Tool settings
+        this.strokeWidth = 2;
+        this.strokeWidthOptions = [1, 2, 4];
+    }
+
+    tooldown(proX, proY, pressure) {
+        this.tool_canceled = false;
+
+        this.mouse_path_start_time = Date.now();
+        this.last_pos = [0, proX, proY, pressure];
+        this.mouse_path = [[0, proX, proY, pressure * 4]];
+
+        console.log("tooldown");
+    }
+    toolmove(proX, proY, pressure) {
+        console.log("toolmove");
+        if (this.mouse_path.length == 0) {
+            return //TODO find out why?
+        }
+        // no pressure for now
+        pressure = 1;
+        let x = proX;
+        let y = proY;
+        let time_delta = Math.min(80, Date.now() - this.mouse_path_last_time);
+        let thickness_factor = 1
+        this.mouse_path_last_time = Date.now();
+        let current_pos = [time_delta, x, y, (pressure * 2 + Math.min(3, Math.max(0.0, thickness_factor)))];
+        let dist = (current_pos[1] - this.last_pos[1]) ** 2 + (current_pos[2] - this.last_pos[2]) ** 2
+
+        // let velocity = dist / Math.max(1, time_delta);
+        // let thickness_factor = 1.5 - velocity / 8.0;
+        // todo fix pressure
+        this.mouse_path.push(current_pos);
+        drawing_canvas.drawSegmentDisplay([this.last_pos, current_pos], colorPickerSvg.getColor().toCSS(true));
+        this.last_pos = current_pos;
+
+    }
+
+
+    toolup(proX, proY) {
+        if (this.tool_canceled) { return; }
+        if (objectStore.hasRoom(currentRoomId)) {
+            let [corrected_mouse_path, pos, size] = pathPosSizeCorrection(this.mouse_path);
+            let string_path;
+            let version;
+            if (drawing_canvas instanceof UnlimitedCanvas) {
+                string_path = mousePathToString(corrected_mouse_path);
+                version = 1;
+            }
+            else if (drawing_canvas instanceof PaperCanvas) {
+                let paper_mouse_path = new paper.Path(corrected_mouse_path.map((s) => { return [s[1], s[2]] }));
+                paper_mouse_path.simplify();
+                string_path = paperPathToString(paper_mouse_path);
+                paper_mouse_path.remove();
+                version = 2;
+            }
+            sendPath(matrixClient, currentRoomId,
+                string_path,
+                colorPickerSvg.getColor().toCSS(true), pos, size, this.strokeWidth, version);
+        } else {
+            console.log("NO ROOM SELECTED TO DRAW IN!")
+            drawing_canvas.updateDisplay();
+        }
+        this.toolcancel();
+    }
+
+    toolcancel() {
+        console.log("CANCEL");
+        this.mouse_path = [];
+        this.mouse_path_last_time = Date.now();
+        this.last_pos = []
+        this.tool_canceled = true;
+    }
+}

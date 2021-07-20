@@ -10,10 +10,14 @@
     <script src="paper-canvas.js"></script>
     <script src="drawing.js"></script>
     <script src="helper.js"></script>
+    <script src="tools/tool-pen.js"></script>
+    <script src="tools/tool-line.js"></script>
+    <script src="tools/tool-eraser.js"></script>
     <script src="input.js"></script>
     <script src="actions.js"></script>
     <script src="matrix-client.js"></script>
     <script src="color-picker.js"></script>
+    <script src="tools/tool-wheel.js"></script>
     <script src="node_modules/paper/dist/paper-core.js"></script>
 
 
@@ -103,11 +107,12 @@
             top: 4.5em;
             background-color: white;
             box-shadow: 0px 0px 20px #999;
-            border-radius: 2em;
+            border-radius: 1em;
             /* overflow-y: scroll; */
             z-index: 1;
         }
-        #leftbar-header{
+
+        #leftbar-header {
             padding-top: 0.5em;
             padding-left: 1em;
             padding-right: 1em;
@@ -118,16 +123,17 @@
             border-bottom-width: 1px;
             border-color: #999;
         }
-        
-        #leftbar-body{
+
+        #leftbar-body {
             overflow-y: scroll;
             scrollbar-width: thin;
             /* flex: 1 0; */
             /* width: 100%; */
             /* height: auto; */
         }
-        #leftbar-footer{
-            padding:0.3em;
+
+        #leftbar-footer {
+            padding: 0.3em;
             /* padding-left: 1em;
             padding-right: 1em; */
             background-color: #999;
@@ -154,9 +160,11 @@
             border-width: 0px;
             border-bottom-width: 1px;
         }
+
         .room-button p {
             margin: 0.5em;
         }
+
         .room-button:hover {
             background-color: rgb(152, 166, 194);
             /* border-color: black; */
@@ -243,13 +251,54 @@
             width: 100%;
             /* border: 2px dashed #f69c55; */
         }
-        #color-picker-canvas{
+
+        #color-picker-canvas {
             position: absolute;
-            bottom: 1em;
-            left: 1em;
+            pointer-events: all;
+            bottom: 0;
+            left: 0;
             width: 13em;
             height: 13em;
-            z-index: 1;
+            /* z-index: 1; */
+        }
+
+        #tool-wheel {
+            position: absolute;
+            pointer-events: none;
+            bottom: 1em;
+            left: 1em;
+            width: 16em;
+            height: 16em;
+        }
+
+        #tool-wheel button {
+            pointer-events: all;
+            text-align: center;
+            font-size: xx-small;
+            width: 4.5em;
+            height: 4.5em;
+            box-shadow: 0px 0px 15px #999;
+            background-color: white;
+            border-style: none;
+            overflow: hidden;
+            border-radius: 50%;
+            transition: 0.2s;
+            position: absolute;
+            transform: translate(-50%, 50%);
+        }
+        #tool-wheel button.active {
+            background-color: white;
+            border-style: solid;
+            border-width: 2px;
+            border-color: black;
+            border-style: dotted;
+            width: 5.3em;
+            height: 5.3em;
+        }
+
+        #tool-wheel button:hover {
+            background-color: white;
+            box-shadow: 0px 0px 5px #555;
         }
     </style>
 </head>
@@ -281,12 +330,14 @@
     </div>
 
     <div id="leftbar">
-        <div id='leftbar-header'><div id="userIdLabel"></div></div> 
+        <div id='leftbar-header'>
+            <div id="userIdLabel"></div>
+        </div>
         <div id='leftbar-body'></div>
         <div id='leftbar-footer'>^</div>
     </div>
 
-    
+
     <div style="flex-grow: 1; display: flex; flex-direction: row; min-height: 0;">
         <canvas id="paper" resize>
         </canvas>
@@ -295,9 +346,19 @@
             </svg>
             <canvas id="canvas" style="display: none;">
             </canvas>
-        </div>        
+        </div>
     </div>
-    <canvas id="color-picker-canvas" resize></canvas>
+    <div id='tool-wheel'>
+        <canvas id="color-picker-canvas" resize></canvas>
+        <button id="tool-type-pen">Pen</button>
+        <button id="tool-type-eraser">Eraser</button>
+        <button id="tool-type-marker">Marker</button>
+        <button id="tool-type-line">Line</button>
+        <button id="tool-type-square">Square</button>
+        <button id="tool-type-ellipse">Ellipse</button>
+        <button id="tool-type-text">Text</button>
+        <button id="tool-type-line-type">LT</button>
+    </div>
 
     <div id="loginContainer">
         <p><span style="font-size: 3em;white-space: pre;font-weight: 100;">The Board</span></p>

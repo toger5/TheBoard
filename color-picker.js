@@ -10,7 +10,9 @@ function init_color_picker() {
     colorPickerSvg = new ColorPicker();
     colorPickerSvg.selectColor([1, 0])
 }
-
+function GetPickerColor(){
+    return colorPickerSvg.getColor().toCSS(true)
+}
 class ColorPicker {
 
     constructor() {

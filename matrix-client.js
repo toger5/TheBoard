@@ -12,6 +12,7 @@ window.onload = function() {
     init_input(document.getElementById(drawing_canvas.css_id));
     init_color_picker();
     drawing_canvas.init();
+    init_tool_wheel();
 
     var pwd_input = document.getElementById("login-form-password");
 
