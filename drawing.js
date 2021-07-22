@@ -16,12 +16,13 @@ function drawEvent(event, animated, updateDisplay = true) {
             let points = parsePath(event.content.path, event.content.objpos);
             let pos = parsePoint(event.content.objpos);
             let size = parsePoint(event.content.objsize);
+            let color = "objcolor" in event.content ? event.content.objcolor : "#000"
             // let strokeWidth = parseFloat(event.content.strokeWidth);
             if (animated) {
-                drawing_canvas.asyncAddPathV1(pos, points, event.content.objcolor);
+                drawing_canvas.asyncAddPathV1(pos, points, color);
             } else {
                 drawing_canvas.drawBoundingBox([pos, size]);
-                drawing_canvas.addPathV1(points, event.content.objcolor, [pos, size]);
+                drawing_canvas.addPathV1(points, color, [pos, size]);
                 if (updateDisplay) { drawing_canvas.updateDisplay(true); }
             }
         }
@@ -31,12 +32,16 @@ function drawEvent(event, animated, updateDisplay = true) {
             let pos = parsePoint(event.content.objpos);
             let size = parsePoint(event.content.objsize);
             let strokeWidth = parseFloat(event.content.strokeWidth);
+            let closed = ("closed" in event.content && event.content.closed)
+            let color = "objcolor" in event.content ? event.content.objcolor : "#000"
+            let fillColor = "objFillColor" in event.content ? event.content.objFillColor : "#00000000"
+            
             if (animated) {
                 drawing_canvas.updateDisplay(true);
-                drawing_canvas.asyncAddPathV2(segments, event.content.objcolor, strokeWidth, [pos, size]);
+                drawing_canvas.asyncAddPathV2(segments, color,fillColor, strokeWidth, closed);
             } else {
                 // drawing_canvas.drawBoundingBox([pos, size]);
-                drawing_canvas.addPathV2(segments, event.content.objcolor, strokeWidth, [pos, size]);
+                drawing_canvas.addPathV2(segments, color,fillColor, strokeWidth, closed);
                 if (updateDisplay) { drawing_canvas.updateDisplay(true); }
             }
         }

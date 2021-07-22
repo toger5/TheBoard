@@ -26,9 +26,9 @@
      inkscape:snap-page="true"
      inkscape:snap-global="true"
      inkscape:snap-intersection-paths="false"
-     inkscape:zoom="2.2731735"
-     inkscape:cx="221.93643"
-     inkscape:cy="871.68887"
+     inkscape:zoom="2.8408638"
+     inkscape:cx="123.90597"
+     inkscape:cy="877.90198"
      inkscape:window-width="2560"
      inkscape:window-height="1523"
      inkscape:window-x="0"
@@ -184,9 +184,9 @@
        style="color-interpolation-filters:sRGB"
        inkscape:label="Drop Shadow"
        id="filter73099"
-       x="-0.084175892"
+       x="-0.084175869"
        y="-0.16616868"
-       width="1.1683518"
+       width="1.1683517"
        height="1.3323374">
       <feFlood
          flood-opacity="0.498039"
@@ -287,6 +287,42 @@
          operator="over"
          result="composite2"
          id="feComposite73097-6" />
+    </filter>
+    <filter
+       style="color-interpolation-filters:sRGB"
+       inkscape:label="Drop Shadow"
+       id="filter1742"
+       x="-0.046071845"
+       y="-0.24"
+       width="1.0921437"
+       height="1.48">
+      <feFlood
+         flood-opacity="0.498039"
+         flood-color="rgb(0,0,0)"
+         result="flood"
+         id="feFlood1732" />
+      <feComposite
+         in="flood"
+         in2="SourceGraphic"
+         operator="in"
+         result="composite1"
+         id="feComposite1734" />
+      <feGaussianBlur
+         in="composite1"
+         stdDeviation="1"
+         result="blur"
+         id="feGaussianBlur1736" />
+      <feOffset
+         dx="0"
+         dy="0"
+         result="offset"
+         id="feOffset1738" />
+      <feComposite
+         in="SourceGraphic"
+         in2="offset"
+         operator="over"
+         result="composite2"
+         id="feComposite1740" />
     </filter>
   </defs>
   <g
@@ -9263,5 +9299,51 @@
          style="font-family:'Antykwa Poltawskiego Light';-inkscape-font-specification:'Antykwa Poltawskiego Light, ';fill:#888a85;stroke-width:0.358268"
          id="path30408-9" />
     </g>
+    <rect
+       style="fill:#f2f2f2;stroke:none;stroke-width:0.3;stroke-miterlimit:4;stroke-dasharray:none;filter:url(#filter1742)"
+       id="rect1730"
+       width="52.092552"
+       height="10"
+       x="361.48447"
+       y="205.85577"
+       rx="5"
+       ry="5" />
+    <circle
+       style="fill:#000000;stroke:none;stroke-width:0.999997"
+       id="path1226"
+       cx="370.08014"
+       cy="210.85577"
+       r="1.1218058" />
+    <rect
+       style="fill:#ffffff;stroke:#cccccc;stroke-width:0.3;stroke-miterlimit:4;stroke-dasharray:none"
+       id="rect1358-6"
+       width="12.72463"
+       height="9.3548384"
+       x="373.19962"
+       y="206.16035"
+       rx="5"
+       ry="5" />
+    <circle
+       style="fill:#000000;stroke:none;stroke-width:0.999997"
+       id="path1272"
+       cx="379.61749"
+       cy="210.85577"
+       r="1.6770792" />
+    <circle
+       style="fill:#000000;stroke:none;stroke-width:0.999997"
+       id="path1274"
+       cx="390.59909"
+       cy="210.85577"
+       r="2.5660284" />
+    <circle
+       style="fill:#000000;stroke:none;stroke-width:0.999997"
+       id="path1276"
+       cx="403.78131"
+       cy="210.85577"
+       r="3.8777018" />
+    <path
+       style="fill:#4d4d4d;stroke:#999999;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 341.45828,221.22178 c -3.63677,4.00556 -4.79109,4.79398 -4.74515,13.64278 0.0367,7.06631 4.33435,6.41631 8.70956,6.03449 12.61824,-1.10115 5.35085,-1.12731 11.45522,-1.42248 0.33469,-0.0161 0.82106,-0.17225 0.99902,0.11168 0.8614,1.37427 1.297,2.71013 1.45195,4.32858 0.0452,0.47191 0.15584,0.97795 -0.01,1.42214 -0.61826,1.65769 -5.51425,2.74711 -6.91781,1.56363 -0.56268,-0.47445 -0.93053,-1.14763 -1.30388,-1.78191 -1.19799,-2.03523 -1.52045,-3.15082 -1.41667,-5.66487 0.0683,-1.65533 0.35242,-3.29871 0.66759,-4.92521 0.66383,-3.42594 2.9165,-6.20022 1.42794,-9.78499 -0.14288,-0.34409 -0.64097,-1.41169 -1.11216,-1.80303 -1.30726,-1.08574 -3.1473,-1.52459 -4.81209,-1.59239 -0.67954,-0.0277 -1.5766,0.29991 -2.16574,0.11824"
+       id="path5839" />
   </g>
 </svg>

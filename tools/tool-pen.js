@@ -60,13 +60,14 @@ class ToolPen {
             else if (drawing_canvas instanceof PaperCanvas) {
                 let paper_mouse_path = new paper.Path(corrected_mouse_path.map((s) => { return [s[1], s[2]] }));
                 paper_mouse_path.simplify();
-                string_path = paperPathToString(paper_mouse_path);
+                string_path = paperPathToString(paper_mouse_path)[2];
                 paper_mouse_path.remove();
                 version = 2;
             }
             sendPath(matrixClient, currentRoomId,
                 string_path,
-                colorPickerSvg.getColor().toCSS(true), pos, size, this.strokeWidth, version);
+                GetPickerColor(),'#00000000', pos, size, this.strokeWidth, false, version);
+            
         } else {
             console.log("NO ROOM SELECTED TO DRAW IN!")
             drawing_canvas.updateDisplay();

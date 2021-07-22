@@ -43,10 +43,12 @@ class PaperCanvas {
     resetZoom() {
         this.setZoom(1);
     }
-
-    asyncAddPathV2(segments, color, strokeWidth, [pos, size]) {
+    asyncAddPathV1(){
+        console.log("WAIT WHAT???")
+    }
+    asyncAddPathV2(segments, color, fillColor, strokeWidth, closed = false) {
         // TODO make async animation using dash
-        let p = this.addPathV2(segments, color, strokeWidth, [pos, [0, 0]]);
+        let p = this.addPathV2(segments, color, fillColor, strokeWidth, closed);
         let length = 0;
         for (let curveLength of p.curves.map(e => e.length)) {
             if (!Number.isNaN(curveLength)) {
@@ -57,18 +59,21 @@ class PaperCanvas {
         // TODO dont hardcode the speed. instead get it from the event
         // "drawSpeed": "20 50 50 20 12"
         // 20ms for the first 50 px length, 50 ms for the second px length...
-        p.tween({ dashOffset: length }, { dashOffset: 0 }, 2*length).then(()=>{
+        p.tween({ dashOffset: length }, { dashOffset: 0 }, 2 * length).then(() => {
             p.dashArray = []
         }
         )
         // p.tween({ dashArray: [10, 10] }, { dashArray: [1000, 10] }, 3000);
     }
 
-    addPathV2(segments, color, strokeWidth, [pos, size]) {
+    addPathV2(segments, color, fillColor, strokeWidth, closed = false) {
         var p = new paper.Path(segments);
         p.strokeColor = color;
+        // if (fillColor != "#00000000") { p.fillColor = fillColor; }
+        p.fillColor = fillColor;
         p.strokeWidth = strokeWidth;
         p.strokeCap = "round";
+        p.closed = closed;
         return p;
         // p.moveTo(new paper.Point(points[0][1], points[0][2]));
         // for (let i = 1; i < points.length; i++) {
@@ -89,7 +94,7 @@ class PaperCanvas {
         if (this.dispPath === null) {
             this.dispPath = new paper.Path(segment_points.map((p) => { return [p[1], p[2]] }));
             let colorAlpha = setAlpha(color, 0.3);
-            console.log("COLOR: ",colorAlpha);
+            console.log("COLOR: ", colorAlpha);
             this.dispPath.strokeColor = colorAlpha;
             this.dispPath.strokeWidth = 2;
             this.dispPath.strokeCap = "round"
@@ -108,11 +113,11 @@ class PaperCanvas {
             this.dispPath = null;
         }
         // for(p of this.displayPaths){
-            //     p.remove();
-            // }
+        //     p.remove();
+        // }
     }
     // TODO call this function in a moment where ne drawing animaiotn is running
-    clearDisplayPaths(){
+    clearDisplayPaths() {
         this.displayPaths.forEach((p) => { p.remove() });
     }
     clear() {

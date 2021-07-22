@@ -18,7 +18,7 @@ var tools = {
     "tool-type-eraser": new ToolEraser(),
     "tool-type-marker": null,
     "tool-type-line": new ToolLine(),
-    "tool-type-square": null,
+    "tool-type-square": new ToolRect(),
     "tool-type-ellipse": null,
     "tool-type-text": null,
     "tool-type-line-width": null
