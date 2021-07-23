@@ -59,4 +59,7 @@ class ToolRect {
             this.tool_canceled = true;
         }
     }
+    toolpreviewmove(pos){}
+    activate(){}
+    deactivate(){}
 }

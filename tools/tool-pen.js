@@ -82,13 +82,10 @@ class ToolPen {
             this.previewItem.applyMatrix = false
             drawing_canvas.activateDrawLayer()
         }
-        this.previewItem.scaling = new paper.Point(this.strokeWidth, this.strokeWidth)
-        this.previewItem.visible = true;
-        this.previewItem.fillColor = GetPickerColor();
+        this.previewItem.scaling = new paper.Point(this.getStrokeWidth(), this.getStrokeWidth())
+        this.previewItem.fillColor = this.getStrokeColor();
         this.previewItem.position = pos;
     }
-
-
     toolup(proX, proY) {
         if (this.tool_canceled) { return; }
         if (objectStore.hasRoom(currentRoomId)) {
@@ -116,7 +113,6 @@ class ToolPen {
         }
         this.toolcancel();
     }
-
     toolcancel() {
         console.log("CANCEL");
         this.mouse_path = [];
@@ -130,5 +126,14 @@ class ToolPen {
         prev.tween({ dashOffset: 0 }, { dashOffset: -l }, 2 * l).then((e) => {
             prev.visible = false
         });
+    }
+    activate(){
+        if(this.previewItem){
+            this.previewItem.visible = true;
+        }
+    }
+    deactivate(){
+        this.previewItem.visible = false;
+
     }
 }

@@ -19,7 +19,9 @@ function init_tool_wheel() {
       for (b of buttons) {
         b.classList.remove('active');
       }
+      activeTool.deactivate()
       activeTool = tools[c.id];
+      activeTool.activate()
       c.classList.add('active');
     }
   }
