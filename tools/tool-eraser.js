@@ -47,7 +47,7 @@ class ToolEraser {
             i++;
         }
     }
-    async toolup(proX, proY) {
+    toolup(proX, proY) {
         if (this.tool_canceled) { return; }
 
         // console.log("try to erase");
@@ -78,7 +78,7 @@ class ToolEraser {
                 console.log("redacted (eraser): ", t);
             });
             this.idsToDelete = this.idsToDelete.filter((itemId)=>{return itemId == id})
-            await sleep(300);
+            // await sleep(300);
         }
         this.idsToDelete = [];
 

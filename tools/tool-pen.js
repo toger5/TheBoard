@@ -133,7 +133,8 @@ class ToolPen {
         }
     }
     deactivate(){
-        this.previewItem.visible = false;
-
+        if(this.previewItem){
+            this.previewItem.visible = false;
+        }
     }
 }

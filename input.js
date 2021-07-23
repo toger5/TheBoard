@@ -22,6 +22,7 @@ function init_input(element) {
     var el = element;
     // POINTER
     el.onpointerdown = function (e) {
+        // e.preventDefault();
         console.log("onpointerdown");
         let project_pt = drawing_canvas.getTransformedPointer(e.offsetX, e.offsetY);
         if (e.pointerType == "touch") {
@@ -39,8 +40,10 @@ function init_input(element) {
         }
     };
     el.onpointermove = function (e) {
+        // e.preventDefault()
         // console.log("onpointermove");
-        if (e.buttons == 1 || (e.pointerType == 'touch' && touchesCache.length < 2)) {
+        if ((e.buttons == 1 && (e.pointerType == "mouse" || e.pointerType == "pen"))
+            || (e.pointerType == 'touch' && touchesCache.length < 2)) {
             let project_pt = drawing_canvas.getTransformedPointer(e.offsetX, e.offsetY);
             activeTool.toolmove(project_pt.x, project_pt.y, e.pressure);
         } else if (touchesCache.length == 2 && e.pointerType == "touch") {
@@ -59,10 +62,10 @@ function init_input(element) {
             touchPanCache = new DOMPoint(0, 0);
             handleTouchType = "";
             touchZoomCache = 0;
-            if(!activeTool.tool_canceled){
+            if (!activeTool.tool_canceled) {
                 activeTool.toolup(project_pt.x, project_pt.y, e.pressure);
             }
-        }else{
+        } else {
             activeTool.toolup(project_pt.x, project_pt.y, e.pressure);
         }
     };
@@ -87,6 +90,15 @@ function init_input(element) {
     // el.onpointerleave = leave_handler;
     // el.gotpointercapture = gotcapture_handler;
     // el.lostpointercapture = lostcapture_handler;
+    // el.ontouchend = (e) => {
+    //     // e.preventDefault();
+    // };
+    el.ontouchstart = (e) => {
+        e.preventDefault();
+    };
+    // el.ontouchmove = (e) => {
+    //     // e.preventDefault();
+    // };
 }
 
 
@@ -115,14 +127,14 @@ function handlePanZoom() {
     var distCurrent = dist(current1, current2);
     var currentCenter = current1.add(current2).multiply(0.5); //new paper.Point((current1.x + current2.x) / 2, (current1.y + current2.y) / 2)
     var startCenter = start1.add(start2).multiply(0.5); //[(start1.x + start2.x) / 2, (start1.y + start2.y) / 2]
-    var panDistDelta = dist(currentCenter, startCenter)*canvasZoom;
-    var pinchDistDelta = Math.abs(distStart - distCurrent)*canvasZoom;
+    var panDistDelta = dist(currentCenter, startCenter) * canvasZoom;
+    var pinchDistDelta = Math.abs(distStart - distCurrent) * canvasZoom;
     // console.log("pinch Dist: ", panDistDelta)
     // console.log("pan Dist: ", pinchDistDelta)
-    if(pinchDistDelta < PINCH_THRESHOLD && panDistDelta < PAN_THRESHOLD){
+    if (pinchDistDelta < PINCH_THRESHOLD && panDistDelta < PAN_THRESHOLD) {
         return
     }
-    if (handleTouchType == ""){
+    if (handleTouchType == "") {
         handleTouchType = pinchDistDelta > panDistDelta ? "pinch" : "pan"
     }
     if (handleTouchType == "pinch") {
@@ -132,7 +144,7 @@ function handlePanZoom() {
         //TODO some log or exp to make absolute zoom... Maybe not. feels just fine as it is...
         drawing_canvas.setZoom(touchZoomCache * currentZoomFactor, startCenter);
         // touchZoomCache = distCurrent / distStart;
-    } 
+    }
     if (handleTouchType == "pan") {
         // Pan
         var offset = startCenter.subtract(currentCenter) //new DOMPoint(startCenter[0] - currentCenter[0], startCenter[1] - currentCenter[1]);
