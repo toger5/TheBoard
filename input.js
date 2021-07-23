@@ -16,7 +16,7 @@
 var tools = {
     "tool-type-pen": new ToolPen(),
     "tool-type-eraser": new ToolEraser(),
-    "tool-type-marker": null,
+    "tool-type-marker": new ToolPen(true),
     "tool-type-line": new ToolLine(),
     "tool-type-square": new ToolRect(),
     "tool-type-ellipse": null,
@@ -62,7 +62,11 @@ function init_input(element) {
             let index = touchesCache.findIndex((el) => { return e.pointerId === el.pointerId });
             touchesCache[index] = e;
             handlePanZoom();
+        } else if (e.buttons == 0){
+            // the mouse just moves around...
+            
         }
+        activeTool.toolpreviewmove(drawing_canvas.getTransformedPointer(e.offsetX, e.offsetY))
     };
     el.onpointerup = function (e) {
         console.log("onpointerup");

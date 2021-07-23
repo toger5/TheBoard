@@ -1,7 +1,8 @@
 
 class ToolPen {
-    constructor() {
+    constructor(marker = false) {
 
+        this.isMarker = marker
         // Tool state
         this.mouse_path = [];
         this.mouse_path_last_time = Date.now();
@@ -11,8 +12,18 @@ class ToolPen {
         // Tool settings
         this.strokeWidth = 2;
         this.strokeWidthOptions = [1, 2, 4];
-    }
 
+        this.previewItem = null;
+
+        this.previewPaths = [];
+        this.previewPathTween = null;
+    }
+    getStrokeWidth() {
+        return this.strokeWidth * (this.isMarker ? 10 : 1);
+    }
+    getStrokeColor() {
+        return this.isMarker ? setAlpha(GetPickerColor(), 0.1) : GetPickerColor();
+    }
     tooldown(proX, proY, pressure) {
         this.tool_canceled = false;
 
@@ -20,13 +31,29 @@ class ToolPen {
         this.last_pos = [0, proX, proY, pressure];
         this.mouse_path = [[0, proX, proY, pressure * 4]];
 
+        drawing_canvas.activateToolLayer()
+        for (let path of this.previewPaths) {
+            if (!path.visible) {
+                path.remove()
+            }
+        }
+        this.previewPaths.filter((path) => { path.visible })
+        
+        this.previewPaths.push(new paper.Path());
+        let prev = this.previewPaths[this.previewPaths.length - 1]
+        
+        let colorAlpha = setAlpha(this.getStrokeColor(), 0.5);
+        // let colorAlpha = setAlpha(this.getStrokeColor(), 0.3);
+        prev.strokeColor = colorAlpha;
+        prev.strokeWidth = this.strokeWidth;
+        prev.strokeCap = "round"
+        prev.moveTo(new paper.Point(proX, proY))
+        drawing_canvas.activateDrawLayer()
+
         console.log("tooldown");
     }
     toolmove(proX, proY, pressure) {
         console.log("toolmove");
-        if (this.mouse_path.length == 0) {
-            return //TODO find out why?
-        }
         // no pressure for now
         pressure = 1;
         let x = proX;
@@ -34,16 +61,31 @@ class ToolPen {
         let time_delta = Math.min(80, Date.now() - this.mouse_path_last_time);
         let thickness_factor = 1
         this.mouse_path_last_time = Date.now();
-        let current_pos = [time_delta, x, y, (pressure * 2 + Math.min(3, Math.max(0.0, thickness_factor)))];
-        let dist = (current_pos[1] - this.last_pos[1]) ** 2 + (current_pos[2] - this.last_pos[2]) ** 2
+
+        let currentPos = [time_delta, x, y, (pressure * 2 + Math.min(3, Math.max(0.0, thickness_factor)))];
+        let dist = (currentPos[1] - this.last_pos[1]) ** 2 + (currentPos[2] - this.last_pos[2]) ** 2
 
         // let velocity = dist / Math.max(1, time_delta);
         // let thickness_factor = 1.5 - velocity / 8.0;
         // todo fix pressure
-        this.mouse_path.push(current_pos);
-        drawing_canvas.drawSegmentDisplay([this.last_pos, current_pos], colorPickerSvg.getColor().toCSS(true));
-        this.last_pos = current_pos;
+        let currentPosPoint = new paper.Point(currentPos[1], currentPos[2])
+        this.mouse_path.push(currentPos);
+        this.previewPaths[this.previewPaths.length - 1].lineTo(currentPosPoint);
+        // drawing_canvas.drawSegmentDisplay([this.last_pos, currentPos], this.getStrokeColor(), this.getStrokeWidth());
+        this.last_pos = currentPos;
 
+    }
+    toolpreviewmove(pos) {
+        if (this.previewItem === null) {
+            drawing_canvas.activateToolLayer()
+            this.previewItem = new paper.Path.Circle(new paper.Point(0, 0), 0.5);
+            this.previewItem.applyMatrix = false
+            drawing_canvas.activateDrawLayer()
+        }
+        this.previewItem.scaling = new paper.Point(this.strokeWidth, this.strokeWidth)
+        this.previewItem.visible = true;
+        this.previewItem.fillColor = GetPickerColor();
+        this.previewItem.position = pos;
     }
 
 
@@ -66,8 +108,8 @@ class ToolPen {
             }
             sendPath(matrixClient, currentRoomId,
                 string_path,
-                GetPickerColor(),'#00000000', pos, size, this.strokeWidth, false, version);
-            
+                this.getStrokeColor(), '#00000000', pos, size, this.getStrokeWidth(), false, version);
+
         } else {
             console.log("NO ROOM SELECTED TO DRAW IN!")
             drawing_canvas.updateDisplay();
@@ -81,5 +123,12 @@ class ToolPen {
         this.mouse_path_last_time = Date.now();
         this.last_pos = []
         this.tool_canceled = true;
+
+        let prev = this.previewPaths[this.previewPaths.length - 1]
+        let l = prev.length;
+        prev.dashArray = [l, l]
+        prev.tween({ dashOffset: 0 }, { dashOffset: -l }, 2 * l).then((e) => {
+            prev.visible = false
+        });
     }
 }

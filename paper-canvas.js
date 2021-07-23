@@ -1,16 +1,24 @@
-
-
 class PaperCanvas {
     constructor() {
         this.css_id = "paper";
         this.displayPaths = [];
-        this.dispPath = null;
+        this.toolLayer = null
+        this.drawLayer = null;
+    }
+    activateToolLayer(){
+        this.toolLayer.activate()
+    }
+    activateDrawLayer(){
+        this.drawLayer.activate();
     }
     init() {
         // Get a reference to the canvas object
         var canvas = document.getElementById('paper');
         // Create an empty project and a view for the canvas:
         paper.setup(canvas);
+        
+        this.drawLayer = paper.project.activeLayer;
+        this.toolLayer = new paper.Layer()
     }
     offset(offset_delta) {
         paper.view.center = paper.view.center.subtract(offset_delta.divide(paper.view.zoom));
@@ -61,8 +69,7 @@ class PaperCanvas {
         // 20ms for the first 50 px length, 50 ms for the second px length...
         p.tween({ dashOffset: length }, { dashOffset: 0 }, 2 * length).then(() => {
             p.dashArray = []
-        }
-        )
+        })
         // p.tween({ dashArray: [10, 10] }, { dashArray: [1000, 10] }, 3000);
     }
 
@@ -89,22 +96,6 @@ class PaperCanvas {
         for (let i = 1; i < points.length; i++) {
             p.lineTo(new paper.Point(points[i][1], points[i][2]));
         }
-    }
-    drawSegmentDisplay(segment_points, color) {
-        if (this.dispPath === null) {
-            this.dispPath = new paper.Path(segment_points.map((p) => { return [p[1], p[2]] }));
-            let colorAlpha = setAlpha(color, 0.3);
-            console.log("COLOR: ", colorAlpha);
-            this.dispPath.strokeColor = colorAlpha;
-            this.dispPath.strokeWidth = 2;
-            this.dispPath.strokeCap = "round"
-        } else {
-            this.dispPath.lineTo(new paper.Point(segment_points[1][1], segment_points[1][2]));
-        }
-        // var p = new paper.Path(segment_points.map((p)=>{return [p[1],p[2]]}));
-        // p.strokeColor = color;
-        // p.strokeWidth = segment_points[0][3];
-        // this.displayPaths.push(p);
     }
     updateDisplay() {
         if (this.dispPath !== null) {
