@@ -46,7 +46,11 @@ function init_input(element) {
             || (e.pointerType == 'touch' && touchesCache.length < 2)) {
             let project_pt = drawing_canvas.getTransformedPointer(e.offsetX, e.offsetY);
             activeTool.toolmove(project_pt.x, project_pt.y, e.pressure);
-        } else if (touchesCache.length == 2 && e.pointerType == "touch") {
+        } else if(e.buttons == 4 && (e.pointerType == "mouse" || e.pointerType == "pen")) {
+            let offset = new paper.Point(e.movementX, e.movementY)
+            drawing_canvas.offset(offset.divide(drawing_canvas.getZoom()));
+        }
+        else if (touchesCache.length == 2 && e.pointerType == "touch") {
             let index = touchesCache.findIndex((el) => { return e.pointerId === el.pointerId });
             touchesCache[index] = e;
             handlePanZoom();
