@@ -7,7 +7,7 @@ const matrixClient = matrixcs.createClient({
     baseUrl: "https://matrix.org",
 });
 // var paper_canvas = new PaperCanvas();
-window.onload = function() {
+window.onload = function () {
 
     init_input(document.getElementById(drawing_canvas.css_id));
     init_color_picker();
@@ -24,7 +24,7 @@ window.onload = function() {
         }
     });
 
-   
+
 }
 
 async function updateRoomList() {
@@ -131,7 +131,13 @@ class ObjectStore {
         let room = this.data[roomId];
         // room.redacted.add(id);
         if (remove) {
-            delete room.allDict[id];
+            if (id in room.allDict) {
+                delete room.allDict[id];
+                let item = paper.project.getItem({ class: "Path", match: function (item) { return item.data.id == id } })
+                if (item) { item.remove(); } else { console.log("could not find item for id: ", id) }
+            } else {
+                console.log("unecassary redact called for id: ", id)
+            }
         }
     }
     // redact_and_remove_by_id(id){
@@ -166,12 +172,12 @@ function hideLogin() {
     login.style.display = "none"
 }
 async function login(username, password) {
-    showLoading("login with: "+ username+ " ");
+    showLoading("login with: " + username + " ");
     let registerResult = await matrixClient.loginWithPassword(username, password, function (err) {
-        if(err instanceof Error){
+        if (err instanceof Error) {
             showLoading(err.message)
             return;
-        }else{
+        } else {
             hideLogin();
         }
     })
@@ -193,7 +199,6 @@ matrixClient.on("sync", function (state, prevState, data) {
         case "PREPARED":
             // the client instance is ready to be queried.
             updateRoomList()
-            // loadRoom(room_sdktesting2);
             showLoading("Press on an UNENCRYPTED Room (left) to start drawing")
             break;
     }
@@ -224,7 +229,7 @@ matrixClient.on("Room.timeline", function (msg, room, toStartOfTimeline) {
         // this is debatable. When an event is super slow the canvas will still show it until some other event happens to trigger a redraw
         if (Date.now() - msg.event.origin_server_ts < 200000) {
             objectStore.redactById(msg.event.redacts, msg.event.room_id);
-            reloadCacheCanvas();
+            // reloadCacheCanvas();
             drawing_canvas.updateDisplay(true);
         }
     }
@@ -242,11 +247,11 @@ function loadRoom(roomId, scrollback_count = -1) {
     currentRoomId = roomId;
     let s_back = scrollback_count;
     if (scrollback_count == -1) {
-        if (Object.keys(objectStore.all()).length == 0) { s_back = 200; }
+        if (Object.keys(objectStore.all()).length == 0) { s_back = 1000; }
         else { s_back = 0; }
     }
     showLoading("load room history");
-    scrollback(currentRoomId, s_back).then(function(){ 
+    scrollback(currentRoomId, s_back).then(function () {
         reloadCacheCanvas();
         drawing_canvas.updateDisplay();
     });
@@ -254,6 +259,7 @@ function loadRoom(roomId, scrollback_count = -1) {
 function scrollback(roomId, scrollback_count = 200) {
     console.log("load scrollback for: " + roomId);
     console.log("load scrollback with element count: " + scrollback_count);
+    showLoading("load " + scrollback_count + " elements from message history");
     return new Promise(function (resolve, reject) {
         if (scrollback_count == 0) {
             hideLoading();
@@ -285,7 +291,7 @@ function scrollback(roomId, scrollback_count = 200) {
 }
 
 function init_body() {
-    
+
 }
 
 

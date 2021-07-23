@@ -39,8 +39,8 @@ class ToolPen {
         }
         this.previewPaths.filter((path) => { path.visible })
         
-        this.previewPaths.push(new paper.Path());
-        let prev = this.previewPaths[this.previewPaths.length - 1]
+        let prev = new paper.Path();
+        this.previewPaths.push(prev);
         
         let colorAlpha = setAlpha(this.getStrokeColor(), 0.5);
         // let colorAlpha = setAlpha(this.getStrokeColor(), 0.3);

@@ -5,7 +5,7 @@ class ToolLine {
         this.canvas_line = null;
         // this.mouse_path_last_time = Date.now();
         // this.last_pos = []
-        // this.tool_canceled = false;
+        this.tool_canceled = true;
 
         // Tool settings
         this.strokeWidth = 2;
@@ -53,9 +53,9 @@ class ToolLine {
         console.log("CANCEL");
         if(this.canvas_line !== null){
             this.canvas_line.remove();
-            this.canvas_line = null;
-            this.tool_canceled = true;
         }
+        this.canvas_line = null;
+        this.tool_canceled = true;
     }
     toolpreviewmove(pos){}
     activate(){}

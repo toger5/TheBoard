@@ -22,7 +22,7 @@ function drawEvent(event, animated, updateDisplay = true) {
                 drawing_canvas.asyncAddPathV1(pos, points, color);
             } else {
                 drawing_canvas.drawBoundingBox([pos, size]);
-                drawing_canvas.addPathV1(points, color, [pos, size]);
+                drawing_canvas.addPathV1(points, color, [pos, size], event.event_id);
                 if (updateDisplay) { drawing_canvas.updateDisplay(true); }
             }
         }
@@ -38,10 +38,10 @@ function drawEvent(event, animated, updateDisplay = true) {
             
             if (animated) {
                 drawing_canvas.updateDisplay(true);
-                drawing_canvas.asyncAddPathV2(segments, color,fillColor, strokeWidth, closed);
+                drawing_canvas.asyncAddPathV2(segments, color,fillColor, strokeWidth, closed, event.event_id);
             } else {
                 // drawing_canvas.drawBoundingBox([pos, size]);
-                drawing_canvas.addPathV2(segments, color,fillColor, strokeWidth, closed);
+                drawing_canvas.addPathV2(segments, color,fillColor, strokeWidth, closed, event.event_id);
                 if (updateDisplay) { drawing_canvas.updateDisplay(true); }
             }
         }

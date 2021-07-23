@@ -1,12 +1,13 @@
 function init_tool_wheel() {
   let wheelContainer = document.getElementById("tool-wheel");
   let colorPickerCanvas = document.getElementById('color-picker-canvas');
-  let center = new paper.Point(colorPickerCanvas.width, colorPickerCanvas.height)
-  center = new paper.Point(208, 208);
+  let boundingrect = colorPickerCanvas.getBoundingClientRect()
+  let center = new paper.Point(boundingrect.width, boundingrect.height)
+  // center = new paper.Point(208, 208);
   center = center.multiply(0.5);
   let buttons = document.querySelectorAll("#tool-wheel button");
-  let rad = center.x + 20;
-  let offset = -Math.PI / 4;
+  let rad = center.x+15;
+  let offset = -Math.PI / 10;// -Math.PI / 4;
   for (let i = 0; i < buttons.length; i++) {
     // all units in em
     console.log(wheelContainer.children[i].tagName);

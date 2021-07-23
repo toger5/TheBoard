@@ -4,6 +4,7 @@ class PaperCanvas {
         this.displayPaths = [];
         this.toolLayer = null
         this.drawLayer = null;
+        this.canvas = null;
     }
     activateToolLayer(){
         this.toolLayer.activate()
@@ -13,15 +14,15 @@ class PaperCanvas {
     }
     init() {
         // Get a reference to the canvas object
-        var canvas = document.getElementById('paper');
+        this.canvas = document.getElementById('paper');
         // Create an empty project and a view for the canvas:
-        paper.setup(canvas);
+        paper.setup(this.canvas);
         
         this.drawLayer = paper.project.activeLayer;
         this.toolLayer = new paper.Layer()
     }
     offset(offset_delta) {
-        paper.view.center = paper.view.center.subtract(offset_delta.divide(paper.view.zoom));
+        paper.view.center = paper.view.center.subtract(offset_delta);
     }
     resetOffset() {
         this.setOffset(new paper.Point(0, 0));
@@ -54,9 +55,9 @@ class PaperCanvas {
     asyncAddPathV1(){
         console.log("WAIT WHAT???")
     }
-    asyncAddPathV2(segments, color, fillColor, strokeWidth, closed = false) {
+    asyncAddPathV2(segments, color, fillColor, strokeWidth, closed = false, id = "") {
         // TODO make async animation using dash
-        let p = this.addPathV2(segments, color, fillColor, strokeWidth, closed);
+        let p = this.addPathV2(segments, color, fillColor, strokeWidth, closed, id);
         let length = 0;
         for (let curveLength of p.curves.map(e => e.length)) {
             if (!Number.isNaN(curveLength)) {
@@ -73,25 +74,32 @@ class PaperCanvas {
         // p.tween({ dashArray: [10, 10] }, { dashArray: [1000, 10] }, 3000);
     }
 
-    addPathV2(segments, color, fillColor, strokeWidth, closed = false) {
+    addPathV2(segments, color, fillColor, strokeWidth, closed = false, id = "") {
         var p = new paper.Path(segments);
         p.strokeColor = color;
         // if (fillColor != "#00000000") { p.fillColor = fillColor; }
         p.fillColor = fillColor;
+        
         p.strokeWidth = strokeWidth;
         p.strokeCap = "round";
         p.closed = closed;
+        if(id != ""){
+            p.data.id = id
+        }
         return p;
         // p.moveTo(new paper.Point(points[0][1], points[0][2]));
         // for (let i = 1; i < points.length; i++) {
         //     p.lineTo(new paper.Point(points[i][1], points[i][2]));
         // }
     }
-    addPathV1(points, color, [pos, size]) {
+    addPathV1(points, color, [pos, size], id = "") {
         var p = new paper.Path();
         p.strokeColor = color;
         p.strokeWidth = 2;
         p.strokeCap = "round";
+        if(id != ""){
+            p.data.id = id
+        }
         p.moveTo(new paper.Point(points[0][1], points[0][2]));
         for (let i = 1; i < points.length; i++) {
             p.lineTo(new paper.Point(points[i][1], points[i][2]));
