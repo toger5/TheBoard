@@ -13,6 +13,7 @@ function parsePath(p_path, objpos) {
 }
 function parseBezierPath(p_path, objpos) {
     let arr = p_path.split(" ");
+    arr = arr.filter((e)=>e!="")
     var offset = objpos.split(" ");
     var returnval = [];
     for (let i = 0; i < arr.length; i += 6) {
@@ -50,7 +51,7 @@ function paperPathToString(path) {
         paper_path_string += s.point.x.toFixed(precision) + " " + s.point.y.toFixed(precision) + " " + s.handleIn.x.toFixed(precision) + " " + s.handleIn.y.toFixed(precision) + " " + s.handleOut.x.toFixed(precision) + " " + s.handleOut.y.toFixed(precision) + " ";
     }
     movedPath.remove();
-    return [boundingRect.topLeft, boundingRect.size, paper_path_string];
+    return [boundingRect.topLeft, boundingRect.size, paper_path_string.trim()];
 }
 function pathPosSizeCorrection(points) {
     let posMin = [Number.MAX_VALUE, Number.MAX_VALUE];

@@ -12,7 +12,7 @@ class ToolRect {
     tooldown(proX, proY, pressure) {
         this.tool_canceled = false;
         let pt = new paper.Point(proX, proY);
-        this.drawing_canvas.activateToolLayer();
+        drawing_canvas.activateToolLayer();
         this.canvas_rect = new paper.Path.Rectangle(pt, pt)
         let colorAlpha = setAlpha(GetPickerColor(), 0.3);
         this.canvas_rect.strokeColor = colorAlpha;
@@ -21,7 +21,7 @@ class ToolRect {
         // this.mouse_path_start_time = Date.now();
         // this.last_pos = [0, pt.x, pt.y, pressure];
         // this.mouse_path = [[0, pt.x, pt.y, pressure * 4]];
-        this.drawing_canvas.activateDrawLayer();
+        drawing_canvas.activateDrawLayer();
         console.log("tooldown");
     }
     toolmove(proX, proY, pressure) {

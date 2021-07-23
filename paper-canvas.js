@@ -59,11 +59,7 @@ class PaperCanvas {
         // TODO make async animation using dash
         let p = this.addPathV2(segments, color, fillColor, strokeWidth, closed, id);
         let length = 0;
-        for (let curveLength of p.curves.map(e => e.length)) {
-            if (!Number.isNaN(curveLength)) {
-                length += curveLength;
-            }
-        }
+        length = p.length;
         p.dashArray = [length, length];
         // TODO dont hardcode the speed. instead get it from the event
         // "drawSpeed": "20 50 50 20 12"
