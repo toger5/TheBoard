@@ -155,7 +155,7 @@ function showLoading(msg) {
     let loading = document.getElementById("loading");
     loading.style.display = "block";
     let span = document.getElementById("loading-span");
-    span.innerHTML = "Loading: " + msg
+    span.innerHTML = msg
 }
 function hideLoading() {
     let loading = document.getElementById("loading");
@@ -166,10 +166,14 @@ function hideLogin() {
     login.style.display = "none"
 }
 async function login(username, password) {
-    showLoading("login with:", username, " ", password);
-    let registerResult = await matrixClient.loginWithPassword(username, password, function (obj) {
-        console.log(obj);
-        hideLogin();
+    showLoading("login with: "+ username+ " ");
+    let registerResult = await matrixClient.loginWithPassword(username, password, function (err) {
+        if(err instanceof Error){
+            showLoading(err.message)
+            return;
+        }else{
+            hideLogin();
+        }
     })
     console.log(registerResult);
     document.getElementById("userIdLabel").innerHTML = registerResult.user_id;
