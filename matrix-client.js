@@ -13,7 +13,7 @@ window.onload = function () {
     init_color_picker();
     drawing_canvas.init();
     init_tool_wheel();
-
+    init_line_style_selector();
     var pwd_input = document.getElementById("login-form-password");
 
     pwd_input.addEventListener("keypress", function (event) {
@@ -92,9 +92,9 @@ class ObjectStore {
         let room = this.data[obj.room_id];
         // console.log("adding obj that already exists: ", room.all.some(el => el.event_id == obj.event_id));
         room.allDict[obj.event_id] = obj;
-        if (!room.redacted.has(obj.event_id)) {
+        // if (!room.redacted.has(obj.event_id)) {
             // room.all.push(obj);
-        }
+        // }
     }
     allSorted() {
         if (currentRoomId in this.data) {
@@ -203,19 +203,38 @@ matrixClient.on("sync", function (state, prevState, data) {
             break;
     }
 });
-matrixClient.on("Room.localEchoUpdated", function (msg, room, oldId, newId) {
+matrixClient.on("Room.localEchoUpdated", function (msg, room, oldId, newStatus) {
     if (msg.getType() === "p.whiteboard.object" && msg.status === "sent") {
+        let item = paper.project.getItem({ class: "Path", match: function (item) { return item.data.id == oldId } })
+        if (item){
+            item.data.id = msg.event.event_id
+        }
         objectStore.add(msg.event);
+
         // console.log("now its sent")
     }
 })
+// var replacedEvents = new Set();
 matrixClient.on("Room.timeline", function (msg, room, toStartOfTimeline) {
     if (msg.isRedacted()) {
         console.log("skipped redacted evpped redacted event")
         return;
     }
+    // // message is replaced
+    // if (replacedEvents.has(msg.event.event_id)){
+    //     console.log("skipped replaced event")
+    //     return;
+    // }
     if (msg.getType() == "p.whiteboard.object") {
         // console.log("event from : ", new Date(), msg.getDate());
+        // let content = msg.event.content
+        // if("m.relates_to" in msg.event.content){
+        //     if(msg.event.content["m.relates_to"].rel_type == "m.replace"){
+        //         replacedEvents.add(msg.event.content["m.relates_to"].event_id)
+        //         msg.event.content = msg.event.content["m.new_content"];
+        //     }
+        // }
+
         if (Date.now() - msg.getDate().getTime() < 200000) {
             // ANIMATED toggle
             drawEvent(msg.event, true);
@@ -226,12 +245,12 @@ matrixClient.on("Room.timeline", function (msg, room, toStartOfTimeline) {
         }
     }
     if (msg.getType() == "m.room.redaction") {
-        // this is debatable. When an event is super slow the canvas will still show it until some other event happens to trigger a redraw
-        if (Date.now() - msg.event.origin_server_ts < 200000) {
+        // this is debateable. When an event is super slow the canvas will still show it until some other event happens to trigger a redraw
+        // if (Date.now() - msg.event.origin_server_ts < 200000) {
             objectStore.redactById(msg.event.redacts, msg.event.room_id);
             // reloadCacheCanvas();
-            drawing_canvas.updateDisplay(true);
-        }
+            // drawing_canvas.updateDisplay(true);
+        // }
     }
     if (msg.getType() !== "m.room.message") {
         return; // only use messages

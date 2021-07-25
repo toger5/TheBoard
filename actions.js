@@ -66,11 +66,15 @@ function sendRandomText(client, room) {
 function sendCustomEvent(client, room) {
     console.log("try to send custom event: ...")
     const content = {
+        "version": 2,
         "svg": "none",
         "objtype": "p.path",
         "objpos": "100 100",
         "objcolor": "#000",
-        "path": "0.0 1 1 0.1 2 1 0.3 4 4",
+        "closed": true,
+        "objFillColor": '#ff000030',
+        "strokeWidth": 3,
+        "path": "0 0 0 0 0 0 0 100 0 20 0 0 100 100 0 0 0 0 0 100 0 0 0 0 ",
     };
     client.sendEvent(room, "p.whiteboard.object", content, "", (err, res) => {
         console.log(err);
@@ -184,4 +188,89 @@ function formSubmit(e) {
     e.preventDefault();
     console.log('onsub');
     return false;
+}
+
+function replaceLastEvent(matrixClient, currentRoomId) {
+    let id = "";
+    // let room = client.getRoom(roomId);
+    let userId = matrixClient.getUserId();
+    let sortedEvents = objectStore.allSorted();
+    for (i = sortedEvents.length - 1; (id === "" && i >= 0); i--) {
+        let event = sortedEvents[i];
+        console.log("looping through events to find the one to redact");
+        if (event.type == "p.whiteboard.object" && event.sender == userId) {
+            id = event.event_id;
+            break;
+        }
+    }
+    let replaceId = id;
+    const content = {
+        "version": 2,
+        "svg": "none",
+        "objtype": "p.path",
+        "objpos": "100 100",
+        "objcolor": "#000",
+        "closed": true,
+        "objFillColor": '#ff000030',
+        "strokeWidth": 3,
+        "path": "0 0 0 0 0 0 0 100 0 0 0 0 100 100 0 0 0 0 100 0 0 0 0 0",
+    };
+    // const replaceContent = {
+    //     "body": "",
+    //     "m.new_content": content,
+    //     "m.relates_to": {
+    //         "rel_type": "m.replace",
+    //         "event_id": replaceId
+    //     }
+    // }
+    matrixClient.sendEvent(currentRoomId, "p.whiteboard.object", content, "", (err, res) => {
+        console.log(err);
+    });
+    matrixClient.redactEvent(currentRoomId, replaceId).then(t => {
+        console.log("redacted for replace ", t);
+    });
+}
+function lastEvent() {
+    let lastEvent = null;
+    // let room = client.getRoom(roomId);
+    let userId = matrixClient.getUserId();
+    let sortedEvents = objectStore.allSorted();
+    for (i = sortedEvents.length - 1;  i >= 0; i--) {
+        let event = sortedEvents[i];
+        console.log("looping through events to find the one to redact");
+        if (event.type == "p.whiteboard.object" && event.sender == userId) {
+            lastEvent = event;
+            break;
+        }
+    }
+    return lastEvent;
+}
+function replaceEvent(idToReplace, newContent) {
+    matrixClient.sendEvent(currentRoomId, "p.whiteboard.object", newContent, "", (err, res) => {
+        console.log(err);
+    });
+    matrixClient.redactEvent(currentRoomId, idToReplace).then(t => {
+        console.log("redacted for replace ", t);
+    });
+}
+function replaceLastEvent(matrixClient, currentRoomId) {
+    let replaceId = lastEvent().event_id;
+    const content = {
+        "version": 2,
+        "svg": "none",
+        "objtype": "p.path",
+        "objpos": "100 100",
+        "objcolor": "#000",
+        "closed": true,
+        "objFillColor": '#ff000030',
+        "strokeWidth": 3,
+        "path": "0 0 0 0 0 0 0 100 0 0 0 0 100 100 0 0 0 0 100 0 0 0 0 0",
+    };
+    replaceEvent(replaceId, content);
+}
+function moveLastEvent() {
+    let ev= lastEvent();
+    let newPoint = parsePoint(ev.content.objpos).add(new paper.Point(100, 0));
+    ev.content.objpos = newPoint.x + " " + newPoint.y;
+    replaceEvent(ev.event_id, ev.content)
 }

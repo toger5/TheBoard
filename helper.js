@@ -83,7 +83,7 @@ function dist(p, q) {
 }
 function parsePoint(string) {
     let arr = (string || "0 0").split(" ");
-    return [parseFloat(arr[0]), parseFloat(arr[1])];
+    return new paper.Point(parseFloat(arr[0]), parseFloat(arr[1]));
 }
 
 function setAlpha(color, opacity) {

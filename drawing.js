@@ -19,18 +19,18 @@ function drawEvent(event, animated, updateDisplay = true) {
             let color = "objcolor" in event.content ? event.content.objcolor : "#000"
             // let strokeWidth = parseFloat(event.content.strokeWidth);
             if (animated) {
-                drawing_canvas.asyncAddPathV1(pos, points, color);
+                drawing_canvas.asyncAddPathV1([pos.x,pos.y], points, color);
             } else {
-                drawing_canvas.drawBoundingBox([pos, size]);
-                drawing_canvas.addPathV1(points, color, [pos, size], event.event_id);
+                drawing_canvas.drawBoundingBox([[pos.x,pos.y], size]);
+                drawing_canvas.addPathV1(points, color, [[pos.x,pos.y], size], event.event_id);
                 if (updateDisplay) { drawing_canvas.updateDisplay(true); }
             }
         }
         
         else if (event.content.version == 2){
             let segments = parseBezierPath(event.content.path, event.content.objpos);
-            let pos = parsePoint(event.content.objpos);
-            let size = parsePoint(event.content.objsize);
+            // let pos = parsePoint(event.content.objpos);
+            // let size = parsePoint(event.content.objsize);
             let strokeWidth = parseFloat(event.content.strokeWidth);
             let closed = ("closed" in event.content && event.content.closed)
             let color = "objcolor" in event.content ? event.content.objcolor : "#000"
