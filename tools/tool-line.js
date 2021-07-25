@@ -8,17 +8,19 @@ class ToolLine {
         this.tool_canceled = true;
 
         // Tool settings
-        this.strokeWidth = 2;
-        this.strokeWidthOptions = [1, 2, 4];
+        // this.strokeWidth = 2;
+        this.strokeWidthOptions = [1, 2, 4, 8];
     }
-
+    getStrokeWidth(){
+        return this.strokeWidthOptions[GetToolStrokeWidthIndex()];
+    }
     tooldown(proX, proY, pressure) {
         this.tool_canceled = false;
         let pt = new paper.Point(proX, proY);
         this.canvas_line = new paper.Path([pt,pt])
         let colorAlpha = setAlpha(GetPickerColor(), 0.3);
         this.canvas_line.strokeColor = colorAlpha;
-        this.canvas_line.strokeWidth = this.strokeWidth;
+        this.canvas_line.strokeWidth = this.getStrokeWidth();
         this.canvas_line.strokeCap = "round"
         // this.mouse_path_start_time = Date.now();
         // this.last_pos = [0, pt.x, pt.y, pressure];
@@ -42,7 +44,7 @@ class ToolLine {
             let version = 2;
             sendPath(matrixClient, currentRoomId,
                 string_path,
-                GetPickerColor(),'#00000000', [pos.x,pos.y], [size.width,size.height], this.strokeWidth, false, version);
+                GetPickerColor(),'#00000000', [pos.x,pos.y], [size.width,size.height], this.getStrokeWidth(), false, version);
         } else {
             console.log("NO ROOM SELECTED TO DRAW IN!")
             drawing_canvas.updateDisplay();

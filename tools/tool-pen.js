@@ -10,8 +10,8 @@ class ToolPen {
         this.tool_canceled = false;
 
         // Tool settings
-        this.strokeWidth = 2;
-        this.strokeWidthOptions = [1, 2, 4];
+        // this.strokeWidth = 2;
+        this.strokeWidthOptions = [1, 2, 4, 8];
 
         this.previewItem = null;
 
@@ -19,7 +19,7 @@ class ToolPen {
         this.previewPathTween = null;
     }
     getStrokeWidth() {
-        return this.strokeWidth * (this.isMarker ? 10 : 1);
+        return this.strokeWidthOptions[GetToolStrokeWidthIndex()] * (this.isMarker ? 10 : 1);
     }
     getStrokeColor() {
         return this.isMarker ? setAlpha(GetPickerColor(), 0.1) : GetPickerColor();
@@ -38,14 +38,15 @@ class ToolPen {
             }
         }
         this.previewPaths.filter((path) => { path.visible })
-        
+
         let prev = new paper.Path();
         this.previewPaths.push(prev);
-        
-        let colorAlpha = setAlpha(this.getStrokeColor(), 0.5);
+
+        let colorAlpha = new paper.Color(this.getStrokeColor());
+        colorAlpha.alpha = colorAlpha.alpha * 0.6;
         // let colorAlpha = setAlpha(this.getStrokeColor(), 0.3);
         prev.strokeColor = colorAlpha;
-        prev.strokeWidth = this.strokeWidth;
+        prev.strokeWidth = this.getStrokeWidth();
         prev.strokeCap = "round"
         prev.moveTo(new paper.Point(proX, proY))
         drawing_canvas.activateDrawLayer()
@@ -127,13 +128,13 @@ class ToolPen {
             prev.visible = false
         });
     }
-    activate(){
-        if(this.previewItem){
+    activate() {
+        if (this.previewItem) {
             this.previewItem.visible = true;
         }
     }
-    deactivate(){
-        if(this.previewItem){
+    deactivate() {
+        if (this.previewItem) {
             this.previewItem.visible = false;
         }
     }

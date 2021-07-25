@@ -8,7 +8,7 @@ class ToolEraser {
         this.idsToDelete = []
 
         // Tool settings
-        this.strokeWidth = 10;
+        // this.strokeWidth = 10;
         this.strokeWidthOptions = [5, 10, 20, 40];
 
         // Preview
@@ -16,6 +16,9 @@ class ToolEraser {
 
     }
 
+    getStrokeWidth(){
+        return this.strokeWidthOptions[GetToolStrokeWidthIndex()];
+    }
     tooldown(proX, proY, pressure) {
         this.tool_canceled = false;
         this.addItemsFromPoint(new paper.Point(proX, proY))
@@ -28,7 +31,7 @@ class ToolEraser {
     addItemsFromPoint(testPoint){
         var hitOptions = {
             stroke: true,
-            tolerance: this.strokeWidth,
+            tolerance: this.getStrokeWidth(),
             match: function (hitRes){
                 return !("markedForDeletion" in hitRes.item.data)
                     && ("id" in hitRes.item.data)
@@ -97,11 +100,11 @@ class ToolEraser {
             this.previewItem.dashArray = [3, 3]
             this.previewItem.strokeCap = 'round'
             // this.previewItem.applyMatrix = false
-            this.previewItem.scaling = new paper.Point(this.strokeWidth, this.strokeWidth)
+            // this.previewItem.scaling = new paper.Point(this.getStrokeWidth(), this.getStrokeWidth())
             drawing_canvas.activateDrawLayer()
         }
-        if (this.previewItem.bounds.size.width != this.strokeWidth) {
-            let w = this.strokeWidth / this.previewItem.bounds.size.width
+        if (this.previewItem.bounds.size.width != this.getStrokeWidth()) {
+            let w = this.getStrokeWidth() / this.previewItem.bounds.size.width
             this.previewItem.scaling = new paper.Point(w, w)
         }
         this.previewItem.position = pos;

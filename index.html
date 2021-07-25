@@ -10,6 +10,7 @@
     <script src="paper-canvas.js"></script>
     <script src="drawing.js"></script>
     <script src="helper.js"></script>
+    <script src="tools/line-style-selector.js"></script>
     <script src="tools/tool-pen.js"></script>
     <script src="tools/tool-line.js"></script>
     <script src="tools/tool-eraser.js"></script>
@@ -278,15 +279,15 @@
             height: 16em;
         }
 
-        #tool-wheel button {
+        #tool-wheel > button {
             pointer-events: all;
             text-align: center;
             font-size: xx-small;
-            width: 4.5em;
-            height: 4.5em;
+            width: 45px;
+            height: 45px;
             margin: 0;
             box-shadow: 0px 0px 15px #999;
-            background-color: white;
+            background-color: #00000000;
             border-style: none;
             overflow: hidden;
             border-radius: 50%;
@@ -301,13 +302,30 @@
             border-width: 2px;
             border-color: black;
             border-style: dotted;
-            width: 5.3em;
-            height: 5.3em;
+            width: 52px;
+            height: 52px;
         }
 
         #tool-wheel button:hover {
             background-color: white;
             box-shadow: 0px 0px 5px #555;
+        }
+        #line-type-selector{
+            position: absolute;
+            transform: translate(-50%,50%);
+
+            pointer-events: all;
+            /* text-align: center; */
+            /* font-size: xx-small; */
+            width: 45px;
+            height: 45px;
+            margin: 0;
+            box-shadow: 0px 0px 15px #999;
+            background-color: #00000000;
+            border-style: none;
+            overflow: hidden;
+            border-radius: 50%;
+            transition: 0.2s;
         }
     </style>
 </head>
@@ -326,6 +344,7 @@
         <!-- <button onclick="sendRandomWalk(matrixClient, currentRoomId)">RandomWalk</button> -->
         <!-- <button onclick="sendCustomEvent(matrixClient, currentRoomId)">sendCustomEvent (p.Whiteboard.object of type p.path)</button> -->
         <!-- <button onclick="sendRandomText(matrixClient, currentRoomId)">RandomText</button> -->
+        <button onclick="replaceLastEvent(matrixClient, currentRoomId)">ReplaceLast</button>
         <button onclick="redactLastAction(matrixClient, currentRoomId)">redact Last</button>
         <br />
         <button
@@ -360,14 +379,32 @@
     </div>
     <div id='tool-wheel'>
         <canvas id="color-picker-canvas" resize></canvas>
-        <button id="tool-type-pen">Pen</button>
-        <button id="tool-type-eraser">Eraser</button>
-        <button id="tool-type-marker">Marker</button>
-        <button id="tool-type-line">Line</button>
-        <button id="tool-type-square">Square</button>
-        <!-- <button id="tool-type-ellipse">Ellipse</button>
-        <button id="tool-type-text">Text</button>
-        <button id="tool-type-line-type">LT</button> -->
+        <button class='tool-elements' id="tool-type-pen">Pen</button>
+        <button class='tool-elements' id="tool-type-eraser">Eraser</button>
+        <button class='tool-elements' id="tool-type-marker">Marker</button>
+        <button class='tool-elements' id="tool-type-line">Line</button>
+        <button class='tool-elements' id="tool-type-square">Square</button>
+        <!-- <button id="tool-type-ellipse">Ellipse</button> -->
+        <!-- <button id="tool-type-text">Text</button> -->
+        <div id="line-type-selector" class='tool-elements'>
+            <button id="line-type-selector-button" style="width: 100%;height: 100%;margin:0;border-style: none;background-color: transparent;">
+                <!-- <div
+                    style="background-color: red; border-color: black; border-style: solid; height: 100%;width: 100%;top:0;position: absolute;">
+                </div> -->
+                <div
+                    id="line-style-small" style="border-radius: 50%; background-color: black; width: 2px;height: 2px; left: 50%; top:50%;transform: translate(-50%,-50%);position:absolute">
+                </div>
+                <div
+                    id="line-style-medium" style="border-radius: 50%; background-color: black; width: 5px;height: 5px; left: 50%; top:50%;transform: translate(-50%,-50%);position:absolute">
+                </div>
+                <div
+                    id="line-style-large" style="border-radius: 50%; background-color: black; width: 8px;height: 8px; left: 50%; top:50%;transform: translate(-50%,-50%);position:absolute">
+                </div>
+                <div
+                    id="line-style-large" style="border-radius: 50%; background-color: black; width: 12px;height: 12px; left: 50%; top:50%;transform: translate(-50%,-50%);position:absolute">
+                </div>
+            </button>
+        </div>
     </div>
 
     <div id="loginContainer">

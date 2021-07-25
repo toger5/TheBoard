@@ -5,8 +5,10 @@ class ToolRect {
         this.canvas_rect = null;
 
         // Tool settings
-        this.strokeWidth = 2;
-        this.strokeWidthOptions = [1, 2, 4];
+        this.strokeWidthOptions = [1, 2, 4,8];
+    }
+    getStrokeWidth(){
+        return this.strokeWidthOptions[GetToolStrokeWidthIndex()];
     }
 
     tooldown(proX, proY, pressure) {
@@ -16,7 +18,7 @@ class ToolRect {
         this.canvas_rect = new paper.Path.Rectangle(pt, pt)
         let colorAlpha = setAlpha(GetPickerColor(), 0.3);
         this.canvas_rect.strokeColor = colorAlpha;
-        this.canvas_rect.strokeWidth = this.strokeWidth;
+        this.canvas_rect.strokeWidth = this.getStrokeWidth();
         this.canvas_rect.strokeCap = "round"
         // this.mouse_path_start_time = Date.now();
         // this.last_pos = [0, pt.x, pt.y, pressure];
@@ -45,7 +47,7 @@ class ToolRect {
             let version = 2;
             sendPath(matrixClient, currentRoomId,
                 string_path,
-                GetPickerColor(), setAlpha(GetPickerColor(), 0.08),[pos.x, pos.y], [size.width, size.height], this.strokeWidth, true, version);
+                GetPickerColor(), setAlpha(GetPickerColor(), 0.08),[pos.x, pos.y], [size.width, size.height], this.getStrokeWidth(), true, version);
         } else {
             console.log("NO ROOM SELECTED TO DRAW IN!")
             drawing_canvas.updateDisplay();
