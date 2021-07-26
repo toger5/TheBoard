@@ -6,21 +6,24 @@ function init_tool_wheel() {
   // center = new paper.Point(208, 208);
   center = center.multiply(0.5);
   let children = document.querySelectorAll(".tool-elements");
-  let buttons = document.querySelectorAll("#tool-wheel button");
+  // let buttons = document.querySelectorAll("#tool-wheel button");
+  let settingsButton = document.getElementById("settings-button");
+  settingsButton.style.left = center.x
+  settingsButton.style.bottom = center.y
   let rad = center.x+15;
   let offset = -Math.PI / 10;// -Math.PI / 4;
   for (let i = 0; i < children.length; i++) {
     // all units in em
-    console.log(wheelContainer.children[i].tagName);
+    console.log(children[i].tagName);
     let child = children[i];
     let angle = i * Math.PI / 7 + offset;
     let pos = new paper.Point(Math.sin(angle) * rad, Math.cos(angle) * rad);
     child.style.left = center.x + pos.x;
     child.style.bottom = center.y + pos.y;
   }
-  for(let b of buttons){
+  for(let b of children){
     b.onclick = function (buttonEv) {
-      for (let btn of buttons) {
+      for (let btn of children) {
         btn.classList.remove('active');
       }
       activeTool.deactivate()

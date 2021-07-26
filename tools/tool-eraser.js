@@ -103,8 +103,8 @@ class ToolEraser {
             // this.previewItem.scaling = new paper.Point(this.getStrokeWidth(), this.getStrokeWidth())
             drawing_canvas.activateDrawLayer()
         }
-        if (this.previewItem.bounds.size.width != this.getStrokeWidth()) {
-            let w = this.getStrokeWidth() / this.previewItem.bounds.size.width
+        if (this.previewItem.bounds.size.width != 2 * this.getStrokeWidth()) {
+            let w = 2 * this.getStrokeWidth() / this.previewItem.bounds.size.width
             this.previewItem.scaling = new paper.Point(w, w)
         }
         this.previewItem.position = pos;

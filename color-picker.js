@@ -29,6 +29,9 @@ class ColorPicker {
         this.middleCircle = 0.7
 
         this.project = new paper.Project("color-picker-canvas");
+        this.redraw();
+    }
+    redraw(){
         this.project.activate();
         let el = document.getElementById('color-picker-canvas');
         let size = paper.view.size;
@@ -38,12 +41,6 @@ class ColorPicker {
         circleBg.shadowBlur = this.COLOR_PICKER_BORDER;
         circleBg.shadowColor = 'grey';
         circleBg.fillColor = 'white';
-        // let circleSegment = this.create_segment(cent, 30, radi, 0, 1);
-        // let c2 = circleSegment.clone();
-        // c2.scale(0.95);
-        // c2.strokeWidth = 3
-        // c2.strokeColor = 'white'
-        // circleSegment.fillColor = 'red';
         this.colorPaths[0] = this.create_segment_ring(this.colors, cent, radi * this.middleCircle - 1, radi, 0);
         this.colorPaths[1] = this.create_segment_ring(this.darkColors, cent, radi * this.innerCircle, radi * this.middleCircle, 1);
 
@@ -53,6 +50,12 @@ class ColorPicker {
         circleInner.fillColor = 'white';
 
         paper.projects[0].activate();
+    }
+    setColorPalette(palette){
+        this.colors = ["#999"].concat(palette);
+        this.darkColors = this.colors.map((c) => { return new paper.Color(c).multiply(0.7) });
+        this.darkColors[0] = 'black'
+        this.redraw()
     }
     create_segment_ring(colors, center, innerRad, outerRad, index) {
         let count = colors.length;

@@ -235,7 +235,7 @@ function lastEvent() {
     // let room = client.getRoom(roomId);
     let userId = matrixClient.getUserId();
     let sortedEvents = objectStore.allSorted();
-    for (i = sortedEvents.length - 1;  i >= 0; i--) {
+    for (i = sortedEvents.length - 1; i >= 0; i--) {
         let event = sortedEvents[i];
         console.log("looping through events to find the one to redact");
         if (event.type == "p.whiteboard.object" && event.sender == userId) {
@@ -269,8 +269,41 @@ function replaceLastEvent(matrixClient, currentRoomId) {
     replaceEvent(replaceId, content);
 }
 function moveLastEvent() {
-    let ev= lastEvent();
+    let ev = lastEvent();
     let newPoint = parsePoint(ev.content.objpos).add(new paper.Point(100, 0));
     ev.content.objpos = newPoint.x + " " + newPoint.y;
     replaceEvent(ev.event_id, ev.content)
+}
+function toggleLeftBar() {
+    let body = document.getElementById('leftbar-expand');
+    let footer = document.getElementById('leftbar-footer')
+    if (body.getBoundingClientRect().height == 0) {
+        body.style.height = '20em';
+        footer.innerHTML = '˄'
+    } else {
+        body.style.height = '0';
+        footer.innerHTML = '˅'
+    }
+}
+function showAddRoomMenu(){
+    let addRoomMenu = document.getElementById("add-room-container")
+    addRoomMenu.style.display = 'block'
+
+}
+function hideAddRoomMenu(){
+    let addRoomMenu = document.getElementById("add-room-container")
+    addRoomMenu.style.display = 'none'
+}
+
+function showSettingsMenu(){
+    let settingsMenu = document.getElementById("settings-container")
+    let roomId = document.getElementById('room-menu-room-id')
+    let room = matrixClient.getRoom(currentRoomId);
+
+    roomId.innerHTML= room.roomId
+    settingsMenu.style.display = 'block'
+}
+function hideSettingsMenu(){
+    let settingsMenu = document.getElementById("settings-container")
+    settingsMenu.style.display = 'none'
 }

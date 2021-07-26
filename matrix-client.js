@@ -33,17 +33,26 @@ async function updateRoomList() {
     // let idLabel = document.getElementById("userIdLabel");
     let leftbarBody = document.getElementById("leftbar-body");
     for (r in visibleRooms) {
+        let room = visibleRooms[r];
+        console.log(Array.from(room.currentState.events.keys()))
+        if (!room.currentState.events.has('p.whiteboard.settings')) {
+            continue // only show rooms which are marked as whitebaord rooms
+        }
+        let id = room.roomId;
         var roomButton = document.createElement("div");
-        let id = visibleRooms[r].roomId;
         console.log(id)
         roomButton.onclick = function (a) { console.log(a); loadRoom(id); };
         roomButton.classList.add("room-button");
         var roomText = document.createElement("p");
         roomText.innerText = visibleRooms[r].name;
         roomButton.appendChild(roomText);
-        leftbarBody.appendChild(roomButton);
+        leftbarBody.insertBefore(roomButton, leftbarBody.firstChild);
     }
     console.log(visibleRooms);
+}
+function makeWhitebaordFromRoom(roomId) {
+    let content = {}
+    matrixClient.sendStateEvent(roomId, "p.whiteboard.settings", content, "").then((res) => { console.log("added state: ", res) })
 }
 const chunkSize = 300
 class ObjectStore {
@@ -93,7 +102,7 @@ class ObjectStore {
         // console.log("adding obj that already exists: ", room.all.some(el => el.event_id == obj.event_id));
         room.allDict[obj.event_id] = obj;
         // if (!room.redacted.has(obj.event_id)) {
-            // room.all.push(obj);
+        // room.all.push(obj);
         // }
     }
     allSorted() {
@@ -206,7 +215,7 @@ matrixClient.on("sync", function (state, prevState, data) {
 matrixClient.on("Room.localEchoUpdated", function (msg, room, oldId, newStatus) {
     if (msg.getType() === "p.whiteboard.object" && msg.status === "sent") {
         let item = paper.project.getItem({ class: "Path", match: function (item) { return item.data.id == oldId } })
-        if (item){
+        if (item) {
             item.data.id = msg.event.event_id
         }
         objectStore.add(msg.event);
@@ -235,10 +244,14 @@ matrixClient.on("Room.timeline", function (msg, room, toStartOfTimeline) {
         //     }
         // }
 
-        if (Date.now() - msg.getDate().getTime() < 200000) {
+        // if (Date.now() - msg.getDate().getTime() < 200000) {
+        //     // ANIMATED toggle
+        //     drawEvent(msg.event, true);
+        // }
+        // if (Date.now() - msg.getDate().getTime() < 200000) {
             // ANIMATED toggle
-            drawEvent(msg.event, true);
-        }
+        drawEvent(msg.event, Date.now() - msg.getDate().getTime() < 200000);
+        // }
         if (msg.status == null) {
             //event is not sending but loaded from scrollback
             objectStore.add(msg.event);
@@ -247,9 +260,9 @@ matrixClient.on("Room.timeline", function (msg, room, toStartOfTimeline) {
     if (msg.getType() == "m.room.redaction") {
         // this is debateable. When an event is super slow the canvas will still show it until some other event happens to trigger a redraw
         // if (Date.now() - msg.event.origin_server_ts < 200000) {
-            objectStore.redactById(msg.event.redacts, msg.event.room_id);
-            // reloadCacheCanvas();
-            // drawing_canvas.updateDisplay(true);
+        objectStore.redactById(msg.event.redacts, msg.event.room_id);
+        // reloadCacheCanvas();
+        // drawing_canvas.updateDisplay(true);
         // }
     }
     if (msg.getType() !== "m.room.message") {
@@ -262,6 +275,7 @@ matrixClient.on("Room.timeline", function (msg, room, toStartOfTimeline) {
 function loadRoom(roomId, scrollback_count = -1) {
     showLoading("switching Room to: " + currentRoomId);
     console.log("switching Room to: " + currentRoomId);
+    document.getElementById('leftbar').classList.remove('no-room-selected');
     objectStore.addRoom(roomId);
     currentRoomId = roomId;
     let s_back = scrollback_count;
@@ -269,9 +283,14 @@ function loadRoom(roomId, scrollback_count = -1) {
         if (Object.keys(objectStore.all()).length == 0) { s_back = 1000; }
         else { s_back = 0; }
     }
+    let room = matrixClient.getRoom(roomId);
+    let settings = room.currentState.events.get('p.whiteboard.settings');
+    if (settings.has("colorpalette")) {
+        colorPickerSvg.setColorPalette(settings.get("colorpalette"))
+    }
     showLoading("load room history");
     scrollback(currentRoomId, s_back).then(function () {
-        reloadCacheCanvas();
+        // reloadCacheCanvas();
         drawing_canvas.updateDisplay();
     });
 }

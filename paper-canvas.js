@@ -120,7 +120,7 @@ class PaperCanvas {
         console.log("removed ", length, " items")
     }
     drawBoundingBox(box) {
-        console.log("drawBoundingBox not implemented for paper-canvas")
+        // console.log("drawBoundingBox not implemented for paper-canvas")
     }
     reload(animated = false) {
         this.clear();
