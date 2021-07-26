@@ -10,7 +10,7 @@ function init_tool_wheel() {
   let settingsButton = document.getElementById("settings-button");
   settingsButton.style.left = center.x
   settingsButton.style.bottom = center.y
-  let rad = center.x+15;
+  let rad = center.x + 15;
   let offset = -Math.PI / 10;// -Math.PI / 4;
   for (let i = 0; i < children.length; i++) {
     // all units in em
@@ -21,7 +21,8 @@ function init_tool_wheel() {
     child.style.left = center.x + pos.x;
     child.style.bottom = center.y + pos.y;
   }
-  for(let b of children){
+  for (let b of children) {
+    if (!(b.id in tools)){ continue }
     b.onclick = function (buttonEv) {
       for (let btn of children) {
         btn.classList.remove('active');
@@ -30,8 +31,9 @@ function init_tool_wheel() {
       activeTool = tools[b.id];
       activeTool.activate()
       b.classList.add('active');
+
     }
-    if(activeTool == tools[b.id]){
+    if (activeTool == tools[b.id]) {
       b.classList.add('active');
     }
   }
