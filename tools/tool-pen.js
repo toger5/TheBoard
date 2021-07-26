@@ -99,7 +99,7 @@ class ToolPen {
             }
             else if (drawing_canvas instanceof PaperCanvas) {
                 let paper_mouse_path = new paper.Path(corrected_mouse_path.map((s) => { return [s[1], s[2]] }));
-                paper_mouse_path.simplify();
+                paper_mouse_path.simplify(1/drawing_canvas.getZoom());
                 string_path = paperPathToString(paper_mouse_path)[2];
                 paper_mouse_path.remove();
                 version = 2;
