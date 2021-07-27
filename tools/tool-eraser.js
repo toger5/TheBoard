@@ -43,10 +43,12 @@ class ToolEraser {
         while (hitResult && i < 10) {
             if (!hitResult) { continue }
             console.log('hitResult', hitResult);
-            hitResult.item.opacity = 0.5;
-            hitResult.item.data.markedForDeletion = true
-            this.idsToDelete.push(hitResult.item.data.id)
-            hitResult = paper.project.hitTest(testPoint, hitOptions);
+            if(objectStore.getById(hitResult.item.data.id).sender == currentUserId){
+                hitResult.item.opacity = 0.5;
+                hitResult.item.data.markedForDeletion = true
+                this.idsToDelete.push(hitResult.item.data.id)
+                hitResult = paper.project.hitTest(testPoint, hitOptions);
+            }
             i++;
         }
     }

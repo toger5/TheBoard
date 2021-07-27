@@ -25,13 +25,14 @@ window.onload = function () {
 }
 
 async function updateRoomList() {
+    let dateNow = Date.now()
     console.log("startGettingVisibleRooms")
     let visibleRooms = await matrixClient.getVisibleRooms();
-    console.log("got all visible rooms")
+    console.log("got all visible rooms" +(Date.now()-dateNow))
     let leftbarBody = document.getElementById("leftbar-body");
     for (r in visibleRooms) {
         let room = visibleRooms[r];
-        console.log(Array.from(room.currentState.events.keys()))
+        // console.log(Array.from(room.currentState.events.keys()))
         if (!room.currentState.events.has('p.whiteboard.settings')) {
             continue // only show rooms which are marked as whitebaord rooms
         }
@@ -150,6 +151,10 @@ class ObjectStore {
             return {}
         }
     }
+    getById(id){
+        let found = Object.values(this.all()).find(el => el.event_id == id);
+        return found;
+    }
     // redactByIdInCurrent(id, remove = true) {
     //     this.currentRoom().redacted.add(id);
     //     if (remove) {
@@ -201,6 +206,7 @@ function hideLogin() {
     let login = document.getElementById("loginContainer");
     login.style.display = "none"
 }
+var currentUserId;
 async function login(username, password, serverDomain) {
     showLoading("Getting homeserver Information for domain " + serverDomain);
     let clientConf = await matrixcs.AutoDiscovery.findClientConfig(serverDomain);
@@ -210,7 +216,7 @@ async function login(username, password, serverDomain) {
         baseUrl: baseUrl
     });
     setupMatrixClientConnections();
-    let registerResult = await matrixClient.loginWithPassword(username, password, function (err) {
+    let registeredResult = await matrixClient.loginWithPassword(username, password, function (err) {
         if (err instanceof Error) {
             showLoading(err.message)
             return;
@@ -218,9 +224,10 @@ async function login(username, password, serverDomain) {
             hideLogin();
         }
     })
-    console.log(registerResult);
-    document.getElementById("userIdLabel").innerHTML = registerResult.user_id;
-    // document.getElementById("userIdLabel").innerHTML = registerResult.user_id;
+    currentUserId = registeredResult.user_id
+    console.log(registeredResult);
+    document.getElementById("userIdLabel").innerHTML = registeredResult.user_id;
+    // document.getElementById("userIdLabel").innerHTML = registeredResult.user_id;
     showLoading("start client");
     let startedResult = await matrixClient.startClient({ initialSyncLimit: 0 });
     showLoading("initial sync");
