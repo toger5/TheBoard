@@ -6,10 +6,10 @@ class PaperCanvas {
         this.drawLayer = null;
         this.canvas = null;
     }
-    activateToolLayer(){
+    activateToolLayer() {
         this.toolLayer.activate()
     }
-    activateDrawLayer(){
+    activateDrawLayer() {
         this.drawLayer.activate();
     }
     init() {
@@ -17,7 +17,7 @@ class PaperCanvas {
         this.canvas = document.getElementById('paper');
         // Create an empty project and a view for the canvas:
         paper.setup(this.canvas);
-        
+
         this.drawLayer = paper.project.activeLayer;
         this.toolLayer = new paper.Layer()
     }
@@ -52,7 +52,7 @@ class PaperCanvas {
     resetZoom() {
         this.setZoom(1);
     }
-    asyncAddPathV1(){
+    asyncAddPathV1() {
         console.log("WAIT WHAT???")
     }
     asyncAddPathV2(segments, color, fillColor, strokeWidth, closed = false, id = "") {
@@ -75,11 +75,11 @@ class PaperCanvas {
         p.strokeColor = color;
         // if (fillColor != "#00000000") { p.fillColor = fillColor; }
         p.fillColor = fillColor;
-        
+
         p.strokeWidth = strokeWidth;
         p.strokeCap = "round";
         p.closed = closed;
-        if(id != ""){
+        if (id != "") {
             p.data.id = id
         }
         return p;
@@ -93,7 +93,7 @@ class PaperCanvas {
         p.strokeColor = color;
         p.strokeWidth = 2;
         p.strokeCap = "round";
-        if(id != ""){
+        if (id != "") {
             p.data.id = id
         }
         p.moveTo(new paper.Point(points[0][1], points[0][2]));
@@ -116,7 +116,10 @@ class PaperCanvas {
         this.displayPaths.forEach((p) => { p.remove() });
     }
     clear() {
-        var length = paper.project.activeLayer.removeChildren();
+        var length = 0;// = paper.project.activeLayer.removeChildren();
+        for (let l of paper.project.layers) {
+            length += l.removeChildren();
+        }
         console.log("removed ", length, " items")
     }
     drawBoundingBox(box) {

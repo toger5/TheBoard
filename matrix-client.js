@@ -302,6 +302,7 @@ function setupMatrixClientConnections() {
     });
 }
 async function loadRoom(roomId, scrollback_count = -1, allMessages = true) {
+    drawing_canvas.clear();
     showLoading("switching Room to: " + currentRoomId);
     console.log("switching Room to: " + currentRoomId);
     document.getElementById('leftbar').classList.remove('no-room-selected');
@@ -327,12 +328,14 @@ async function loadRoom(roomId, scrollback_count = -1, allMessages = true) {
     while (scrollBackToken) {
         let percent = 1 - ((currentScrollbackDate - createDate) / (nowDate - createDate))
         let roomLoaded = await scrollback(currentRoomId, s_back, "Loaded: " + Math.floor(percent * 100) + "% (elements: " + totalLoaded + ")</br> <span style='font-size:10px'>to Date: " + currentScrollbackDate.toLocaleDateString('de-DE', dateOptions) + "  Target: " + createDate.toLocaleDateString('de-DE', dateOptions) + "</span>");
+        drawing_canvas.updateDisplay();
         currentScrollbackDate = new Date(roomLoaded.timeline[0].event.origin_server_ts);
         totalLoaded += s_back;
         scrollBackToken = room.oldState.paginationToken;
-        drawing_canvas.updateDisplay();
         if (!allMessages) { break; }
     }
+    drawing_canvas.reload();
+    drawing_canvas.updateDisplay();
 }
 function scrollback(roomId, scrollback_count = 200, loadingMsg = null) {
     console.log("load scrollback for: " + roomId);
@@ -343,7 +346,7 @@ function scrollback(roomId, scrollback_count = 200, loadingMsg = null) {
     return new Promise(function (resolve, reject) {
         if (scrollback_count == 0) {
             hideLoading();
-            resolve();
+            resolve(matrixClient.getRoom(currentRoomId));
         }
         matrixClient.scrollback(matrixClient.getRoom(roomId), scrollback_count)
             .then((room) => {
