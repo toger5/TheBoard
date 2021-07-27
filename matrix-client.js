@@ -201,10 +201,13 @@ function hideLogin() {
     let login = document.getElementById("loginContainer");
     login.style.display = "none"
 }
-async function login(username, password, serverUrl) {
-    showLoading("login with: " + username + " on server: " + serverUrl);
+async function login(username, password, serverDomain) {
+    showLoading("Getting homeserver Information for domain " + serverDomain);
+    let clientConf = await matrixcs.AutoDiscovery.findClientConfig(serverDomain);
+    let baseUrl = clientConf["m.homeserver"].base_url;
+    showLoading("login with: " + username + " on server: " + baseUrl);
     matrixClient = matrixcs.createClient({
-        baseUrl: serverUrl,
+        baseUrl: baseUrl
     });
     setupMatrixClientConnections();
     let registerResult = await matrixClient.loginWithPassword(username, password, function (err) {

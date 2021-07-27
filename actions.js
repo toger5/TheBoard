@@ -134,7 +134,7 @@ function randomPath() {
     return path;
 }
 function loginClicked() {
-    let serverUrl = "matrix.org"
+    // let serverUrl = "matrix.org"
     function checkUsername(username) {
         console.log("username to check: ", username);
         return true
@@ -146,9 +146,8 @@ function loginClicked() {
     let username = document.getElementById("login-form-username").value;
     let pwd = document.getElementById("login-form-password").value;
     if (checkpwd(pwd) && checkUsername(username)) {
-        serverUrl = "https://"+username.split(":")[1]
-        console.log(serverUrl)
-        login(username, pwd, serverUrl);
+        let domain = username.split(":")[1]
+        login(username, pwd, domain);
     }
 }
 function randomWalk() {
