@@ -75,7 +75,8 @@
             width: 90%;
         }
         #add-room-container {
-            width: 90%;
+            width: 80%;
+            height: 80%;
         }
         #topbar {
             overflow: hidden;
@@ -386,6 +387,7 @@
         }
         #add-room-list{
             scrollbar-width: thin;
+            flex: 100;
             overflow-y: scroll;
         }
     </style>
@@ -494,10 +496,14 @@
         <p id="room-menu-room-id">roomId</p>
     </div>
     <div class="center-container" id="add-room-container" style="display: none;">
-        <button style="float: right;"onclick="hideAddRoomMenu()">close</button>
-        <p>List of all rooms to choose which one to add</p>
-        <div id="add-room-list">
-
+        <div style="height:100%;display: flex;flex-direction: column;">
+            <div style="flex: 0">
+                <button style="float: right;"onclick="hideAddRoomMenu()">close</button>
+                <p>List of all rooms. Choose which one to add to your whiteboard list</p>
+            </div>
+            <div id="add-room-list">
+    
+            </div>
         </div>
     </div>
 </body>

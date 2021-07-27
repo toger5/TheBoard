@@ -27,7 +27,9 @@ window.onload = function () {
 }
 
 async function updateRoomList() {
+    console.log("startGettingVisibleRooms")
     let visibleRooms = await matrixClient.getVisibleRooms();
+    console.log("got all visible rooms")
     let leftbarBody = document.getElementById("leftbar-body");
     for (r in visibleRooms) {
         let room = visibleRooms[r];
