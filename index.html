@@ -384,6 +384,10 @@
             border-radius: 50%;
             transition: 0.2s;
         }
+        #add-room-list{
+            scrollbar-width: thin;
+            overflow-y: scroll;
+        }
     </style>
 </head>
 
@@ -491,8 +495,10 @@
     </div>
     <div class="center-container" id="add-room-container" style="display: none;">
         <button style="float: right;"onclick="hideAddRoomMenu()">close</button>
-        <p id="room-menu-room-id">List of all rooms to choose which one to add</p>
-        <div id="add-room-list"></div>
+        <p>List of all rooms to choose which one to add</p>
+        <div id="add-room-list">
+            
+        </div>
     </div>
 </body>
 

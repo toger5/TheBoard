@@ -286,6 +286,7 @@ function toggleLeftBar() {
     }
 }
 function showAddRoomMenu(){
+    updateAddRoomList()
     let addRoomMenu = document.getElementById("add-room-container")
     addRoomMenu.style.display = 'block'
 

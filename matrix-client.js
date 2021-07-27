@@ -8,7 +8,6 @@ const matrixClient = matrixcs.createClient({
 });
 // var paper_canvas = new PaperCanvas();
 window.onload = function () {
-
     init_input(document.getElementById(drawing_canvas.css_id));
     init_color_picker();
     drawing_canvas.init();
@@ -29,8 +28,6 @@ window.onload = function () {
 
 async function updateRoomList() {
     let visibleRooms = await matrixClient.getVisibleRooms();
-    // var rooms = matrixClient.getRooms();
-    // let idLabel = document.getElementById("userIdLabel");
     let leftbarBody = document.getElementById("leftbar-body");
     for (r in visibleRooms) {
         let room = visibleRooms[r];
@@ -50,9 +47,33 @@ async function updateRoomList() {
     }
     console.log(visibleRooms);
 }
+async function updateAddRoomList(){
+    let visibleRooms = await matrixClient.getVisibleRooms();
+    let addRoomBody = document.getElementById("add-room-list");
+    for (r of visibleRooms) {
+        // let room = visibleRooms[r];
+        console.log(Array.from(r.currentState.events.keys()))
+        if (r.currentState.events.has('m.space.child')
+        || r.currentState.events.has('p.whiteboard.settings')) {
+            continue // only show rooms which are no spaces
+        }
+        let id = r.roomId;
+        var roomButton = document.createElement("div");
+        roomButton.onclick = async function (a) {
+             console.log(a); 
+             let room = await makeWhitebaordFromRoom(id);
+             updateRoomList();
+        };
+        roomButton.classList.add("room-button");
+        var roomText = document.createElement("p");
+        roomText.innerText = r.name;
+        roomButton.appendChild(roomText);
+        addRoomBody.insertBefore(roomButton, addRoomBody.firstChild);
+    }
+}
 function makeWhitebaordFromRoom(roomId) {
     let content = {}
-    matrixClient.sendStateEvent(roomId, "p.whiteboard.settings", content, "").then((res) => { console.log("added state: ", res) })
+    return matrixClient.sendStateEvent(roomId, "p.whiteboard.settings", content, "")
 }
 const chunkSize = 300
 class ObjectStore {
@@ -280,7 +301,7 @@ async function loadRoom(roomId, scrollback_count = -1, allMessages = true) {
     currentRoomId = roomId;
     let s_back = scrollback_count;
     if (scrollback_count == -1) {
-        if (Object.keys(objectStore.all()).length == 0) { s_back = 100; }
+        if (Object.keys(objectStore.all()).length == 0) { s_back = 300; }
         else { s_back = 0; }
     }
     let room = matrixClient.getRoom(roomId);
@@ -289,10 +310,16 @@ async function loadRoom(roomId, scrollback_count = -1, allMessages = true) {
         colorPickerSvg.setColorPalette(settings.get("colorpalette"))
     }
     showLoading("load room history");
+    const dateOptions = {year: 'numeric', month: 'numeric', day: 'numeric', hour:'numeric'};
     let scrollBackToken = true
+    let currentScrollbackDate = new Date()
+    let nowDate = new Date();
+    let createDate = new Date(room.currentState.getStateEvents('m.room.create', "").event.origin_server_ts);
     let totalLoaded = 0
     while (scrollBackToken) {
-        let room = await scrollback(currentRoomId, s_back, "Loading History (Total loaded Elements: "+totalLoaded+")");
+        let percent = 1 - ((currentScrollbackDate - createDate)/(nowDate - createDate))
+        let roomLoaded = await scrollback(currentRoomId, s_back, "Loaded: "+Math.floor(percent*100)+"% (elements: "+totalLoaded+")</br> <span style='font-size:10px'>to Date: "+currentScrollbackDate.toLocaleDateString('de-DE', dateOptions)+"  Target: "+createDate.toLocaleDateString('de-DE', dateOptions)+"</span>");
+        currentScrollbackDate = new Date(roomLoaded.timeline[0].event.origin_server_ts);
         totalLoaded += s_back;
         scrollBackToken = room.oldState.paginationToken;
         drawing_canvas.updateDisplay();
@@ -312,25 +339,9 @@ function scrollback(roomId, scrollback_count = 200, loadingMsg = null) {
         }
         matrixClient.scrollback(matrixClient.getRoom(roomId), scrollback_count)
             .then((room) => {
-                // if (false) {
-                //     for (i = room.timeline.length - 1; i >= 0; i--) {
-                //         let event = room.timeline[i].event;
-                //         if (event.type == "m.room.redaction") {
-                //             console.log("scrollbak adds to redact: ", event.redacts);
-                //             // can skip the removal becasue we iterate in backwards order
-                //             objectStore.redactById(event.redacts, roomId, false);
-                //         }
-                //         // can be skipped, because this is also done in the on function
-                //         if (event.type == "p.whiteboard.object") {
-                //             objectStore.add(event);
-                //         }
-                //     }
-                // }
                 console.log("scrollback loaded");
                 hideLoading();
                 resolve(room);
-                // reloadCacheCanvas();
-                // updateDisplayCanvas();
             });
     });
 }
