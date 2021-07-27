@@ -249,7 +249,7 @@ matrixClient.on("Room.timeline", function (msg, room, toStartOfTimeline) {
         //     drawEvent(msg.event, true);
         // }
         // if (Date.now() - msg.getDate().getTime() < 200000) {
-            // ANIMATED toggle
+        // ANIMATED toggle
         drawEvent(msg.event, Date.now() - msg.getDate().getTime() < 200000);
         // }
         if (msg.status == null) {
@@ -272,7 +272,7 @@ matrixClient.on("Room.timeline", function (msg, room, toStartOfTimeline) {
     // console.log(msg.event.content.body);
 });
 
-function loadRoom(roomId, scrollback_count = -1) {
+async function loadRoom(roomId, scrollback_count = -1, allMessages = true) {
     showLoading("switching Room to: " + currentRoomId);
     console.log("switching Room to: " + currentRoomId);
     document.getElementById('leftbar').classList.remove('no-room-selected');
@@ -280,7 +280,7 @@ function loadRoom(roomId, scrollback_count = -1) {
     currentRoomId = roomId;
     let s_back = scrollback_count;
     if (scrollback_count == -1) {
-        if (Object.keys(objectStore.all()).length == 0) { s_back = 1000; }
+        if (Object.keys(objectStore.all()).length == 0) { s_back = 100; }
         else { s_back = 0; }
     }
     let room = matrixClient.getRoom(roomId);
@@ -289,15 +289,22 @@ function loadRoom(roomId, scrollback_count = -1) {
         colorPickerSvg.setColorPalette(settings.get("colorpalette"))
     }
     showLoading("load room history");
-    scrollback(currentRoomId, s_back).then(function () {
-        // reloadCacheCanvas();
+    let scrollBackToken = true
+    let totalLoaded = 0
+    while (scrollBackToken) {
+        let room = await scrollback(currentRoomId, s_back, "Loading History (Total loaded Elements: "+totalLoaded+")");
+        totalLoaded += s_back;
+        scrollBackToken = room.oldState.paginationToken;
         drawing_canvas.updateDisplay();
-    });
+        if(!allMessages){break;}
+    }
 }
-function scrollback(roomId, scrollback_count = 200) {
+function scrollback(roomId, scrollback_count = 200, loadingMsg = null) {
     console.log("load scrollback for: " + roomId);
     console.log("load scrollback with element count: " + scrollback_count);
-    showLoading("load " + scrollback_count + " elements from message history");
+    if (loadingMsg) { showLoading(loadingMsg); } else {
+        showLoading("load " + scrollback_count + " elements from message history");
+    }
     return new Promise(function (resolve, reject) {
         if (scrollback_count == 0) {
             hideLoading();
@@ -321,7 +328,7 @@ function scrollback(roomId, scrollback_count = 200) {
                 // }
                 console.log("scrollback loaded");
                 hideLoading();
-                resolve();
+                resolve(room);
                 // reloadCacheCanvas();
                 // updateDisplayCanvas();
             });
