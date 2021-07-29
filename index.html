@@ -5,6 +5,8 @@
     <meta content="utf-8" http-equiv="encoding">
     <meta name="viewport" content="initial-scale=0.7, maximum-scale=1, user-scalable=0">
     <title>Matrix Whiteboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2"></script>
+    <script src="notebook-tree.js"></script>
     <script src="browser-matrix.js"></script>
     <script src="unlimitedCanvas.js"></script>
     <script src="paper-canvas.js"></script>
@@ -52,7 +54,8 @@
             width: 100%; */
             /* align-items: center; */
         }
-        .center-container{
+
+        .center-container {
             display: block;
             position: absolute;
             top: 50%;
@@ -71,13 +74,16 @@
             width: 25em;
             height: auto;
         }
+
         #settings-container {
             width: 90%;
         }
+
         #add-room-container {
             width: 80%;
             height: 80%;
         }
+
         #topbar {
             overflow: hidden;
             /* flex: 0 0 2em; */
@@ -123,11 +129,13 @@
             z-index: 1;
             transition: 1s;
         }
-        #leftbar.no-room-selected{
+
+        #leftbar.no-room-selected {
             left: 50%;
             top: 50%;
-            transform: translate(-50%,-50%);
+            transform: translate(-50%, -50%);
         }
+
         #leftbar-header {
             padding-top: 0.5em;
             padding-left: 1em;
@@ -169,6 +177,7 @@
             border-top-width: 1px;
             transition: 0.5s;
         }
+
         #leftbar-footer:hover {
             border-style: dashed;
             background-color: #ddd;
@@ -194,16 +203,16 @@
         }
 
         .room-button {
-            border: solid;
-            border-color: rgb(211, 211, 211);
-            text-align: center;
-            width: auto;
-            /* margin: 0.1em; */
-            padding: 0.2em 0.2em;
+            background-color: #eee;
+            text-align: left;
+            padding: 5px;
+            padding-left: 20px;
+            width: 100%;
             transition: 0.5s;
             transition: 1s;
             border-width: 0px;
-            border-bottom-width: 1px;
+            border-left-width: 2px;
+            border-left-style: solid;
         }
 
         .room-button p {
@@ -213,10 +222,6 @@
         .room-button:hover {
             background-color: rgb(152, 166, 194);
             /* border-color: black; */
-        }
-
-        button {
-            margin: 0.4em;
         }
 
         #canvas {
@@ -351,11 +356,12 @@
             background-color: white;
             box-shadow: 0px 0px 5px #555;
         }
+
         #settings-button {
             pointer-events: all;
             position: absolute;
             margin: 0;
-            transform: translate(-50%,50%);
+            transform: translate(-50%, 50%);
             width: 60px;
             height: 60px;
             border-radius: 50%;
@@ -368,6 +374,7 @@
             mask: url("settings-symbolic.svg") no-repeat center; */
             border-style: none;
         }
+
         #line-type-selector {
             position: absolute;
             transform: translate(-50%, 50%);
@@ -385,10 +392,24 @@
             border-radius: 50%;
             transition: 0.2s;
         }
-        #add-room-list{
+
+        #add-room-list {
             scrollbar-width: thin;
             flex: 100;
             overflow-y: scroll;
+        }
+
+        .notebook-list {
+            overflow: hidden;
+            transition: all 0.4s ease 0s;
+        }
+
+        .notebook-header {
+            border-left-width: 10px;
+            border-left-style: solid;
+            padding: 5px;
+            background-color: #eee;
+
         }
     </style>
 </head>
@@ -447,7 +468,8 @@
     <div id='tool-wheel'>
         <canvas id="color-picker-canvas" resize>
         </canvas>
-        <button id="settings-button" onclick="showSettingsMenu()"><img src='settings-symbolic.svg' width='30px'></img></button>
+        <button id="settings-button" onclick="showSettingsMenu()"><img src='settings-symbolic.svg'
+                width='30px'></img></button>
 
         <button class='tool-elements' id="tool-type-pen">Pen</button>
         <button class='tool-elements' id="tool-type-eraser">Eraser</button>
@@ -492,17 +514,17 @@
     </div>
 
     <div class="center-container" id="settings-container" style="display: none;">
-        <button style="float: right;"onclick="hideSettingsMenu()">close</button>
+        <button style="float: right;" onclick="hideSettingsMenu()">close</button>
         <p id="room-menu-room-id">roomId</p>
     </div>
     <div class="center-container" id="add-room-container" style="display: none;">
         <div style="height:100%;display: flex;flex-direction: column;">
             <div style="flex: 0">
-                <button style="float: right;"onclick="hideAddRoomMenu()">close</button>
+                <button style="float: right;" onclick="hideAddRoomMenu()">close</button>
                 <p>List of all rooms. Choose which one to add to your whiteboard list</p>
             </div>
             <div id="add-room-list">
-    
+
             </div>
         </div>
     </div>

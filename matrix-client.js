@@ -20,33 +20,103 @@ window.onload = function () {
             document.getElementById("login-submit").click();
         }
     });
-
-
 }
+var roomTree = new NotebookTree();
 
-async function updateRoomList() {
+async function updateRoomTree() {
+    roomTree.clear();
     let dateNow = Date.now()
     console.log("startGettingVisibleRooms")
-    let visibleRooms = await matrixClient.getVisibleRooms();
-    console.log("got all visible rooms" +(Date.now()-dateNow))
-    let leftbarBody = document.getElementById("leftbar-body");
+    // return new Promise(function (resolve, reject) {
+    let visibleRooms = matrixClient.getRooms();
+    console.log("got all visible rooms" + (Date.now() - dateNow))
+    let spaces = visibleRooms.filter(r => r.currentState.events.has('m.space.child'))
+
+
     for (r in visibleRooms) {
         let room = visibleRooms[r];
-        // console.log(Array.from(room.currentState.events.keys()))
+        console.log(Array.from(room.currentState.events.keys()))
         if (!room.currentState.events.has('p.whiteboard.settings')) {
             continue // only show rooms which are marked as whitebaord rooms
         }
-        let id = room.roomId;
-        var roomButton = document.createElement("div");
-        console.log(id)
-        roomButton.onclick = function (a) { console.log(a); loadRoom(id); };
-        roomButton.classList.add("room-button");
-        var roomText = document.createElement("p");
-        roomText.innerText = visibleRooms[r].name;
-        roomButton.appendChild(roomText);
-        leftbarBody.insertBefore(roomButton, leftbarBody.firstChild);
+        let found = spaces.find(spaceRoom => spaceRoom.currentState.events.get('m.space.child').has(room.roomId))
+        if (found) {
+            if (found.roomId in roomTree.notebooks) {
+                roomTree.notebooks[found.roomId].push(room.roomId)
+            } else {
+                roomTree.notebooks[found.roomId] = [room.roomId]
+            }
+            console.log("whiteboard is in space!: ", found)
+        } else {
+            roomTree.whiteboards.push(room.roomId)
+        }
     }
-    console.log(visibleRooms);
+
+    // resolve(room);
+    // });
+}
+async function updateRoomList() {
+    updateRoomTree()
+    let leftbarBody = document.getElementById("leftbar-body")
+    leftbarBody.innerHTML = ''
+    for (let noteb of Object.keys(roomTree.notebooks)) {
+        let notebookRoom = matrixClient.getRoom(noteb)
+        leftbarBody.appendChild(createNotebook(notebookRoom.name, roomTree.notebooks[noteb]))
+    }
+    for (let whitebaord of roomTree.whiteboards){
+        leftbarBody.appendChild(createWhiteboard(whitebaord, '#eee'))
+    }
+    // let id = room.roomId;
+    // var roomButton = document.createElement("div");
+    // console.log(id)
+    // roomButton.onclick = function (a) { console.log(a); loadRoom(id); };
+    // roomButton.classList.add("room-button");
+    // var roomText = document.createElement("p");
+    // roomText.innerText = visibleRooms[r].name;
+    // roomButton.appendChild(roomText);
+    // leftbarBody.insertBefore(roomButton, leftbarBody.firstChild);
+}
+function createNotebook(name, whiteboards) {
+    let notebook = document.createElement("div")
+    let header = document.createElement("div")
+    let list = document.createElement("div")
+    
+    header.innerHTML = name;
+    header.classList.add("notebook-header");
+    let color = paper.Color.random().toCSS()
+    header.style.borderLeftColor = color;
+    
+    function getExpandHeight(list){
+        let height = 0
+        for(let l of list.children){
+            height+=l.getBoundingClientRect().height;
+        }
+        return height;
+    }
+    header.onclick = function (a) {
+        if(list.style.height == ""){list.style.height = getExpandHeight(list)}
+        if (list.getBoundingClientRect().height != 0) { list.style.height = 0 }
+        else { list.style.height = getExpandHeight(list) }
+    };
+    notebook.appendChild(header);
+
+    for (let id of whiteboards) {
+        list.appendChild(createWhiteboard(id,color))
+    }
+    list.classList.add("notebook-list");
+    // list.style.height = getExpandHeight(list);
+    notebook.appendChild(list);
+
+    return notebook;
+}
+function createWhiteboard(id,color) {
+    let whiteboardButton = document.createElement("button")
+    let room = matrixClient.getRoom(id);
+    whiteboardButton.onclick = function (a) { console.log(a); loadRoom(id); };
+    whiteboardButton.classList.add("room-button");
+    whiteboardButton.style.borderLeftColor = color;
+    whiteboardButton.innerHTML = room.name + "<br><span style='font-size:0.5em;color:#000'>" + room.roomId + "</span>";
+    return whiteboardButton;
 }
 async function updateAddRoomList() {
     let visibleRooms = await matrixClient.getVisibleRooms();
@@ -151,7 +221,7 @@ class ObjectStore {
             return {}
         }
     }
-    getById(id){
+    getById(id) {
         let found = Object.values(this.all()).find(el => el.event_id == id);
         return found;
     }
@@ -229,7 +299,7 @@ async function login(username, password, serverDomain) {
     document.getElementById("userIdLabel").innerHTML = registeredResult.user_id;
     // document.getElementById("userIdLabel").innerHTML = registeredResult.user_id;
     showLoading("start client");
-    let startedResult = await matrixClient.startClient({ initialSyncLimit: 0 });
+    let startedResult = await matrixClient.startClient({ initialSyncLimit: 0, lazyLoadMembers: true });
     showLoading("initial sync");
 }
 function setupMatrixClientConnections() {
