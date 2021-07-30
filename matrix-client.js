@@ -64,7 +64,7 @@ async function updateRoomList() {
         leftbarBody.appendChild(createNotebook(notebookRoom.name, roomTree.notebooks[noteb]))
     }
     for (let whitebaord of roomTree.whiteboards) {
-        leftbarBody.appendChild(createWhiteboard(whitebaord, '#eee'))
+        leftbarBody.appendChild(createDOMWhiteboard(whitebaord, '#eee'))
     }
     // let id = room.roomId;
     // var roomButton = document.createElement("div");
@@ -101,7 +101,7 @@ function createNotebook(name, whiteboards) {
     notebook.appendChild(header);
 
     for (let id of whiteboards) {
-        list.appendChild(createWhiteboard(id, color))
+        list.appendChild(createDOMWhiteboard(id, color))
     }
     list.classList.add("notebook-list");
     // list.style.height = getExpandHeight(list);
@@ -109,7 +109,7 @@ function createNotebook(name, whiteboards) {
 
     return notebook;
 }
-function createWhiteboard(id, color) {
+function createDOMWhiteboard(id, color) {
     let whiteboardButton = document.createElement("button")
     let room = matrixClient.getRoom(id);
     whiteboardButton.onclick = function (a) { console.log(a); loadRoom(id); };
@@ -133,6 +133,7 @@ async function updateAddRoomList() {
         var roomButton = document.createElement("div");
         roomButton.onclick = async function (a) {
             console.log(a);
+            a.currentTarget.style.backgroundColor = '#5e5'
             let room = await makeWhitebaordFromRoom(id);
             updateAddRoomList();
             updateRoomList();
@@ -145,14 +146,29 @@ async function updateAddRoomList() {
         addRoomBody.insertBefore(roomButton, addRoomBody.firstChild);
     }
 }
+async function createWhiteboard(visibility = "private", whiteboardName = "unnamed Whiteboard") {
+
+    let roomOpt = {
+        // room_alias_name
+        visibility: visibility,
+        invite: [],
+        name: whiteboardName == "" ? "unnamed Whiteboard" : whiteboardName,
+    }
+    showLoading("Creating whiteboard with Name: " + whiteboardName)
+    let roomCreateData = await matrixClient.createRoom(roomOpt);
+    hideLoading();
+    return makeWhitebaordFromRoom(roomCreateData.room_id);
+}
 async function makeWhitebaordFromRoom(roomId) {
     let content = {}
     let stateId = await matrixClient.sendStateEvent(roomId, "p.whiteboard.settings", content, "")
+    showLoading("make Room " + matrixClient.getRoom(roomId).name + "a whiteboard")
     let prom = new Promise(function (resolve, reject) {
         let listenerFunc = function (msg, state, prevEvent) {
             if (msg.event.event_id == stateId.event_id) {
                 matrixClient.removeListener("RoomState.events", listenerFunc)
                 resolve()
+                hideLoading()
             }
         }
         matrixClient.on("RoomState.events", listenerFunc);
@@ -327,7 +343,7 @@ function setupMatrixClientConnections() {
             case "PREPARED":
                 // the client instance is ready to be queried.
                 updateRoomList()
-                showLoading("Press on an UNENCRYPTED Room (left) to start drawing")
+                showLoading("Select a whiteboard or create a new one")
                 break;
         }
     });

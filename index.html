@@ -80,7 +80,7 @@
         }
 
         #add-room-container {
-            width: 80%;
+            width: 350px;
             height: 80%;
         }
 
@@ -521,8 +521,18 @@
         <div style="height:100%;display: flex;flex-direction: column;">
             <div style="flex: 0">
                 <button style="float: right;" onclick="hideAddRoomMenu()">close</button>
-                <p>List of all rooms. Choose which one to add to your whiteboard list</p>
+                <p>Create a new Whiteboard:</p>
             </div>
+            <div id="create-room-dialog">
+                <input type="text" id="create-board-name" placeholder="Name of new whiteboard"></input>
+                <button onclick="createWhiteboard('private', document.getElementById('create-board-name').value).then(()=>{
+                updateAddRoomList();
+                updateRoomList();
+                hideAddRoomMenu();
+                })">Create
+                    Room</button>
+            </div>
+            <p>List of all rooms. Choose which one to add to your whiteboard list:</p>
             <div id="add-room-list">
 
             </div>
