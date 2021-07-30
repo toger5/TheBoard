@@ -63,7 +63,7 @@ async function updateRoomList() {
         let notebookRoom = matrixClient.getRoom(noteb)
         leftbarBody.appendChild(createNotebook(notebookRoom.name, roomTree.notebooks[noteb]))
     }
-    for (let whitebaord of roomTree.whiteboards){
+    for (let whitebaord of roomTree.whiteboards) {
         leftbarBody.appendChild(createWhiteboard(whitebaord, '#eee'))
     }
     // let id = room.roomId;
@@ -80,28 +80,28 @@ function createNotebook(name, whiteboards) {
     let notebook = document.createElement("div")
     let header = document.createElement("div")
     let list = document.createElement("div")
-    
+
     header.innerHTML = name;
     header.classList.add("notebook-header");
     let color = paper.Color.random().toCSS()
     header.style.borderLeftColor = color;
-    
-    function getExpandHeight(list){
+
+    function getExpandHeight(list) {
         let height = 0
-        for(let l of list.children){
-            height+=l.getBoundingClientRect().height;
+        for (let l of list.children) {
+            height += l.getBoundingClientRect().height;
         }
         return height;
     }
     header.onclick = function (a) {
-        if(list.style.height == ""){list.style.height = getExpandHeight(list)}
+        if (list.style.height == "") { list.style.height = getExpandHeight(list) }
         if (list.getBoundingClientRect().height != 0) { list.style.height = 0 }
         else { list.style.height = getExpandHeight(list) }
     };
     notebook.appendChild(header);
 
     for (let id of whiteboards) {
-        list.appendChild(createWhiteboard(id,color))
+        list.appendChild(createWhiteboard(id, color))
     }
     list.classList.add("notebook-list");
     // list.style.height = getExpandHeight(list);
@@ -109,7 +109,7 @@ function createNotebook(name, whiteboards) {
 
     return notebook;
 }
-function createWhiteboard(id,color) {
+function createWhiteboard(id, color) {
     let whiteboardButton = document.createElement("button")
     let room = matrixClient.getRoom(id);
     whiteboardButton.onclick = function (a) { console.log(a); loadRoom(id); };
@@ -119,21 +119,24 @@ function createWhiteboard(id,color) {
     return whiteboardButton;
 }
 async function updateAddRoomList() {
-    let visibleRooms = await matrixClient.getVisibleRooms();
+    let visibleRooms = matrixClient.getVisibleRooms();
     let addRoomBody = document.getElementById("add-room-list");
+    addRoomBody.innerHTML = ""
     for (r of visibleRooms) {
         // let room = visibleRooms[r];
         console.log(Array.from(r.currentState.events.keys()))
         if (r.currentState.events.has('m.space.child')
             || r.currentState.events.has('p.whiteboard.settings')) {
-            continue // only show rooms which are no spaces
+            continue // only show rooms which are no spaces and are not already a whitebaord
         }
         let id = r.roomId;
         var roomButton = document.createElement("div");
         roomButton.onclick = async function (a) {
             console.log(a);
             let room = await makeWhitebaordFromRoom(id);
+            updateAddRoomList();
             updateRoomList();
+            hideAddRoomMenu();
         };
         roomButton.classList.add("room-button");
         var roomText = document.createElement("p");
@@ -142,9 +145,19 @@ async function updateAddRoomList() {
         addRoomBody.insertBefore(roomButton, addRoomBody.firstChild);
     }
 }
-function makeWhitebaordFromRoom(roomId) {
+async function makeWhitebaordFromRoom(roomId) {
     let content = {}
-    return matrixClient.sendStateEvent(roomId, "p.whiteboard.settings", content, "")
+    let stateId = await matrixClient.sendStateEvent(roomId, "p.whiteboard.settings", content, "")
+    let prom = new Promise(function (resolve, reject) {
+        let listenerFunc = function (msg, state, prevEvent) {
+            if (msg.event.event_id == stateId.event_id) {
+                matrixClient.removeListener("RoomState.events", listenerFunc)
+                resolve()
+            }
+        }
+        matrixClient.on("RoomState.events", listenerFunc);
+    })
+    return prom;
 }
 const chunkSize = 300
 class ObjectStore {
@@ -376,6 +389,11 @@ function setupMatrixClientConnections() {
         }
         // console.log("event: ",msg)
         // console.log(msg.event.content.body);
+    });
+}
+function cancelRoomLoading() {
+    return new Promise((resolve, reject) => {
+        resolve();
     });
 }
 async function loadRoom(roomId, scrollback_count = -1, allMessages = true) {
