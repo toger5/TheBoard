@@ -4,6 +4,10 @@ This project is whiteboard (similar to oneNote) which is
 using Matrix as its backend. All your drawings are stored in matrix rooms
 on your matrix server and are accessible to anyone who is invited.
 
+## DISCLAIMER!
+The spec for the whiteboard events are still subject to change. It is **NOT** recommanded to use it for anything else than testing during the Alpha!
+It is recommanded to always create seperate rooms just for testing this app. So they can be left and replaced by new ones when the protocol changes!
+
 ## How this project came to life
 I was dreaming of a good open source solution for one note since a long time.
 There are great projects [Xournal++](https://xournalpp.github.io/) and [whitebophir](https://github.com/lovasoa/whitebophir).
