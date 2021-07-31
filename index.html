@@ -428,17 +428,17 @@
         <!-- <button onclick="sendRandomWalk(matrixClient, currentRoomId)">RandomWalk</button> -->
         <!-- <button onclick="sendCustomEvent(matrixClient, currentRoomId)">sendCustomEvent (p.Whiteboard.object of type p.path)</button> -->
         <!-- <button onclick="sendRandomText(matrixClient, currentRoomId)">RandomText</button> -->
-        <button onclick="replaceLastEvent(matrixClient, currentRoomId)">ReplaceLast</button>
-        <button onclick="redactLastAction(matrixClient, currentRoomId)">redact Last</button>
+        <button onclick="replaceLastEvent(matrixClient, currentRoomId)">Replace Last</button>
+        <button onclick="redactLastAction(matrixClient, currentRoomId)">Redact Last</button>
         <br />
         <button
             onclick="scrollback(currentRoomId, 1000).then(function(){drawing_canvas.reload(),drawing_canvas.updateDisplay();});">Load
             History</button>
-        <button onclick="reloadCacheCanvas();drawing_canvas.updateDisplay();">reload Canvas</button>
-        <button onclick="drawing_canvas.resetOffset()">go Home</button>
-        <!-- <button onclick="loginClicked()">login</button> -->
-        <button onclick="drawing_canvas.resetZoom()">reset Zoom</button>
-        <!-- <button id="grid" onclick="toggleGrid()">toggle Grid</button> -->
+        <button onclick="reloadCacheCanvas();drawing_canvas.updateDisplay();">Reload Canvas</button>
+        <button onclick="drawing_canvas.resetOffset()">Go Home</button>
+        <!-- <button onclick="loginClicked()">Log in</button> -->
+        <button onclick="drawing_canvas.resetZoom()">Reset Zoom</button>
+        <!-- <button id="grid" onclick="toggleGrid()">Toggle Grid</button> -->
         <!-- <button id="tool" onclick="toggleTool()">Tool: pen</button> -->
     </div>
 
@@ -505,12 +505,12 @@
         <p><span style="font-size: 3em;white-space: pre;font-weight: 100;">The Board</span><span
                 style="font-size: 1em;white-space: pre;font-weight: 100;"> (Alpha 0.6)</span></p>
         <!-- <form id="login-form" onsubmit="return formSubmit(event)"> -->
-        <label for="username">username:</label><br>
+        <label for="username">Username:</label><br>
         <input type="text" id="login-form-username" name="username" placeholder="Your matrix id..."><br>
-        <label for="login-form-password">password:</label><br>
-        <input type="password" id="login-form-password" name="password" placeholder="your password..."><br><br>
+        <label for="login-form-password">Password:</label><br>
+        <input type="password" id="login-form-password" name="password" placeholder="Your password..."><br><br>
         <!-- </form> -->
-        <button id="login-submit" class="submit" onclick="loginClicked();">Login</button>
+        <button id="login-submit" class="submit" onclick="loginClicked();">Log in</button>
     </div>
 
     <div class="center-container" id="settings-container" style="display: none;">
@@ -521,7 +521,7 @@
         <div style="height:100%;display: flex;flex-direction: column;">
             <div style="flex: 0">
                 <button style="float: right;" onclick="hideAddRoomMenu()">close</button>
-                <p>Create a new Whiteboard:</p>
+                <p>Create a new whiteboard:</p>
             </div>
             <div id="create-room-dialog">
                 <input type="text" id="create-board-name" placeholder="Name of new whiteboard"></input>
