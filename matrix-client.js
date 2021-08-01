@@ -414,6 +414,9 @@ function cancelRoomLoading() {
 }
 async function loadRoom(roomId, scrollback_count = -1, allMessages = true) {
     drawing_canvas.clear();
+    drawing_canvas.resetOffset();
+    drawing_canvas.resetZoom();
+    drawing_canvas.setZoom(0.5)
     showLoading("switching Room to: " + currentRoomId);
     console.log("switching Room to: " + currentRoomId);
     document.getElementById('leftbar').classList.remove('no-room-selected');
