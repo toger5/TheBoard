@@ -1,15 +1,18 @@
-
 // var cache_canvas = document.createElement('canvas');
 // cache_canvas.width = 3000;
 // cache_canvas.height = 8000;
 // var cache_ctx = cache_canvas.getContext("2d");
 // var cache_canvas = new UnlimitedCanvas();
-var drawing_canvas = new PaperCanvas();
-var setting_grid = "";
-var display_canvas;
-var display_ctx;
+import PaperCanvas from './paper-canvas'
+import { parsePath, parseBezierPath, parsePoint } from './helper';
+export var drawingCanvas = new PaperCanvas();
+window.appData = {}
+window.appData.drawingCanvas = drawingCanvas;
+// var setting_grid = "";
+// var display_canvas;
+// var display_ctx;
 
-function drawEvent(event, animated, updateDisplay = true) {
+export function drawEvent(event, animated, updateDisplay = true) {
     if (event.content.objtype == "p.path") {
         
         if (event.content.version == 1 || !("version" in event.content)){
@@ -19,11 +22,11 @@ function drawEvent(event, animated, updateDisplay = true) {
             let color = "objcolor" in event.content ? event.content.objcolor : "#000"
             // let strokeWidth = parseFloat(event.content.strokeWidth);
             if (animated) {
-                drawing_canvas.asyncAddPathV1([pos.x,pos.y], points, color);
+                drawingCanvas.asyncAddPathV1([pos.x,pos.y], points, color);
             } else {
-                drawing_canvas.drawBoundingBox([[pos.x,pos.y], size]);
-                drawing_canvas.addPathV1(points, color, [[pos.x,pos.y], size], event.event_id);
-                if (updateDisplay) { drawing_canvas.updateDisplay(true); }
+                drawingCanvas.drawBoundingBox([[pos.x,pos.y], size]);
+                drawingCanvas.addPathV1(points, color, [[pos.x,pos.y], size], event.event_id);
+                if (updateDisplay) { drawingCanvas.updateDisplay(true); }
             }
         }
         
@@ -37,12 +40,12 @@ function drawEvent(event, animated, updateDisplay = true) {
             let fillColor = "objFillColor" in event.content ? event.content.objFillColor : "#00000000"
             
             if (animated) {
-                drawing_canvas.updateDisplay(true);
-                drawing_canvas.asyncAddPathV2(segments, color,fillColor, strokeWidth, closed, event.event_id);
+                drawingCanvas.updateDisplay(true);
+                drawingCanvas.asyncAddPathV2(segments, color,fillColor, strokeWidth, closed, event.event_id);
             } else {
-                // drawing_canvas.drawBoundingBox([pos, size]);
-                drawing_canvas.addPathV2(segments, color,fillColor, strokeWidth, closed, event.event_id);
-                if (updateDisplay) { drawing_canvas.updateDisplay(true); }
+                // drawingCanvas.drawBoundingBox([pos, size]);
+                drawingCanvas.addPathV2(segments, color,fillColor, strokeWidth, closed, event.event_id);
+                if (updateDisplay) { drawingCanvas.updateDisplay(true); }
             }
         }
     }
@@ -61,8 +64,8 @@ function drawGrid(ctx, grid, size, gridsize, color) {
         let xcount = size[0] / gridsize;
         let ycount = size[1] / gridsize;
         ctx.beginPath();
-        for (i = 0; i < xcount; i++) {
-            for (j = 0; j < ycount; j++) {
+        for (let i = 0; i < xcount; i++) {
+            for (let j = 0; j < ycount; j++) {
                 ctx.moveTo(i * gridsize, j * gridsize);
                 ctx.ellipse(i * gridsize, j * gridsize, radius, radius, 0, 0, Math.PI * 2);
             }
@@ -73,11 +76,11 @@ function drawGrid(ctx, grid, size, gridsize, color) {
         let xcount = size[0] / gridsize;
         let ycount = size[1] / gridsize;
         ctx.beginPath();
-        for (i = 0; i < xcount; i++) {
+        for (let i = 0; i < xcount; i++) {
             ctx.moveTo(i * gridsize, 0);
             ctx.lineTo(i * gridsize, size[1]);
         }
-        for (j = 0; j < ycount; j++) {
+        for (let j = 0; j < ycount; j++) {
             ctx.moveTo(0, j * gridsize);
             ctx.lineTo(size[0], j * gridsize);
         }
@@ -85,8 +88,8 @@ function drawGrid(ctx, grid, size, gridsize, color) {
     }
 }
 
-function reloadCacheCanvas(animated = false) {
-    drawing_canvas.reload();
+export function reloadCacheCanvas(animated = false) {
+    drawingCanvas.reload();
 }
 // function reloadCacheCanvas(animated = false) {
 //     cache_ctx.fillStyle = "#eee";

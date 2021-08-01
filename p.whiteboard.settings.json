@@ -1,5 +1,0 @@
-"p.whiteboard.settings":{
-    "colorpalette":[color],
-    "layers":[roomId],
-    "isLayer":bool,
-}

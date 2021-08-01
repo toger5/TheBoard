@@ -1,4 +1,12 @@
-class ToolRect {
+import { drawingCanvas } from "../drawing";
+import { Path, Color, Point } from "paper/dist/paper-core";
+import { GetPickerColor } from "../color-picker";
+import { GetToolStrokeWidthIndex } from "./line-style-selector";
+import { sendPath } from "../actions";
+import { matrixClient, objectStore, currentRoomId } from "../main";
+import { mousePathToString, paperPathToString, pathPosSizeCorrection, setAlpha } from "../helper";
+
+export default class ToolRect {
     constructor() {
 
         // Tool state
@@ -14,7 +22,7 @@ class ToolRect {
     tooldown(proX, proY, pressure) {
         this.tool_canceled = false;
         let pt = new paper.Point(proX, proY);
-        drawing_canvas.activateToolLayer();
+        drawingCanvas.activateToolLayer();
         this.canvas_rect = new paper.Path.Rectangle(pt, pt)
         let colorAlpha = setAlpha(GetPickerColor(), 0.3);
         this.canvas_rect.strokeColor = colorAlpha;
@@ -23,7 +31,7 @@ class ToolRect {
         // this.mouse_path_start_time = Date.now();
         // this.last_pos = [0, pt.x, pt.y, pressure];
         // this.mouse_path = [[0, pt.x, pt.y, pressure * 4]];
-        drawing_canvas.activateDrawLayer();
+        drawingCanvas.activateDrawLayer();
         console.log("tooldown");
     }
     toolmove(proX, proY, pressure) {
@@ -50,7 +58,7 @@ class ToolRect {
                 GetPickerColor(), setAlpha(GetPickerColor(), 0.08),[pos.x, pos.y], [size.width, size.height], this.getStrokeWidth(), true, version);
         } else {
             console.log("NO ROOM SELECTED TO DRAW IN!")
-            drawing_canvas.updateDisplay();
+            drawingCanvas.updateDisplay();
         }
         this.toolcancel();
     }

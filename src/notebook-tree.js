@@ -1,9 +1,9 @@
-class NotebookTree{
-    constructor(){
+export default class NotebookTree {
+    constructor() {
         this.notebooks = {}
         this.whiteboards = []
     }
-    clear(){
+    clear() {
         this.notebooks = {}
         this.whiteboards = []
     }

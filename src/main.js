@@ -1,14 +1,22 @@
-// const { Point } = require("paper/dist/paper-core");
+import * as sdk from "matrix-js-sdk";
+import NotebookTree from './notebook-tree.js'
+import init_input from './input.js'
+import ObjectStore from './sturctures/object-store'
+import { drawingCanvas, drawEvent} from './drawing'
+import { init_color_picker } from "./color-picker.js";
+import init_tool_wheel from "./tools/tool-wheel.js";
+import init_line_style_selector from "./tools/line-style-selector.js";
+import { loginClicked } from "./actions.js";
 
-console.log("Loading browser sdk");
-
-var currentRoomId = "";
-var matrixClient;
+export var currentRoomId = "";
+export var currentUserId;
+export var matrixClient;
+export var objectStore = new ObjectStore();
 // var paper_canvas = new PaperCanvas();
 window.onload = function () {
-    init_input(document.getElementById(drawing_canvas.css_id));
+    init_input(document.getElementById(drawingCanvas.css_id));
     init_color_picker();
-    drawing_canvas.init();
+    drawingCanvas.init();
     init_tool_wheel();
     init_line_style_selector();
     var pwd_input = document.getElementById("login-form-password");
@@ -33,7 +41,7 @@ async function updateRoomTree() {
     let spaces = visibleRooms.filter(r => r.currentState.events.has('m.space.child'))
 
 
-    for (r in visibleRooms) {
+    for (let r in visibleRooms) {
         let room = visibleRooms[r];
         console.log(Array.from(room.currentState.events.keys()))
         if (!room.currentState.events.has('p.whiteboard.settings')) {
@@ -83,7 +91,7 @@ function createNotebook(name, whiteboards) {
 
     header.innerHTML = name;
     header.classList.add("notebook-header");
-    let color = paper.Color.random().toCSS()
+    let color = Color.random().toCSS()
     header.style.borderLeftColor = color;
 
     function getExpandHeight(list) {
@@ -122,7 +130,7 @@ async function updateAddRoomList() {
     let visibleRooms = matrixClient.getVisibleRooms();
     let addRoomBody = document.getElementById("add-room-list");
     addRoomBody.innerHTML = ""
-    for (r of visibleRooms) {
+    for (let r of visibleRooms) {
         // let room = visibleRooms[r];
         console.log(Array.from(r.currentState.events.keys()))
         if (r.currentState.events.has('m.space.child')
@@ -175,122 +183,7 @@ async function makeWhiteboardFromRoom(roomId) {
     })
     return prom;
 }
-const chunkSize = 300
-class ObjectStore {
-    constructor() {
-        // this.redacted = new Set();
-        this.data = {
-            "exampleroom": {
-                "redacted": new Set(),
-                "all": [],
-                "allDict": {},
-                "user": [],
-                "chunk": [],
-            }
-        }
-    }
-    currentRoom() {
-        return this.data[currentRoomId]
-    }
-    hasRoom(roomId) {
-        return roomId in this.data;
-    }
-    addRoom(roomId) {
-        if (this.hasRoom(roomId)) {
-            console.log("room already exists")
-        }
-        else {
-            console.log("add room " + roomId + "to store");
-            this.data[roomId] = {
-                "redacted": new Set(),
-                "all": [],
-                "allDict": {},
-                "user": {},
-                "chunk": [],
-            }
-        }
-    }
-    // addToCurrent(obj) {
-    //     if (!this.currentRoom().redacted.has(obj.event_id)) {
-    //         this.currentRoom().all.push(obj);
-    //     }
-    // }
-    add(obj) {
-        if (!obj.room_id in this.data) {
-            this.addRoom(obj.room_id);
-        }
-        let room = this.data[obj.room_id];
-        // console.log("adding obj that already exists: ", room.all.some(el => el.event_id == obj.event_id));
-        room.allDict[obj.event_id] = obj;
-        // if (!room.redacted.has(obj.event_id)) {
-        // room.all.push(obj);
-        // }
-    }
-    allSorted() {
-        if (currentRoomId in this.data) {
-            let begin_sort = Date.now();
-            let dic = this.currentRoom().allDict;
-            let allList = Object.keys(dic).map(key => dic[key]);
-            allList.sort(function (first, second) {
-                return first.origin_server_ts - second.origin_server_ts;
-            });
-            console.log("sorted all events: ", Date.now() - begin_sort, "ms")
-            return allList;
-            return this.currentRoom().all;
-        } else {
-            // If there is not current room set, the default behaviour is en empty list -> canvas gets cleared
-            return []
-        }
-    }
-    all() {
-        if (currentRoomId in this.data) {
-            return this.currentRoom().allDict;
-        } else {
-            // If there is not current room set, the default behaviour is en empty list -> canvas gets cleared
-            return {}
-        }
-    }
-    getById(id) {
-        let found = Object.values(this.all()).find(el => el.event_id == id);
-        return found;
-    }
-    // redactByIdInCurrent(id, remove = true) {
-    //     this.currentRoom().redacted.add(id);
-    //     if (remove) {
-    //         this.currentRoom().all = this.currentRoom().all.filter(e => e.event_id !== id);
-    //     }
-    // }
-    redactById(id, roomId, remove = true) {
-        if (!this.hasRoom(roomId)) { this.addRoom(roomId) }
-        let room = this.data[roomId];
-        // room.redacted.add(id);
-        if (remove) {
-            if (id in room.allDict) {
-                delete room.allDict[id];
-                let item = paper.project.getItem({ class: "Path", match: function (item) { return item.data.id == id } })
-                if (item) { item.remove(); } else { console.log("could not find item for id: ", id) }
-            } else {
-                console.log("unecassary redact called for id: ", id)
-            }
-        }
-    }
-    // redact_and_remove_by_id(id){
-    //     this.redacted.add(id);
-    //     this.objects["all"] = this.objects["all"].filter(e => e.event_id !== id);
-    // }
-    // all_region(x,y,width,height){
-    //     //TODO
-    //     var ret = [];
-    //     this.objects["all"].forEach(obj => {
-    //         pos = [obj.objpos.slice(" ").map(x => {return parseInt(x)})];
-    //         size = [obj.objsize.slice(" ").map(x => {return parseInt(x)})];
-    //         if obj.
-    //         ret.push()
-    //     });
-    // }
-}
 
-objectStore = new ObjectStore();
 function showLoading(msg) {
     let loading = document.getElementById("loading");
     loading.style.display = "block";
@@ -305,13 +198,13 @@ function hideLogin() {
     let login = document.getElementById("loginContainer");
     login.style.display = "none"
 }
-var currentUserId;
-async function login(username, password, serverDomain) {
+
+export async function login(username, password, serverDomain) {
     showLoading("Getting homeserver Information for domain " + serverDomain);
-    let clientConf = await matrixcs.AutoDiscovery.findClientConfig(serverDomain);
+    let clientConf = await sdk.AutoDiscovery.findClientConfig(serverDomain);
     let baseUrl = clientConf["m.homeserver"].base_url;
     showLoading("login with: " + username + " on server: " + baseUrl);
-    matrixClient = matrixcs.createClient({
+    matrixClient = sdk.createClient({
         baseUrl: baseUrl
     });
     setupMatrixClientConnections();
@@ -320,6 +213,10 @@ async function login(username, password, serverDomain) {
             showLoading(err.message)
             return;
         } else {
+            window.appData.currentRoomId = currentRoomId;
+            window.appData.matrixClient = matrixClient;
+            window.appData.objectStore = objectStore;
+
             hideLogin();
         }
     })
@@ -349,7 +246,7 @@ function setupMatrixClientConnections() {
     });
     matrixClient.on("Room.localEchoUpdated", function (msg, room, oldId, newStatus) {
         if (msg.getType() === "p.whiteboard.object" && msg.status === "sent") {
-            let item = paper.project.getItem({ class: "Path", match: function (item) { return item.data.id == oldId } })
+            let item = project.getItem({ class: "Path", match: function (item) { return item.data.id == oldId } })
             if (item) {
                 item.data.id = msg.event.event_id
             }
@@ -397,7 +294,7 @@ function setupMatrixClientConnections() {
             // if (Date.now() - msg.event.origin_server_ts < 200000) {
             objectStore.redactById(msg.event.redacts, msg.event.room_id);
             // reloadCacheCanvas();
-            // drawing_canvas.updateDisplay(true);
+            // drawingCanvas.updateDisplay(true);
             // }
         }
         if (msg.getType() !== "m.room.message") {
@@ -413,15 +310,16 @@ function cancelRoomLoading() {
     });
 }
 async function loadRoom(roomId, scrollback_count = -1, allMessages = true) {
-    drawing_canvas.clear();
-    drawing_canvas.resetOffset();
-    drawing_canvas.resetZoom();
-    drawing_canvas.setZoom(0.5)
+    drawingCanvas.clear();
+    drawingCanvas.resetOffset();
+    drawingCanvas.resetZoom();
+    drawingCanvas.setZoom(0.5)
     showLoading("switching Room to: " + currentRoomId);
     console.log("switching Room to: " + currentRoomId);
     document.getElementById('leftbar').classList.remove('no-room-selected');
     objectStore.addRoom(roomId);
     currentRoomId = roomId;
+    appData.currentRoomId = roomId;
     let s_back = scrollback_count;
     if (scrollback_count == -1) {
         if (Object.keys(objectStore.all()).length == 0) { s_back = 300; }
@@ -430,7 +328,7 @@ async function loadRoom(roomId, scrollback_count = -1, allMessages = true) {
     let room = matrixClient.getRoom(roomId);
     let settings = room.currentState.events.get('p.whiteboard.settings');
     if (settings.has("colorpalette")) {
-        colorPickerSvg.setColorPalette(settings.get("colorpalette"))
+        SetColorPalette(settings.get("colorpalette"))
     }
     showLoading("load room history");
     const dateOptions = { year: 'numeric', month: 'numeric', day: 'numeric', hour: 'numeric' };
@@ -442,14 +340,14 @@ async function loadRoom(roomId, scrollback_count = -1, allMessages = true) {
     while (scrollBackToken) {
         let percent = 1 - ((currentScrollbackDate - createDate) / (nowDate - createDate))
         let roomLoaded = await scrollback(currentRoomId, s_back, "Loaded: " + Math.floor(percent * 100) + "% (elements: " + totalLoaded + ")</br> <span style='font-size:10px'>to Date: " + currentScrollbackDate.toLocaleDateString('de-DE', dateOptions) + "  Target: " + createDate.toLocaleDateString('de-DE', dateOptions) + "</span>");
-        drawing_canvas.updateDisplay();
+        drawingCanvas.updateDisplay();
         currentScrollbackDate = new Date(roomLoaded.timeline[0].event.origin_server_ts);
         totalLoaded += s_back;
         scrollBackToken = room.oldState.paginationToken;
         if (!allMessages) { break; }
     }
-    drawing_canvas.reload();
-    drawing_canvas.updateDisplay();
+    drawingCanvas.reload();
+    drawingCanvas.updateDisplay();
 }
 function scrollback(roomId, scrollback_count = 200, loadingMsg = null) {
     console.log("load scrollback for: " + roomId);

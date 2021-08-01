@@ -1,19 +1,17 @@
-// class ColorPicker{
-//     constructor(){
-//         this.doc = document.getElementById('svg-icon-color-picker').contentDocument;
-//         this.segment60degBack = this.doc.getElementById('60degBack');
-//         this.segment60degBack.setAttribute("fill","#000")
-//     }
-// }
+// TODO: think about this appraoch... maybe store the color picker instance in main...
+import * as paper from 'paper'
 let colorPickerSvg;
-function init_color_picker() {
+export function init_color_picker() {
     colorPickerSvg = new ColorPicker();
     colorPickerSvg.selectColor([1, 0])
 }
-function GetPickerColor(){
+export function GetPickerColor(){
     return colorPickerSvg.getColor().toCSS(true)
 }
-class ColorPicker {
+export function SetColorPalette(palette){
+    colorPickerSvg.setColorPalette(palette)
+}
+export class ColorPicker {
 
     constructor() {
         // this.colors = ["#999", "#FEB326", "#7F58AF"]//,"#8ae234"

@@ -208,7 +208,7 @@ body {
     height: 100%;
 }
 
-#paper {
+#paper-canvas {
     min-height: 0;
     min-width: 0;
     width: 100%;

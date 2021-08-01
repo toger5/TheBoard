@@ -3,29 +3,14 @@
 <head>
     <meta content="text/html;charset=utf-8" http-equiv="Content-Type">
     <meta content="utf-8" http-equiv="encoding">
-    <meta name="viewport" content="width=device-width, initial-scale=0.7, maximum-scale=1, viewport-fit=cover, user-scalable=no, shrink-to-fit=no">
+    <meta name="viewport"
+        content="width=device-width, initial-scale=0.7, maximum-scale=1, viewport-fit=cover, user-scalable=no, shrink-to-fit=no">
     <meta name="HandheldFriendly" content="true">
-    <title>Matrix Whiteboard</title>
-    <script src="https://cdn.jsdelivr.net/npm/vue@2"></script>
-    <script src="notebook-tree.js"></script>
-    <script src="browser-matrix.js"></script>
-    <script src="unlimitedCanvas.js"></script>
-    <script src="paper-canvas.js"></script>
-    <script src="drawing.js"></script>
-    <script src="helper.js"></script>
-    <script src="tools/line-style-selector.js"></script>
-    <script src="tools/tool-pen.js"></script>
-    <script src="tools/tool-line.js"></script>
-    <script src="tools/tool-eraser.js"></script>
-    <script src="tools/tool-rect.js"></script>
-    <script src="input.js"></script>
-    <script src="actions.js"></script>
-    <script src="matrix-client.js"></script>
-    <script src="color-picker.js"></script>
-    <script src="tools/tool-wheel.js"></script>
-    <script src="nodeUsed/paper-core.min.js"></script>
-
-    <link href="style.css" rel="stylesheet" type="text/css"></head>
+    <title>TheBoard</title>
+    <script src="bundle.js"></script>
+    <link href="style.css" rel="stylesheet" type="text/css">
+    <link rel="icon" href="favicon.ico" type="image/x-icon"/>
+</head>
 
 <body>
     <div id="loading">
@@ -35,24 +20,15 @@
         </div>
     </div>
     <div id="topbar">
-        <!-- <img src="icon.svg" style="height: 2em"></img> -->
-        <!-- <div class="color-picker"></div> -->
-        <!-- <button onclick="sendRandomPath(matrixClient, currentRoomId)">RandomPath</button> -->
-        <!-- <button onclick="sendRandomWalk(matrixClient, currentRoomId)">RandomWalk</button> -->
-        <!-- <button onclick="sendCustomEvent(matrixClient, currentRoomId)">sendCustomEvent (p.Whiteboard.object of type p.path)</button> -->
-        <!-- <button onclick="sendRandomText(matrixClient, currentRoomId)">RandomText</button> -->
-        <button onclick="replaceLastEvent(matrixClient, currentRoomId)">Replace Last</button>
-        <button onclick="redactLastAction(matrixClient, currentRoomId)">Redact Last</button>
+        <button onclick="actions.replaceLastEvent(appData.matrixClient, appData.currentRoomId)">Replace Last</button>
+        <button onclick="actions.redactLastAction(appData.matrixClient, appData.currentRoomId)">Redact Last</button>
         <br />
         <button
-            onclick="scrollback(currentRoomId, 1000).then(function(){drawing_canvas.reload(),drawing_canvas.updateDisplay();});">Load
+            onclick="scrollback(appData.currentRoomId, 1000).then(function(){appData.drawingCanvas.reload(),appData.drawingCanvas.updateDisplay();});">Load
             History</button>
-        <button onclick="reloadCacheCanvas();drawing_canvas.updateDisplay();">Reload Canvas</button>
-        <button onclick="drawing_canvas.resetOffset()">Go Home</button>
-        <!-- <button onclick="loginClicked()">Log in</button> -->
-        <button onclick="drawing_canvas.resetZoom()">Reset Zoom</button>
-        <!-- <button id="grid" onclick="toggleGrid()">Toggle Grid</button> -->
-        <!-- <button id="tool" onclick="toggleTool()">Tool: pen</button> -->
+        <button onclick="reloadCacheCanvas();appData.drawingCanvas.updateDisplay();">reload Canvas</button>
+        <button onclick="appData.drawingCanvas.resetOffset()">Go Home</button>
+        <button onclick="appData.drawingCanvas.resetZoom()">Reset Zoom</button>
     </div>
 
     <div id="leftbar" class="no-room-selected">
@@ -69,7 +45,7 @@
 
 
     <div style="flex-grow: 1; display: flex; flex-direction: row; min-height: 0;">
-        <canvas id="paper" resize>
+        <canvas id="paper-canvas" resize>
         </canvas>
         <div id="container">
             <svg id="svg-board" style="display: none;">
@@ -123,7 +99,8 @@
         <label for="login-form-password">Password:</label><br>
         <input type="password" id="login-form-password" name="password" placeholder="Your password..."><br><br>
         <!-- </form> -->
-        <button id="login-submit" class="submit" onclick="loginClicked();">Log in</button>
+        <button id="login-submit" class="submit" onclick="actions.loginClicked();">Log in</button>
+
     </div>
 
     <div class="center-container" id="settings-container" style="display: none;">
