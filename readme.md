@@ -31,4 +31,4 @@ Looking at this list, Matrix was such an obvious choice. I could comment every p
 **Before trying it out:** It takes really long to login with an account with lots of rooms. So I highly recommand to NOT use your main Matrix account.
 Additionally it is necassary to tag rooms as whiteboards. (really unintuitve ux that will be improoved) But for now the + button needs to be pressed and a (empty (not necassary but recommanded) AND UNENCRYPTED) room needs to be selected.
 The app is available at [toger5.github.io/TheBoard](https://toger5.github.io/TheBoard). \
-_As always: use at your own Rist_
+_As always: use at your own Risk_
