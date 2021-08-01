@@ -46,7 +46,7 @@ function init_input(element) {
             || (e.pointerType == 'touch' && touchesCache.length < 2)) {
             let project_pt = drawing_canvas.getTransformedPointer(e.offsetX, e.offsetY);
             activeTool.toolmove(project_pt.x, project_pt.y, e.pressure);
-        } else if(e.buttons == 4 && (e.pointerType == "mouse" || e.pointerType == "pen")) {
+        } else if (e.buttons == 4 && (e.pointerType == "mouse" || e.pointerType == "pen")) {
             let offset = new paper.Point(e.movementX, e.movementY)
             drawing_canvas.offset(offset.divide(drawing_canvas.getZoom()));
         }
@@ -97,9 +97,15 @@ function init_input(element) {
     // el.ontouchend = (e) => {
     //     // e.preventDefault();
     // };
-    el.ontouchstart = (e) => {
+    el.addEventListener("touchstart", (e) => {
         e.preventDefault();
-    };
+    }, { passive: false });
+    el.addEventListener("gesturestart", (e) => {
+        e.preventDefault();
+    }, { passive: false });
+    // el.ontouchstart = (e) => {
+    //     e.preventDefault();
+    // };
     // el.ontouchmove = (e) => {
     //     // e.preventDefault();
     // };
