@@ -1,5 +1,11 @@
+import { drawingCanvas } from "../drawing";
+import { matrixClient, objectStore, currentRoomId, currentUserId } from '../main'
+import { Path, Color, Point } from "paper/dist/paper-core";
+import { GetToolStrokeWidthIndex } from "./line-style-selector";
+import { mousePathToString, paperPathToString, pathPosSizeCorrection, setAlpha } from "../helper";
 
-class ToolEraser {
+
+export default class ToolEraser {
     constructor() {
 
         // Tool state
@@ -16,7 +22,7 @@ class ToolEraser {
 
     }
 
-    getStrokeWidth(){
+    getStrokeWidth() {
         return this.strokeWidthOptions[GetToolStrokeWidthIndex()];
     }
     tooldown(proX, proY, pressure) {
@@ -28,11 +34,11 @@ class ToolEraser {
         console.log("toolmove");
         this.addItemsFromPoint(new paper.Point(proX, proY))
     }
-    addItemsFromPoint(testPoint){
+    addItemsFromPoint(testPoint) {
         var hitOptions = {
             stroke: true,
             tolerance: this.getStrokeWidth(),
-            match: function (hitRes){
+            match: function (hitRes) {
                 return !("markedForDeletion" in hitRes.item.data)
                     && ("id" in hitRes.item.data)
             }
@@ -43,7 +49,7 @@ class ToolEraser {
         while (hitResult && i < 10) {
             if (!hitResult) { continue }
             console.log('hitResult', hitResult);
-            if(objectStore.getById(hitResult.item.data.id).sender == currentUserId){
+            if (objectStore.getById(hitResult.item.data.id).sender == currentUserId) {
                 hitResult.item.opacity = 0.5;
                 hitResult.item.data.markedForDeletion = true
                 this.idsToDelete.push(hitResult.item.data.id)
@@ -56,7 +62,7 @@ class ToolEraser {
         if (this.tool_canceled) { return; }
 
         // console.log("try to erase");
-        // let pt = drawing_canvas.getTransformedPointer(proX, proY);
+        // let pt = drawingCanvas.getTransformedPointer(proX, proY);
         // let sortedEvents = objectStore.allSorted();
         // var id = ""
         // let eraser_size = 70;
@@ -77,12 +83,12 @@ class ToolEraser {
         this.toolcancel();
 
         console.log(this.idsToDelete)
-        for(let id of this.idsToDelete){
+        for (let id of this.idsToDelete) {
             console.log(id)
             matrixClient.redactEvent(currentRoomId, id).then(t => {
                 console.log("redacted (eraser): ", t);
             });
-            this.idsToDelete = this.idsToDelete.filter((itemId)=>{return itemId == id})
+            this.idsToDelete = this.idsToDelete.filter((itemId) => { return itemId == id })
             // await sleep(300);
         }
         this.idsToDelete = [];
@@ -94,7 +100,7 @@ class ToolEraser {
     }
     toolpreviewmove(pos) {
         if (this.previewItem === null) {
-            drawing_canvas.activateToolLayer()
+            drawingCanvas.activateToolLayer()
             this.previewItem = new paper.Path.Circle(new paper.Point(0, 0), 1);
             this.previewItem.fillColor = '#00000000'
             this.previewItem.strokeWidth = 1
@@ -103,7 +109,7 @@ class ToolEraser {
             this.previewItem.strokeCap = 'round'
             // this.previewItem.applyMatrix = false
             // this.previewItem.scaling = new paper.Point(this.getStrokeWidth(), this.getStrokeWidth())
-            drawing_canvas.activateDrawLayer()
+            drawingCanvas.activateDrawLayer()
         }
         if (this.previewItem.bounds.size.width != 2 * this.getStrokeWidth()) {
             let w = 2 * this.getStrokeWidth() / this.previewItem.bounds.size.width

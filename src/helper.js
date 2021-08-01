@@ -1,4 +1,4 @@
-function parsePath(p_path, objpos) {
+export function parsePath(p_path, objpos) {
     let arr = p_path.split(" ");
     var offset = objpos.split(" ");
     var returnval = [];
@@ -11,7 +11,7 @@ function parsePath(p_path, objpos) {
     }
     return returnval;
 }
-function parseBezierPath(p_path, objpos) {
+export function parseBezierPath(p_path, objpos) {
     let arr = p_path.split(" ");
     arr = arr.filter((e)=>e!="")
     var offset = objpos.split(" ");
@@ -30,16 +30,16 @@ function parseBezierPath(p_path, objpos) {
     }
     return returnval;
 }
-function mousePathToString(points) {
+export function mousePathToString(points) {
     //format:
     // time x y width
     let mouse_path_string = "";
-    for (p of points) {
+    for (let p of points) {
         mouse_path_string += p[0] + " " + p[1] + " " + p[2] + " " + p[3] + " ";
     }
     return mouse_path_string;
 }
-function paperPathToString(path) {
+export function paperPathToString(path) {
     //format:
     // x y handleInX handleInY handleOutX handleOutY
     let movedPath = path.clone();
@@ -47,16 +47,16 @@ function paperPathToString(path) {
     movedPath.position = movedPath.position.subtract(boundingRect.topLeft);
     var precision = 3;
     let paper_path_string = "";
-    for (s of movedPath.segments) {
+    for (let s of movedPath.segments) {
         paper_path_string += s.point.x.toFixed(precision) + " " + s.point.y.toFixed(precision) + " " + s.handleIn.x.toFixed(precision) + " " + s.handleIn.y.toFixed(precision) + " " + s.handleOut.x.toFixed(precision) + " " + s.handleOut.y.toFixed(precision) + " ";
     }
     movedPath.remove();
     return [boundingRect.topLeft, boundingRect.size, paper_path_string.trim()];
 }
-function pathPosSizeCorrection(points) {
+export function pathPosSizeCorrection(points) {
     let posMin = [Number.MAX_VALUE, Number.MAX_VALUE];
     let posMax = [-Number.MAX_VALUE, -Number.MAX_VALUE];
-    for (p of points) {
+    for (let p of points) {
         posMin[0] = Math.min(posMin[0], p[1]);
         posMin[1] = Math.min(posMin[1], p[2]);
         posMax[0] = Math.max(posMax[0], p[1]);
@@ -68,25 +68,25 @@ function pathPosSizeCorrection(points) {
     // path pos size
     return [correctedPoints, posMin, [width, height]];
 }
-function paperPathPosSizeCorrection(path) {
+export function paperPathPosSizeCorrection(path) {
     let points = [];
-    for (s of segments) {
+    for (let s of segments) {
         points.push([0, s.point.x, s.point.y, path.strokeWidth]);
     }
 
 }
-function pathChunkPosCorrection(chunk, points) {
-    return points.map((p) => { return [p[0], p[1] - chunk[0], p[2] - chunk[1], p[3]] });
-}
-function dist(p, q) {
+// export function pathChunkPosCorrection(chunk, points) {
+//     return points.map((p) => { return [p[0], p[1] - chunk[0], p[2] - chunk[1], p[3]] });
+// }
+export function dist(p, q) {
     return Math.sqrt((p.x - q.x) ** 2 + (p.y - q.y) ** 2);
 }
-function parsePoint(string) {
+export function parsePoint(string) {
     let arr = (string || "0 0").split(" ");
     return new paper.Point(parseFloat(arr[0]), parseFloat(arr[1]));
 }
 
-function setAlpha(color, opacity) {
+export function setAlpha(color, opacity) {
     // coerce values so ti is between 0 and 1.
     const _opacity = Math.round(Math.min(Math.max(opacity || 1, 0), 1) * 255);
     const _opStr = _opacity.toString(16).toUpperCase();

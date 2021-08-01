@@ -1,4 +1,13 @@
-class ToolLine {
+import { drawingCanvas } from "../drawing";
+import { sendPath } from "../actions";
+import { matrixClient, objectStore, currentRoomId } from '../main'
+import { GetPickerColor } from "../color-picker";
+// import { Path, Color, Point } from "paper/dist/paper-core";
+import { GetToolStrokeWidthIndex } from "./line-style-selector";
+import { mousePathToString, paperPathToString, pathPosSizeCorrection, setAlpha } from "../helper";
+
+
+export default class ToolLine {
     constructor() {
 
         // Tool state
@@ -47,7 +56,7 @@ class ToolLine {
                 GetPickerColor(),'#00000000', [pos.x,pos.y], [size.width,size.height], this.getStrokeWidth(), false, version);
         } else {
             console.log("NO ROOM SELECTED TO DRAW IN!")
-            drawing_canvas.updateDisplay();
+            drawingCanvas.updateDisplay();
         }
         this.toolcancel();
     }

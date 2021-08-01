@@ -1,6 +1,6 @@
 var _tool_stroke_width_index = 1
 var TOOL_STROKE_WIDTH_OPTION_COUNT = 4
-function init_line_style_selector(){
+export default function init_line_style_selector(){
     let button = document.getElementById("line-type-selector-button")
     button.onclick = function (btnEv) {
         _tool_stroke_width_index += 1;
@@ -19,6 +19,6 @@ function init_line_style_selector(){
     }
     updateVisiblePreviewItem(1);
 }
-function GetToolStrokeWidthIndex() {
+export function GetToolStrokeWidthIndex() {
     return _tool_stroke_width_index;
 }

@@ -1,6 +1,9 @@
-class PaperCanvas {
+const paper = require('paper');
+import { objectStore } from './main';
+import { drawEvent } from './drawing';
+export default class PaperCanvas {
     constructor() {
-        this.css_id = "paper";
+        this.css_id = "paper-canvas";
         this.displayPaths = [];
         this.toolLayer = null
         this.drawLayer = null;
@@ -14,10 +17,10 @@ class PaperCanvas {
     }
     init() {
         // Get a reference to the canvas object
-        this.canvas = document.getElementById('paper');
+        this.canvas = document.getElementById('paper-canvas');
         // Create an empty project and a view for the canvas:
         paper.setup(this.canvas);
-
+        paper.install(window)
         this.drawLayer = paper.project.activeLayer;
         this.toolLayer = new paper.Layer()
     }
@@ -118,7 +121,7 @@ class PaperCanvas {
     clear() {
         var length = 0;// = paper.project.activeLayer.removeChildren();
         for (let l of paper.project.layers) {
-            length += l.removeChildren();
+            length += l.removeChildren().length;
         }
         console.log("removed ", length, " items")
     }

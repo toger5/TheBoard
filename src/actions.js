@@ -1,3 +1,18 @@
+import { login, matrixClient, objectStore, currentRoomId } from './main'
+import { parsePoint } from './helper'
+
+
+window.actions = {
+    loginClicked: loginClicked,
+    redactLastAction: redactLastAction,
+    formSubmit: formSubmit,
+    replaceLastEvent: replaceLastEvent,
+    moveLastEvent: moveLastEvent,
+    showAddRoomMenu: showAddRoomMenu,
+    hideAddRoomMenu: hideAddRoomMenu,
+    showSettingsMenu: showSettingsMenu,
+    hideSettingsMenu: hideSettingsMenu,
+}
 function sendmsgs(amount, client, room) {
     for (let i = 0; i < amount; i++) {
         const content = {
@@ -21,7 +36,7 @@ function toggleGrid() {
         setting_grid = "";
     }
     reloadCacheCanvas();
-    drawing_canvas.updateDisplay();
+    drawingCanvas.updateDisplay();
 }
 function toggleTool() {
     if (tool.type === toolType.draw) {
@@ -40,7 +55,7 @@ function redactLastAction(client, roomId) {
     // let room = client.getRoom(roomId);
     let userId = client.getUserId();
     let sortedEvents = objectStore.allSorted();
-    for (i = sortedEvents.length - 1; (id === "" && i >= 0); i--) {
+    for (let i = sortedEvents.length - 1; (id === "" && i >= 0); i--) {
         let event = sortedEvents[i];
         console.log("looping through events to find the one to redact");
         if (event.type == "p.whiteboard.object" && event.sender == userId) {
@@ -80,7 +95,7 @@ function sendCustomEvent(client, room) {
         console.log(err);
     });
 }
-function sendPath(client, room, string_path, color, fillColor, offset, size, strokeWidth, closed, version) {
+export function sendPath(client, room, string_path, color, fillColor, offset, size, strokeWidth, closed, version) {
     console.log("send random path: ...")
     const content = {
         "version": version,
@@ -133,7 +148,7 @@ function randomPath() {
     }
     return path;
 }
-function loginClicked() {
+export function loginClicked() {
     // let serverUrl = "matrix.org"
     function checkUsername(username) {
         console.log("username to check: ", username);
@@ -192,52 +207,52 @@ function formSubmit(e) {
     return false;
 }
 
-function replaceLastEvent(matrixClient, currentRoomId) {
-    let id = "";
-    // let room = client.getRoom(roomId);
-    let userId = matrixClient.getUserId();
-    let sortedEvents = objectStore.allSorted();
-    for (i = sortedEvents.length - 1; (id === "" && i >= 0); i--) {
-        let event = sortedEvents[i];
-        console.log("looping through events to find the one to redact");
-        if (event.type == "p.whiteboard.object" && event.sender == userId) {
-            id = event.event_id;
-            break;
-        }
-    }
-    let replaceId = id;
-    const content = {
-        "version": 2,
-        "svg": "none",
-        "objtype": "p.path",
-        "objpos": "100 100",
-        "objcolor": "#000",
-        "closed": true,
-        "objFillColor": '#ff000030',
-        "strokeWidth": 3,
-        "path": "0 0 0 0 0 0 0 100 0 0 0 0 100 100 0 0 0 0 100 0 0 0 0 0",
-    };
-    // const replaceContent = {
-    //     "body": "",
-    //     "m.new_content": content,
-    //     "m.relates_to": {
-    //         "rel_type": "m.replace",
-    //         "event_id": replaceId
-    //     }
-    // }
-    matrixClient.sendEvent(currentRoomId, "p.whiteboard.object", content, "", (err, res) => {
-        console.log(err);
-    });
-    matrixClient.redactEvent(currentRoomId, replaceId).then(t => {
-        console.log("redacted for replace ", t);
-    });
-}
+// function replaceLastEvent(matrixClient, currentRoomId) {
+//     let id = "";
+//     // let room = client.getRoom(roomId);
+//     let userId = matrixClient.getUserId();
+//     let sortedEvents = objectStore.allSorted();
+//     for (i = sortedEvents.length - 1; (id === "" && i >= 0); i--) {
+//         let event = sortedEvents[i];
+//         console.log("looping through events to find the one to redact");
+//         if (event.type == "p.whiteboard.object" && event.sender == userId) {
+//             id = event.event_id;
+//             break;
+//         }
+//     }
+//     let replaceId = id;
+//     const content = {
+//         "version": 2,
+//         "svg": "none",
+//         "objtype": "p.path",
+//         "objpos": "100 100",
+//         "objcolor": "#000",
+//         "closed": true,
+//         "objFillColor": '#ff000030',
+//         "strokeWidth": 3,
+//         "path": "0 0 0 0 0 0 0 100 0 0 0 0 100 100 0 0 0 0 100 0 0 0 0 0",
+//     };
+//     // const replaceContent = {
+//     //     "body": "",
+//     //     "m.new_content": content,
+//     //     "m.relates_to": {
+//     //         "rel_type": "m.replace",
+//     //         "event_id": replaceId
+//     //     }
+//     // }
+//     matrixClient.sendEvent(currentRoomId, "p.whiteboard.object", content, "", (err, res) => {
+//         console.log(err);
+//     });
+//     matrixClient.redactEvent(currentRoomId, replaceId).then(t => {
+//         console.log("redacted for replace ", t);
+//     });
+// }
 function lastEvent() {
     let lastEvent = null;
     // let room = client.getRoom(roomId);
     let userId = matrixClient.getUserId();
     let sortedEvents = objectStore.allSorted();
-    for (i = sortedEvents.length - 1; i >= 0; i--) {
+    for (let i = sortedEvents.length - 1; i >= 0; i--) {
         let event = sortedEvents[i];
         console.log("looping through events to find the one to redact");
         if (event.type == "p.whiteboard.object" && event.sender == userId) {
@@ -287,26 +302,26 @@ function toggleLeftBar() {
         footer.innerHTML = '˅'
     }
 }
-function showAddRoomMenu(){
+function showAddRoomMenu() {
     updateAddRoomList()
     let addRoomMenu = document.getElementById("add-room-container")
     addRoomMenu.style.display = 'block'
 
 }
-function hideAddRoomMenu(){
+function hideAddRoomMenu() {
     let addRoomMenu = document.getElementById("add-room-container")
     addRoomMenu.style.display = 'none'
 }
 
-function showSettingsMenu(){
+function showSettingsMenu() {
     let settingsMenu = document.getElementById("settings-container")
     let roomId = document.getElementById('room-menu-room-id')
     let room = matrixClient.getRoom(currentRoomId);
 
-    roomId.innerHTML= room.roomId
+    roomId.innerHTML = room.roomId
     settingsMenu.style.display = 'block'
 }
-function hideSettingsMenu(){
+function hideSettingsMenu() {
     let settingsMenu = document.getElementById("settings-container")
     settingsMenu.style.display = 'none'
 }
