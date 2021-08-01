@@ -72,6 +72,7 @@ class ToolPen {
         let currentPosPoint = new paper.Point(currentPos[1], currentPos[2])
         this.mouse_path.push(currentPos);
         this.previewPaths[this.previewPaths.length - 1].lineTo(currentPosPoint);
+        this.previewPaths[this.previewPaths.length - 1].smooth()
         // drawing_canvas.drawSegmentDisplay([this.last_pos, currentPos], this.getStrokeColor(), this.getStrokeWidth());
         this.last_pos = currentPos;
 
