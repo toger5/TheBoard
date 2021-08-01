@@ -1,6 +1,7 @@
 transform.js
 transform.html
-node_modules
 history
 .vscode
+node_modules/
 dist/
+npm-debug.log
