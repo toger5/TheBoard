@@ -1,6 +1,6 @@
-const paper = require('paper');
-import { objectStore } from './main';
+// import { objectStore } from './main';
 import { drawEvent } from './drawing';
+export const paper = require('paper');
 export default class PaperCanvas {
     constructor() {
         this.css_id = "paper-canvas";
@@ -104,7 +104,7 @@ export default class PaperCanvas {
             p.lineTo(new paper.Point(points[i][1], points[i][2]));
         }
     }
-    updateDisplay() {
+    updateDisplay_DEPRECATED() {
         if (this.dispPath !== null) {
             // this.dispPath.remove();
             this.displayPaths.push(this.dispPath);
@@ -121,6 +121,9 @@ export default class PaperCanvas {
     clear() {
         var length = 0;// = paper.project.activeLayer.removeChildren();
         for (let l of paper.project.layers) {
+            if(l === this.toolLayer){
+                continue
+            }
             length += l.removeChildren().length;
         }
         console.log("removed ", length, " items")
@@ -132,7 +135,7 @@ export default class PaperCanvas {
         this.clear();
         var starttime = Date.now();
         console.log("!! Paper Canvas redraw START");
-        objectStore.allSorted().forEach(obj => {
+        appData.objectStore.allSorted().forEach(obj => {
             if (obj.type == "p.whiteboard.object") {
                 drawEvent(obj, animated, animated);
             }

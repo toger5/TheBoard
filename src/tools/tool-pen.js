@@ -1,7 +1,8 @@
-import { drawingCanvas } from "../drawing";
+// import { drawingCanvas } from "../drawing";
 import PaperCanvas from "../paper-canvas";
 import { sendPath } from "../actions";
-import { objectStore, currentRoomId, matrixClient } from "../main";
+// import { objectStore, currentRoomId,drawingCanvas } from "../main";
+// import { matrixClient } from '../main'//backend;
 import { GetToolStrokeWidthIndex } from "./line-style-selector";
 import { GetPickerColor } from "../color-picker";
 import { mousePathToString, paperPathToString, pathPosSizeCorrection, setAlpha } from "../helper";
@@ -36,7 +37,7 @@ export default class ToolPen {
         this.last_pos = [0, proX, proY, pressure];
         this.mouse_path = [[0, proX, proY, pressure * 4]];
 
-        drawingCanvas.activateToolLayer()
+        appData.drawingCanvas.activateToolLayer()
         for (let path of this.previewPaths) {
             if (!path.visible) {
                 path.remove()
@@ -54,7 +55,7 @@ export default class ToolPen {
         prev.strokeWidth = this.getStrokeWidth();
         prev.strokeCap = "round"
         prev.moveTo(new Point(proX, proY))
-        drawingCanvas.activateDrawLayer()
+        appData.drawingCanvas.activateDrawLayer()
 
         console.log("tooldown");
     }
@@ -78,16 +79,16 @@ export default class ToolPen {
         this.mouse_path.push(currentPos);
         this.previewPaths[this.previewPaths.length - 1].lineTo(currentPosPoint);
         this.previewPaths[this.previewPaths.length - 1].smooth()
-        // drawingCanvas.drawSegmentDisplay([this.last_pos, currentPos], this.getStrokeColor(), this.getStrokeWidth());
+        // appData.drawingCanvas.drawSegmentDisplay([this.last_pos, currentPos], this.getStrokeColor(), this.getStrokeWidth());
         this.last_pos = currentPos;
 
     }
     toolpreviewmove(pos) {
         if (this.previewItem === null) {
-            drawingCanvas.activateToolLayer()
+            appData.drawingCanvas.activateToolLayer()
             this.previewItem = new Path.Circle(new Point(0, 0), 0.5);
             this.previewItem.applyMatrix = false
-            drawingCanvas.activateDrawLayer()
+            appData.drawingCanvas.activateDrawLayer()
         }
         this.previewItem.scaling = new Point(this.getStrokeWidth(), this.getStrokeWidth())
         this.previewItem.fillColor = this.getStrokeColor();
@@ -95,29 +96,29 @@ export default class ToolPen {
     }
     toolup(proX, proY) {
         if (this.tool_canceled) { return; }
-        if (objectStore.hasRoom(currentRoomId)) {
+        if (appData.objectStore.hasRoom(appData.matrixClient.currentRoomId)) {
             let [corrected_mouse_path, pos, size] = pathPosSizeCorrection(this.mouse_path);
             let string_path;
             let version;
-            // if (drawingCanvas instanceof UnlimitedCanvas) {
+            // if (appData.drawingCanvas instanceof UnlimitedCanvas) {
             //     string_path = mousePathToString(corrected_mouse_path);
             //     version = 1;
             // }
             // else 
-            if (drawingCanvas instanceof PaperCanvas) {
+            if (appData.drawingCanvas instanceof PaperCanvas) {
                 let paper_mouse_path = new Path(corrected_mouse_path.map((s) => { return [s[1], s[2]] }));
-                paper_mouse_path.simplify(1 / drawingCanvas.getZoom());
+                paper_mouse_path.simplify(1 / appData.drawingCanvas.getZoom());
                 string_path = paperPathToString(paper_mouse_path)[2];
                 paper_mouse_path.remove();
                 version = 2;
             }
-            sendPath(matrixClient, currentRoomId,
+            sendPath(appData.matrixClient.client, appData.matrixClient.currentRoomId,
                 string_path,
                 this.getStrokeColor(), '#00000000', pos, size, this.getStrokeWidth(), false, version);
 
         } else {
             console.log("NO ROOM SELECTED TO DRAW IN!")
-            drawingCanvas.updateDisplay();
+            appData.drawingCanvas.updateDisplay_DEPRECATED();
         }
         this.toolcancel();
     }

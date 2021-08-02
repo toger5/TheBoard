@@ -1,6 +1,7 @@
-import { drawingCanvas } from "../drawing";
+// import { drawingCanvas } from "../drawing";
 import { sendPath } from "../actions";
-import { matrixClient, objectStore, currentRoomId } from '../main'
+// import { objectStore, currentRoomId,drawingCanvas } from '../main'
+// import { matrixClient } from '../main'//backend;
 import { GetPickerColor } from "../color-picker";
 // import { Path, Color, Point } from "paper/dist/paper-core";
 import { GetToolStrokeWidthIndex } from "./line-style-selector";
@@ -43,7 +44,7 @@ export default class ToolLine {
 
     toolup(proX, proY) {
         if (this.tool_canceled) { return; }
-        if (objectStore.hasRoom(currentRoomId)) {
+        if (appData.objectStore.hasRoom(appData.matrixClient.currentRoomId)) {
             // let [corrected_mouse_path, pos, size] = pathPosSizeCorrection([[0,this.canvas_line.firstSegment.point.x,this.canvas_line.firstSegment.point.y,0],[0,this.canvas_line.lastSegment.point.x,this.canvas_line.lastSegment.point.y,0]]);
 
             // let paper_mouse_path = new paper.Path(corrected_mouse_path.map((s) => { return [s[1], s[2]] }));
@@ -51,12 +52,12 @@ export default class ToolLine {
             let [pos, size, string_path] = paperPathToString(this.canvas_line);
             // paper_mouse_path.remove();
             let version = 2;
-            sendPath(matrixClient, currentRoomId,
+            sendPath(appData.matrixClient.client, appData.matrixClient.currentRoomId,
                 string_path,
                 GetPickerColor(),'#00000000', [pos.x,pos.y], [size.width,size.height], this.getStrokeWidth(), false, version);
         } else {
             console.log("NO ROOM SELECTED TO DRAW IN!")
-            drawingCanvas.updateDisplay();
+            appData.drawingCanvas.updateDisplay_DEPRECATED();
         }
         this.toolcancel();
     }

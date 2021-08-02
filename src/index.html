@@ -9,7 +9,7 @@
     <title>TheBoard</title>
     <script src="bundle.js"></script>
     <link href="style.css" rel="stylesheet" type="text/css">
-    <link rel="icon" href="favicon.ico" type="image/x-icon"/>
+    <link rel="icon" href="favicon.ico" type="image/x-icon" />
 </head>
 
 <body>
@@ -20,13 +20,13 @@
         </div>
     </div>
     <div id="topbar">
-        <button onclick="actions.replaceLastEvent(appData.matrixClient, appData.currentRoomId)">Replace Last</button>
-        <button onclick="actions.redactLastAction(appData.matrixClient, appData.currentRoomId)">Redact Last</button>
+        <button onclick="actions.replaceLastEvent()">Replace Last</button>
+        <button onclick="actions.redactLastAction()">Redact Last</button>
         <br />
         <button
-            onclick="scrollback(appData.currentRoomId, 1000).then(function(){appData.drawingCanvas.reload(),appData.drawingCanvas.updateDisplay();});">Load
-            History</button>
-        <button onclick="reloadCacheCanvas();appData.drawingCanvas.updateDisplay();">reload Canvas</button>
+            onclick="actions.scrollback(appData.matrixClient.currentRoomId, 1000).then(function(){appData.drawingCanvas.reload()});">
+            Load History</button>
+        <button onclick="reloadCacheCanvas();appData.drawingCanvas.updateDisplay_DEPRECATED();">Reload Canvas</button>
         <button onclick="appData.drawingCanvas.resetOffset()">Go Home</button>
         <button onclick="appData.drawingCanvas.resetZoom()">Reset Zoom</button>
     </div>
@@ -47,12 +47,12 @@
     <div style="flex-grow: 1; display: flex; flex-direction: row; min-height: 0;">
         <canvas id="paper-canvas" resize>
         </canvas>
-        <div id="container">
+        <!-- <div id="container">
             <svg id="svg-board" style="display: none;">
             </svg>
             <canvas id="canvas" style="display: none;">
             </canvas>
-        </div>
+        </div> -->
     </div>
     <div id='tool-wheel'>
         <canvas id="color-picker-canvas" resize>
@@ -90,18 +90,7 @@
         </div>
     </div>
 
-    <div class="center-container" id="loginContainer">
-        <p><span style="font-size: 3em;white-space: pre;font-weight: 100;">The Board</span><span
-                style="font-size: 1em;white-space: pre;font-weight: 100;"> (Alpha 0.6)</span></p>
-        <!-- <form id="login-form" onsubmit="return formSubmit(event)"> -->
-        <label for="username">Username:</label><br>
-        <input type="text" id="login-form-username" name="username" placeholder="Your matrix id..."><br>
-        <label for="login-form-password">Password:</label><br>
-        <input type="password" id="login-form-password" name="password" placeholder="Your password..."><br><br>
-        <!-- </form> -->
-        <button id="login-submit" class="submit" onclick="actions.loginClicked();">Log in</button>
-
-    </div>
+    <login-container></login-container>
 
     <div class="center-container" id="settings-container" style="display: none;">
         <button style="float: right;" onclick="hideSettingsMenu()">close</button>
@@ -115,10 +104,10 @@
             </div>
             <div id="create-room-dialog">
                 <input type="text" id="create-board-name" placeholder="Name of new whiteboard"></input>
-                <button onclick="createWhiteboard('private', document.getElementById('create-board-name').value).then(()=>{
-                updateAddRoomList();
-                updateRoomList();
-                hideAddRoomMenu();
+                <button onclick="actions.createWhiteboard('private', document.getElementById('create-board-name').value).then(()=>{
+                actions.updateAddRoomList();
+                actions.updateRoomList();
+                actions.hideAddRoomMenu();
                 })">Create
                     Room</button>
             </div>

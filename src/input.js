@@ -2,8 +2,9 @@ import ToolPen from './tools/tool-pen.js'
 import ToolEraser from './tools/tool-eraser.js'
 import ToolLine from './tools/tool-line.js'
 import ToolRect from './tools/tool-rect.js'
-import { drawingCanvas } from './drawing.js'
+// import { drawingCanvas } from './main.js'
 import { dist } from './helper.js'
+
 export var tools = {
     "tool-type-pen": new ToolPen(),
     "tool-type-eraser": new ToolEraser(),
@@ -26,24 +27,23 @@ export function setActiveTool(id){
     activeTool = tools[id];
 }
 export default function init_input(element) {
-    // var el = document.getElementById("canvas");
     var el = element;
     // POINTER
     el.onpointerdown = function (e) {
         // e.preventDefault();
         console.log("onpointerdown");
-        let project_pt = drawingCanvas.getTransformedPointer(e.offsetX, e.offsetY);
+        let project_pt = appData.drawingCanvas.getTransformedPointer(e.offsetX, e.offsetY);
         if (e.pointerType == "touch") {
             if (touchesCache.length == 0) {
                 activeTool.tooldown(project_pt.x, project_pt.y, e.pressure);
             } else {
                 activeTool.toolcancel();
-                touchZoomCache = drawingCanvas.getZoom();
+                touchZoomCache = appData.drawingCanvas.getZoom();
             }
             touchesCacheBegin.push(e);
             touchesCache.push(e);
         } else {
-            // let project_pt = drawingCanvas.getTransformedPointer(e.offsetX, e.offsetY);
+            // let project_pt = appData.drawingCanvas.getTransformedPointer(e.offsetX, e.offsetY);
             activeTool.tooldown(project_pt.x, project_pt.y, e.pressure);
         }
     };
@@ -52,22 +52,22 @@ export default function init_input(element) {
         // console.log("onpointermove");
         if ((e.buttons == 1 && (e.pointerType == "mouse" || e.pointerType == "pen"))
             || (e.pointerType == 'touch' && touchesCache.length < 2)) {
-            let project_pt = drawingCanvas.getTransformedPointer(e.offsetX, e.offsetY);
+            let project_pt = appData.drawingCanvas.getTransformedPointer(e.offsetX, e.offsetY);
             activeTool.toolmove(project_pt.x, project_pt.y, e.pressure);
         } else if (e.buttons == 4 && (e.pointerType == "mouse" || e.pointerType == "pen")) {
             let offset = new paper.Point(e.movementX, e.movementY)
-            drawingCanvas.offset(offset.divide(drawingCanvas.getZoom()));
+            appData.drawingCanvas.offset(offset.divide(appData.drawingCanvas.getZoom()));
         }
         else if (touchesCache.length == 2 && e.pointerType == "touch") {
             let index = touchesCache.findIndex((el) => { return e.pointerId === el.pointerId });
             touchesCache[index] = e;
             handlePanZoom();
         }
-        activeTool.toolpreviewmove(drawingCanvas.getTransformedPointer(e.offsetX, e.offsetY))
+        activeTool.toolpreviewmove(appData.drawingCanvas.getTransformedPointer(e.offsetX, e.offsetY))
     };
     el.onpointerup = function (e) {
         console.log("onpointerup");
-        let project_pt = drawingCanvas.getTransformedPointer(e.offsetX, e.offsetY);
+        let project_pt = appData.drawingCanvas.getTransformedPointer(e.offsetX, e.offsetY);
         if (e.pointerType == "touch") {
             touchesCache = touchesCache.filter((cache_event) => { cache_event.pointerId == e.pointerId });
             touchesCacheBegin = touchesCacheBegin.filter((cache_event) => { cache_event.pointerId == e.pointerId });
@@ -91,7 +91,7 @@ export default function init_input(element) {
         } else {
             let scroll_speed = 0.5;
             let offset = new paper.Point(e.wheelDeltaX * scroll_speed, e.wheelDeltaY * scroll_speed);
-            drawingCanvas.offset(offset.divide(drawingCanvas.getZoom()));
+            appData.drawingCanvas.offset(offset.divide(appData.drawingCanvas.getZoom()));
         }
     };
     // unused
@@ -122,24 +122,25 @@ export default function init_input(element) {
 
 function scroll(deltaX, deltaY) {
     let scroll_speed = 0.5;
-    drawingCanvas.offset(new paper.Point(deltaX * scroll_speed, deltaY * scroll_speed));
+    appData.drawingCanvas.offset(new paper.Point(deltaX * scroll_speed, deltaY * scroll_speed));
 }
 function zoom(offsetX, offsetY, factor) {
     let zoom_speed = 0.004;
-    drawingCanvas.zoom(1 + factor * zoom_speed, new paper.Point(offsetX, offsetY));
+    appData.drawingCanvas.zoom(1 + factor * zoom_speed, new paper.Point(offsetX, offsetY));
 }
 var touchZoomCache = 0;
 var touchPanCache = new DOMPoint(0, 0);
 var handleTouchType = ""
 function handlePanZoom() {
-    let cx = drawingCanvas.canvas.getBoundingClientRect().x;
-    let cy = drawingCanvas.canvas.getBoundingClientRect().y;
-    let canvasZoom = drawingCanvas.getZoom();
-    let start1 = drawingCanvas.getTransformedPointer(touchesCacheBegin[0].clientX - cx, touchesCacheBegin[0].clientY - cy);
-    let start2 = drawingCanvas.getTransformedPointer(touchesCacheBegin[1].clientX - cx, touchesCacheBegin[1].clientY - cy);
-    let current1 = drawingCanvas.getTransformedPointer(touchesCache[0].clientX - cx, touchesCache[0].clientY - cy);
-    let current2 = drawingCanvas.getTransformedPointer(touchesCache[1].clientX - cx, touchesCache[1].clientY - cy);
-    var PINCH_THRESHOLD = 70 //drawingCanvas.canvas.clientWidth / 40;
+    let drawC=appData.drawingCanvas
+    let cx = drawC.canvas.getBoundingClientRect().x;
+    let cy = drawC.canvas.getBoundingClientRect().y;
+    let canvasZoom = drawC.getZoom();
+    let start1 = drawC.getTransformedPointer(touchesCacheBegin[0].clientX - cx, touchesCacheBegin[0].clientY - cy);
+    let start2 = drawC.getTransformedPointer(touchesCacheBegin[1].clientX - cx, touchesCacheBegin[1].clientY - cy);
+    let current1 = drawC.getTransformedPointer(touchesCache[0].clientX - cx, touchesCache[0].clientY - cy);
+    let current2 = drawC.getTransformedPointer(touchesCache[1].clientX - cx, touchesCache[1].clientY - cy);
+    var PINCH_THRESHOLD = 70 //drawC.canvas.clientWidth / 40;
     var PAN_THRESHOLD = 40
     var distStart = dist(start1, start2);
     var distCurrent = dist(current1, current2);
@@ -160,7 +161,7 @@ function handlePanZoom() {
         var currentZoomFactor = distCurrent / distStart;
         // console.log("zoomFactor: ", currentZoomFactor);
         //TODO some log or exp to make absolute zoom... Maybe not. feels just fine as it is...
-        drawingCanvas.setZoom(touchZoomCache * currentZoomFactor, startCenter);
+        drawC.setZoom(touchZoomCache * currentZoomFactor, startCenter);
         // touchZoomCache = distCurrent / distStart;
     }
     if (handleTouchType == "pan") {
@@ -169,8 +170,8 @@ function handlePanZoom() {
         // console.log("offset: ", offset);
         var offsetDiff = new paper.Point(touchPanCache.x - offset.x, touchPanCache.y - offset.y);
         touchPanCache = offset;
-        // console.log("offsetDiff: ", offsetDiff, drawingCanvas.getZoom());
+        // console.log("offsetDiff: ", offsetDiff, drawC.getZoom());
         // multipy with zoom
-        drawingCanvas.offset(offsetDiff);
+        drawC.offset(offsetDiff);
     }
 }

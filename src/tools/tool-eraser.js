@@ -1,6 +1,6 @@
-import { drawingCanvas } from "../drawing";
-import { matrixClient, objectStore, currentRoomId, currentUserId } from '../main'
-import { Path, Color, Point } from "paper/dist/paper-core";
+// import {  } from "../drawing";
+// import { objectStore } from '../main'
+// import {  } from '../main'//backend;
 import { GetToolStrokeWidthIndex } from "./line-style-selector";
 import { mousePathToString, paperPathToString, pathPosSizeCorrection, setAlpha } from "../helper";
 
@@ -49,7 +49,7 @@ export default class ToolEraser {
         while (hitResult && i < 10) {
             if (!hitResult) { continue }
             console.log('hitResult', hitResult);
-            if (objectStore.getById(hitResult.item.data.id).sender == currentUserId) {
+            if (appData.objectStore.getById(hitResult.item.data.id).sender == appData.matrixClient.client.getUserId()) {
                 hitResult.item.opacity = 0.5;
                 hitResult.item.data.markedForDeletion = true
                 this.idsToDelete.push(hitResult.item.data.id)
@@ -85,7 +85,7 @@ export default class ToolEraser {
         console.log(this.idsToDelete)
         for (let id of this.idsToDelete) {
             console.log(id)
-            matrixClient.redactEvent(currentRoomId, id).then(t => {
+            appData.matrixClient.client.redactEvent(appData.matrixClient.currentRoomId, id).then(t => {
                 console.log("redacted (eraser): ", t);
             });
             this.idsToDelete = this.idsToDelete.filter((itemId) => { return itemId == id })
@@ -100,7 +100,7 @@ export default class ToolEraser {
     }
     toolpreviewmove(pos) {
         if (this.previewItem === null) {
-            drawingCanvas.activateToolLayer()
+            appData.drawingCanvas.activateToolLayer()
             this.previewItem = new paper.Path.Circle(new paper.Point(0, 0), 1);
             this.previewItem.fillColor = '#00000000'
             this.previewItem.strokeWidth = 1
@@ -109,7 +109,7 @@ export default class ToolEraser {
             this.previewItem.strokeCap = 'round'
             // this.previewItem.applyMatrix = false
             // this.previewItem.scaling = new paper.Point(this.getStrokeWidth(), this.getStrokeWidth())
-            drawingCanvas.activateDrawLayer()
+            appData.drawingCanvas.activateDrawLayer()
         }
         if (this.previewItem.bounds.size.width != 2 * this.getStrokeWidth()) {
             let w = 2 * this.getStrokeWidth() / this.previewItem.bounds.size.width
