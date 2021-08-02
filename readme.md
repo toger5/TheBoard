@@ -30,5 +30,5 @@ Looking at this list, Matrix was such an obvious choice. I could comment every p
 **TheBoard (probably not the final name) is exactly that.** The front end is not done yet but already in an okay looking and usable state.
 **Before trying it out:** It takes really long to log in with an account with lots of rooms. So I highly recommend to NOT use your main Matrix account.
 Additionally, it is necessary to tag rooms as whiteboards (really unintuitve UX that will be improved). But for now, the + button needs to be pressed and a (empty (not necassary but recommended) AND UNENCRYPTED) room needs to be selected.
-The app is available at [toger5.github.io/TheBoard](toger5.github.io/TheBoard). \
+The app is available at [toger5.github.io/TheBoard](https://toger5.github.io/TheBoard). \
 _As always: use at your own Risk_
