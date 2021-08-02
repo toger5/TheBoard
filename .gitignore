@@ -3,3 +3,4 @@ transform.html
 node_modules
 history
 .vscode
+dist/
