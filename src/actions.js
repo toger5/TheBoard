@@ -1,9 +1,10 @@
-import { login, matrixClient, objectStore, currentRoomId } from './main'
+import { login, updateAddRoomList } from './main'
+// import { matrixClient } from './main'//backend;
 import { parsePoint } from './helper'
 
 
 window.actions = {
-    loginClicked: loginClicked,
+    // loginClicked: loginClicked,
     redactLastAction: redactLastAction,
     formSubmit: formSubmit,
     replaceLastEvent: replaceLastEvent,
@@ -36,7 +37,7 @@ function toggleGrid() {
         setting_grid = "";
     }
     reloadCacheCanvas();
-    drawingCanvas.updateDisplay();
+    appData.drawingCanvas.updateDisplay_DEPRECATED();
 }
 function toggleTool() {
     if (tool.type === toolType.draw) {
@@ -50,10 +51,10 @@ function toggleTool() {
     // }
     document.getElementById("tool").innerText = "Tool: " + tool.getString();
 }
-function redactLastAction(client, roomId) {
+function redactLastAction() {
     let id = "";
-    // let room = client.getRoom(roomId);
-    let userId = client.getUserId();
+    let roomId = appData.matrixClient.currentRoomId;
+    let userId = appData.matrixClient.client.getUserId();
     let sortedEvents = objectStore.allSorted();
     for (let i = sortedEvents.length - 1; (id === "" && i >= 0); i--) {
         let event = sortedEvents[i];
@@ -148,23 +149,6 @@ function randomPath() {
     }
     return path;
 }
-export function loginClicked() {
-    // let serverUrl = "matrix.org"
-    function checkUsername(username) {
-        console.log("username to check: ", username);
-        return true
-    }
-    function checkpwd(pwd) {
-        console.log("pwd to check: ", pwd);
-        return true
-    }
-    let username = document.getElementById("login-form-username").value;
-    let pwd = document.getElementById("login-form-password").value;
-    if (checkpwd(pwd) && checkUsername(username)) {
-        let domain = username.split(":")[1]
-        login(username, pwd, domain);
-    }
-}
 function randomWalk() {
     var walk = "";
     var width = 0.1;
@@ -250,8 +234,8 @@ function formSubmit(e) {
 function lastEvent() {
     let lastEvent = null;
     // let room = client.getRoom(roomId);
-    let userId = matrixClient.getUserId();
-    let sortedEvents = objectStore.allSorted();
+    let userId = appData.matrixClient.client.getUserId();
+    let sortedEvents = appData.objectStore.allSorted();
     for (let i = sortedEvents.length - 1; i >= 0; i--) {
         let event = sortedEvents[i];
         console.log("looping through events to find the one to redact");
@@ -263,14 +247,14 @@ function lastEvent() {
     return lastEvent;
 }
 function replaceEvent(idToReplace, newContent) {
-    matrixClient.sendEvent(currentRoomId, "p.whiteboard.object", newContent, "", (err, res) => {
+    appData.matrixClient.client.sendEvent(appData.matrixClient.currentRoomId, "p.whiteboard.object", newContent, "", (err, res) => {
         console.log(err);
     });
-    matrixClient.redactEvent(currentRoomId, idToReplace).then(t => {
+    appData.matrixClient.client.redactEvent(appData.matrixClient.currentRoomId, idToReplace).then(t => {
         console.log("redacted for replace ", t);
     });
 }
-function replaceLastEvent(matrixClient, currentRoomId) {
+function replaceLastEvent() {
     let replaceId = lastEvent().event_id;
     const content = {
         "version": 2,
@@ -316,7 +300,7 @@ function hideAddRoomMenu() {
 function showSettingsMenu() {
     let settingsMenu = document.getElementById("settings-container")
     let roomId = document.getElementById('room-menu-room-id')
-    let room = matrixClient.getRoom(currentRoomId);
+    let room = appData.matrixClient.client.getRoom(appData.matrixClient.currentRoomId);
 
     roomId.innerHTML = room.roomId
     settingsMenu.style.display = 'block'

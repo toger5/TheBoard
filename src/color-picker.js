@@ -1,5 +1,7 @@
 // TODO: think about this appraoch... maybe store the color picker instance in main...
-import * as paper from 'paper'
+// const paper = require('paper')
+import {paper} from './paper-canvas'
+
 let colorPickerSvg;
 export function init_color_picker() {
     colorPickerSvg = new ColorPicker();

@@ -3,16 +3,15 @@
 // cache_canvas.height = 8000;
 // var cache_ctx = cache_canvas.getContext("2d");
 // var cache_canvas = new UnlimitedCanvas();
-import PaperCanvas from './paper-canvas'
+// import { drawingCanvas } from './main';
 import { parsePath, parseBezierPath, parsePoint } from './helper';
-export var drawingCanvas = new PaperCanvas();
-window.appData = {}
-window.appData.drawingCanvas = drawingCanvas;
+
 // var setting_grid = "";
 // var display_canvas;
 // var display_ctx;
 
-export function drawEvent(event, animated, updateDisplay = true) {
+export function drawEvent(event, animated, updateDisplay_DEPRECATED = true) {
+    let drawC = appData.drawingCanvas;
     if (event.content.objtype == "p.path") {
         
         if (event.content.version == 1 || !("version" in event.content)){
@@ -22,11 +21,11 @@ export function drawEvent(event, animated, updateDisplay = true) {
             let color = "objcolor" in event.content ? event.content.objcolor : "#000"
             // let strokeWidth = parseFloat(event.content.strokeWidth);
             if (animated) {
-                drawingCanvas.asyncAddPathV1([pos.x,pos.y], points, color);
+                drawC.asyncAddPathV1([pos.x,pos.y], points, color);
             } else {
-                drawingCanvas.drawBoundingBox([[pos.x,pos.y], size]);
-                drawingCanvas.addPathV1(points, color, [[pos.x,pos.y], size], event.event_id);
-                if (updateDisplay) { drawingCanvas.updateDisplay(true); }
+                drawC.drawBoundingBox([[pos.x,pos.y], size]);
+                drawC.addPathV1(points, color, [[pos.x,pos.y], size], event.event_id);
+                if (updateDisplay_DEPRECATED) { drawC.updateDisplay_DEPRECATED(true); }
             }
         }
         
@@ -40,12 +39,12 @@ export function drawEvent(event, animated, updateDisplay = true) {
             let fillColor = "objFillColor" in event.content ? event.content.objFillColor : "#00000000"
             
             if (animated) {
-                drawingCanvas.updateDisplay(true);
-                drawingCanvas.asyncAddPathV2(segments, color,fillColor, strokeWidth, closed, event.event_id);
+                drawC.updateDisplay_DEPRECATED(true);
+                drawC.asyncAddPathV2(segments, color,fillColor, strokeWidth, closed, event.event_id);
             } else {
-                // drawingCanvas.drawBoundingBox([pos, size]);
-                drawingCanvas.addPathV2(segments, color,fillColor, strokeWidth, closed, event.event_id);
-                if (updateDisplay) { drawingCanvas.updateDisplay(true); }
+                // drawC.drawBoundingBox([pos, size]);
+                drawC.addPathV2(segments, color,fillColor, strokeWidth, closed, event.event_id);
+                if (updateDisplay_DEPRECATED) { drawC.updateDisplay_DEPRECATED(true); }
             }
         }
     }
@@ -89,7 +88,7 @@ function drawGrid(ctx, grid, size, gridsize, color) {
 }
 
 export function reloadCacheCanvas(animated = false) {
-    drawingCanvas.reload();
+    appData.drawingCanvas.reload();
 }
 // function reloadCacheCanvas(animated = false) {
 //     cache_ctx.fillStyle = "#eee";
@@ -109,7 +108,7 @@ export function reloadCacheCanvas(animated = false) {
 
 
 
-// function updateDisplayCanvas(clear = true) {
+// function updateDisplay_DEPRECATEDCanvas(clear = true) {
 //     const canvas = document.getElementById("canvas");
 //     const ctx = canvas.getContext("2d");
 //     if (clear) {

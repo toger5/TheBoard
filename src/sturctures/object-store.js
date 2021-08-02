@@ -1,4 +1,4 @@
-import { currentRoomId } from "../main";
+// import { currentRoomId } from "../main";
 export default class ObjectStore {
     constructor() {
         // this.redacted = new Set();
@@ -13,7 +13,7 @@ export default class ObjectStore {
         }
     }
     currentRoom() {
-        return this.data[currentRoomId]
+        return this.data[appData.matrixClient.currentRoomId]
     }
     hasRoom(roomId) {
         return roomId in this.data;
@@ -50,7 +50,7 @@ export default class ObjectStore {
         // }
     }
     allSorted() {
-        if (currentRoomId in this.data) {
+        if (appData.matrixClient.currentRoomId in this.data) {
             let begin_sort = Date.now();
             let dic = this.currentRoom().allDict;
             let allList = Object.keys(dic).map(key => dic[key]);
@@ -66,7 +66,7 @@ export default class ObjectStore {
         }
     }
     all() {
-        if (currentRoomId in this.data) {
+        if (appData.matrixClient.currentRoomId in this.data) {
             return this.currentRoom().allDict;
         } else {
             // If there is not current room set, the default behaviour is en empty list -> canvas gets cleared
