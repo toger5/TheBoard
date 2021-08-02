@@ -37,7 +37,7 @@ async function updateRoomTree() {
         let room = visibleRooms[r];
         console.log(Array.from(room.currentState.events.keys()))
         if (!room.currentState.events.has('p.whiteboard.settings')) {
-            continue // only show rooms which are marked as whitebaord rooms
+            continue // only show rooms which are marked as whiteboard rooms
         }
         let found = spaces.find(spaceRoom => spaceRoom.currentState.events.get('m.space.child').has(room.roomId))
         if (found) {
@@ -63,8 +63,8 @@ async function updateRoomList() {
         let notebookRoom = matrixClient.getRoom(noteb)
         leftbarBody.appendChild(createNotebook(notebookRoom.name, roomTree.notebooks[noteb]))
     }
-    for (let whitebaord of roomTree.whiteboards) {
-        leftbarBody.appendChild(createDOMWhiteboard(whitebaord, '#eee'))
+    for (let whiteboard of roomTree.whiteboards) {
+        leftbarBody.appendChild(createDOMWhiteboard(whiteboard, '#eee'))
     }
     // let id = room.roomId;
     // var roomButton = document.createElement("div");
@@ -127,14 +127,14 @@ async function updateAddRoomList() {
         console.log(Array.from(r.currentState.events.keys()))
         if (r.currentState.events.has('m.space.child')
             || r.currentState.events.has('p.whiteboard.settings')) {
-            continue // only show rooms which are no spaces and are not already a whitebaord
+            continue // only show rooms which are no spaces and are not already a whiteboard
         }
         let id = r.roomId;
         var roomButton = document.createElement("div");
         roomButton.onclick = async function (a) {
             console.log(a);
             a.currentTarget.style.backgroundColor = '#5e5'
-            let room = await makeWhitebaordFromRoom(id);
+            let room = await makeWhiteboardFromRoom(id);
             updateAddRoomList();
             updateRoomList();
             hideAddRoomMenu();
@@ -157,9 +157,9 @@ async function createWhiteboard(visibility = "private", whiteboardName = "unname
     showLoading("Creating whiteboard with Name: " + whiteboardName)
     let roomCreateData = await matrixClient.createRoom(roomOpt);
     hideLoading();
-    return makeWhitebaordFromRoom(roomCreateData.room_id);
+    return makeWhiteboardFromRoom(roomCreateData.room_id);
 }
-async function makeWhitebaordFromRoom(roomId) {
+async function makeWhiteboardFromRoom(roomId) {
     let content = {}
     let stateId = await matrixClient.sendStateEvent(roomId, "p.whiteboard.settings", content, "")
     showLoading("make Room " + matrixClient.getRoom(roomId).name + "a whiteboard")
