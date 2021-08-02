@@ -5,7 +5,7 @@ using Matrix as its backend. All your drawings are stored in matrix rooms
 on your matrix server and are accessible to anyone who is invited.
 
 ## DISCLAIMER!
-The spec for the whiteboard events are still subject to change. It is **NOT** recommended to use it for anything else than testing during the Alpha!
+The [spec](https://github.com/toger5/TheBoard/blob/main/spec.md) for the whiteboard events are still subject to change. It is **NOT** recommended to use it for anything else than testing during the Alpha!
 It is recommended to always create seperate rooms just for testing this app. This way they can be left and replaced by new ones when the protocol changes!
 
 ![screenshotTWIM](https://user-images.githubusercontent.com/16718859/127622513-0c31b50d-effb-49d3-be7f-a7102084d8d3.png)
@@ -30,5 +30,6 @@ Looking at this list, Matrix was such an obvious choice. I could comment every p
 **TheBoard (probably not the final name) is exactly that.** The front end is not done yet but already in an okay looking and usable state.
 **Before trying it out:** It takes really long to log in with an account with lots of rooms. So I highly recommend to NOT use your main Matrix account.
 Additionally, it is necessary to tag rooms as whiteboards (really unintuitve UX that will be improved). But for now, the + button needs to be pressed and a (empty (not necassary but recommended) AND UNENCRYPTED) room needs to be selected.
-The app is available at [toger5.github.io/TheBoard](https://toger5.github.io/TheBoard). \
+The app is available at 
+### [toger5.github.io/TheBoard](https://toger5.github.io/TheBoard)
 _As always: use at your own Risk_
