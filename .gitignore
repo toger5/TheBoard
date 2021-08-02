@@ -4,4 +4,5 @@ history
 .vscode
 node_modules/
 dist/
+distDev/
 npm-debug.log
