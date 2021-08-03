@@ -1,7 +1,5 @@
 import { hideLoading, showLoading } from "../main";
 import { AutoDiscovery } from "matrix-js-sdk";
-// import { login } from '../backend/matrix'//backend;
-import { drawEvent } from '../drawing'
 
 const loginContainerTemplate = document.createElement('template');
 loginContainerTemplate.innerHTML = `
@@ -36,7 +34,7 @@ loginContainerTemplate.innerHTML = `
 <div class='center-container' id='login-container'>
     <p>
         <span>The Board</span>
-        <span style='font-size: 1em;'> (Alpha 0.6)</span>
+        <span style='font-size: 1em;'> (alpha `+process.env.PACKAGE_VERSION+`)</span>
     </p>
     <form action="javascript:void(0);" onsubmit="function(){return false;}">
     <label for='username'>Username:</label><br>

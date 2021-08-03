@@ -1,5 +1,6 @@
 const HtmlWebpackPlugin = require('html-webpack-plugin');
-
+const webpack = require('webpack');
+const pconf = require('./package.json')
 module.exports = {
     entry: './src/main.js',
     output: {
@@ -8,6 +9,11 @@ module.exports = {
     plugins: [
         new HtmlWebpackPlugin({
             template: './src/index.html'
+        }),
+        new webpack.DefinePlugin({
+            'process.env': {
+                PACKAGE_VERSION: '"' + pconf.version + '"'
+            }
         }),
     ],
     module: {
