@@ -38,9 +38,9 @@ loginContainerTemplate.innerHTML = `
     </p>
     <form action="javascript:void(0);" onsubmit="function(){return false;}">
     <label for='username'>Username:</label><br>
-    <input type='text' id='username' name='username' placeholder='Your matrix id...'><br>
+    <input type='text' id='username' name='username' autocomplete="username" placeholder='Your matrix id...'><br>
     <label for='password'>Password:</label><br>
-    <input type='password' id='password' name='password' placeholder='your password...'><br>
+    <input type='password' id='password' name='password' autocomplete="current-password" placeholder='your password...'><br>
     <label for='server'>Server:</label><br>
     <input type='text' id='server-url' name='server' placeholder='Server url'><br>
     <button id='login-submit' class='submit'>Log in</button>
