@@ -40,7 +40,7 @@ export default class MatrixBackend {
         return roomTree;
     }
 
-    async createWhiteboard(visibility = "private", whiteboardName = "unnamed Whiteboard") {
+    async createWhiteboard(visibility, whiteboardName) {
 
         let roomOpt = {
             // room_alias_name
@@ -49,9 +49,10 @@ export default class MatrixBackend {
             name: whiteboardName == "" ? "unnamed Whiteboard" : whiteboardName,
         }
         showLoading("Creating whiteboard with Name: " + whiteboardName)
-        let roomCreateData = await this.client.createRoom(roomOpt);
+        let roomCreateData = await appData.matrixClient.client.createRoom(roomOpt);
         hideLoading();
-        return makeWhitebaordFromRoom(roomCreateData.room_id);
+        appData.matrixClient.makeWhitebaordFromRoom.bind(appData.matrixClient);
+        return appData.matrixClient.makeWhitebaordFromRoom(roomCreateData.room_id);
     }
 
 
@@ -59,17 +60,18 @@ export default class MatrixBackend {
 
     async makeWhitebaordFromRoom(roomId) {
         let content = {}
-        let stateId = await this.client.sendStateEvent(roomId, "p.whiteboard.settings", content, "")
-        showLoading("make Room " + this.client.getRoom(roomId).name + "a whiteboard")
+        let client = appData.matrixClient.client;
+        let stateId = await client.sendStateEvent(roomId, "p.whiteboard.settings", content, "")
+        showLoading("make Room " + client.getRoom(roomId).name + "a whiteboard")
         let prom = new Promise(function (resolve, reject) {
             let listenerFunc = function (msg, state, prevEvent) {
                 if (msg.event.event_id == stateId.event_id) {
-                    this.client.removeListener("RoomState.events", listenerFunc)
+                    client.removeListener("RoomState.events", listenerFunc)
                     resolve()
                     hideLoading()
                 }
             }
-            this.client.on("RoomState.events", listenerFunc);
+            client.on("RoomState.events", listenerFunc);
         })
         return prom;
     }

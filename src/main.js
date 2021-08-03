@@ -21,7 +21,7 @@ window.onload = function () {
     init_tool_wheel();
     init_line_style_selector();
 
-    // window.actions.scrollback = updateRoomList;
+    window.actions.updateRoomList = ()=>{updateRoomList()};
     window.actions.updateAddRoomList = updateAddRoomList;
 }
 export function updateRoomList() {
@@ -88,7 +88,7 @@ function createDOMWhiteboard(id, color) {
     return whiteboardButton;
 }
 export async function updateAddRoomList() {
-    let visibleRooms = appData.matrixClient.getVisibleRooms();
+    let visibleRooms = appData.matrixClient.client.getVisibleRooms();
     let addRoomBody = document.getElementById("add-room-list");
     addRoomBody.innerHTML = ""
     for (let r of visibleRooms) {
