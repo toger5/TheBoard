@@ -46,7 +46,3 @@ function drawGrid(ctx, grid, size, gridsize, color) {
         ctx.stroke();
     }
 }
-
-export function reloadCacheCanvas(animated = false) {
-    appData.drawingCanvas.reload();
-}

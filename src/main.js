@@ -106,7 +106,7 @@ export async function updateAddRoomList() {
             let room = await makeWhiteboardFromRoom(id);
             updateAddRoomList();
             updateRoomList();
-            hideAddRoomMenu();
+            actions.hideAddRoomMenu();
         };
         roomButton.classList.add("room-button");
         var roomText = document.createElement("p");

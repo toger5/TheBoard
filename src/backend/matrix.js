@@ -124,10 +124,7 @@ export default class MatrixBackend {
                 if (item) {
                     item.data.id = msg.event.event_id
                 }
-                appData.objectStore.add(msg.event);
-
-                // console.log("now its sent")
-            }
+                appData.objectStore.add(msg.event);            }
         })
         // var replacedEvents = new Set();
         this.client.on("Room.timeline", function (msg, room, toStartOfTimeline) {

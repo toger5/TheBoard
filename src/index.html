@@ -25,7 +25,7 @@
         <button
             onclick="actions.scrollback(appData.matrixClient.currentRoomId, 1000).then(function(){appData.drawingCanvas.reload()});">
             Load History</button>
-        <button onclick="reloadCacheCanvas();appData.drawingCanvas.updateDisplay_DEPRECATED();">Reload Canvas</button>
+        <button onclick="appData.drawingCanvas.reload();">Reload Canvas</button>
         <button onclick="appData.drawingCanvas.resetOffset()">Go Home</button>
         <button onclick="appData.drawingCanvas.resetZoom()">Reset Zoom</button>
     </div>
@@ -37,9 +37,9 @@
         <div id='leftbar-expand'>
             <div id='leftbar-body'>
             </div>
-            <button id="add-room-button" onclick="showAddRoomMenu()">+</button>
+            <button id="add-room-button" onclick="actions.showAddRoomMenu()">+</button>
         </div>
-        <button onclick="toggleLeftBar()" id='leftbar-footer'>^</button>
+        <button onclick="actions.toggleLeftBar()" id='leftbar-footer'>^</button>
     </div>
 
 
@@ -56,7 +56,7 @@
     <div id='tool-wheel'>
         <canvas id="color-picker-canvas" resize>
         </canvas>
-        <button id="settings-button" onclick="showSettingsMenu()"><img src='settings-symbolic.svg'
+        <button id="settings-button" onclick="actions.showSettingsMenu()"><img src='settings-symbolic.svg'
                 width='30px'></img></button>
 
         <button class='tool-elements' id="tool-type-pen">Pen</button>
@@ -92,13 +92,13 @@
     <login-container></login-container>
 
     <div class="center-container" id="settings-container" style="display: none;">
-        <button style="float: right;" onclick="hideSettingsMenu()">close</button>
+        <button style="float: right;" onclick="actions.hideSettingsMenu()">close</button>
         <p id="room-menu-room-id">roomId</p>
     </div>
     <div class="center-container" id="add-room-container" style="display: none;">
         <div style="height:100%;display: flex;flex-direction: column;">
             <div style="flex: 0">
-                <button style="float: right;" onclick="hideAddRoomMenu()">close</button>
+                <button style="float: right;" onclick="actions.hideAddRoomMenu()">close</button>
                 <p>Create a new whiteboard:</p>
             </div>
             <div id="create-room-dialog">

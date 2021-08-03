@@ -13,6 +13,7 @@ window.actions = {
     hideAddRoomMenu: hideAddRoomMenu,
     showSettingsMenu: showSettingsMenu,
     hideSettingsMenu: hideSettingsMenu,
+    toggleLeftBar: toggleLeftBar
 }
 function sendmsgs(amount, client, room) {
     for (let i = 0; i < amount; i++) {
@@ -36,8 +37,8 @@ function toggleGrid() {
     else if (setting_grid === "dots") {
         setting_grid = "";
     }
-    reloadCacheCanvas();
-    appData.drawingCanvas.updateDisplay_DEPRECATED();
+    appData.drawingCanvas.reload();
+    // appData.drawingCanvas.updateDisplay_DEPRECATED();
 }
 function toggleTool() {
     if (tool.type === toolType.draw) {
