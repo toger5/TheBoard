@@ -38,6 +38,7 @@ loginContainerTemplate.innerHTML = `
         <span>The Board</span>
         <span style='font-size: 1em;'> (Alpha 0.6)</span>
     </p>
+    <form action="javascript:void(0);" onsubmit="function(){return false;}">
     <label for='username'>Username:</label><br>
     <input type='text' id='username' name='username' placeholder='Your matrix id...'><br>
     <label for='password'>Password:</label><br>
@@ -45,6 +46,7 @@ loginContainerTemplate.innerHTML = `
     <label for='server'>Server:</label><br>
     <input type='text' id='server-url' name='server' placeholder='Server url'><br>
     <button id='login-submit' class='submit'>Log in</button>
+    </form>
 </div>
 `
 export class LoginContainer extends HTMLElement {
