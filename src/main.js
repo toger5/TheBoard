@@ -6,22 +6,14 @@ import PaperCanvas from './paper-canvas'
 import { init_color_picker } from "./color-picker";
 import init_tool_wheel from "./tools/tool-wheel";
 import init_line_style_selector from "./tools/line-style-selector";
-// import {matrixClient, scrollback, updateRoomTree, createWhiteboard, makeWhitebaordFromRoom } from './main'//backend
-// import { loginClicked } from "./actions.js";
 import "./components/login-container";
-// import './resources/style.css'
 
 window.appData = {
     matrixClient: new MatrixBackend(),
     objectStore: new ObjectStore(),
     drawingCanvas: new PaperCanvas()
 }
-// window.appData.drawingCanvas = drawingCanvas;
 
-
-// export var currentRoomId = "";
-// export var objectStore = 
-// var paper_canvas = new PaperCanvas();
 window.onload = function () {
     appData.drawingCanvas.init();
     init_input(document.getElementById(appData.drawingCanvas.css_id));

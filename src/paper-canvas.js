@@ -1,5 +1,4 @@
-// import { objectStore } from './main';
-import { drawEvent } from './drawing';
+import { parsePath, parseBezierPath, parsePoint } from './helper';
 export const paper = require('paper');
 export default class PaperCanvas {
     constructor() {
@@ -9,6 +8,55 @@ export default class PaperCanvas {
         this.drawLayer = null;
         this.canvas = null;
     }
+    drawEvent(event, animated, updateDisplay = true) {
+        let drawC = appData.drawingCanvas;
+        function V1() {
+            let points = parsePath(event.content.path, event.content.objpos);
+            let pos = parsePoint(event.content.objpos);
+            let size = parsePoint(event.content.objsize);
+            let color = "objcolor" in event.content ? event.content.objcolor : "#000"
+            // let strokeWidth = parseFloat(event.content.strokeWidth);
+            if (animated) {
+                drawC.asyncAddPathV1([pos.x, pos.y], points, color);
+            } else {
+                drawC.drawBoundingBox([[pos.x, pos.y], size]);
+                drawC.addPathV1(points, color, [[pos.x, pos.y], size], event.event_id);
+                if (updateDisplay) { drawC.updateDisplay_DEPRECATED(true); }
+            }
+        }
+        function V2() {
+            let segments = parseBezierPath(event.content.path, event.content.objpos);
+            // let pos = parsePoint(event.content.objpos);
+            // let size = parsePoint(event.content.objsize);
+            let strokeWidth = parseFloat(event.content.strokeWidth);
+            let closed = ("closed" in event.content && event.content.closed)
+            let color = "objcolor" in event.content ? event.content.objcolor : "#000"
+            let fillColor = "objFillColor" in event.content ? event.content.objFillColor : "#00000000"
+
+            if (animated) {
+                drawC.updateDisplay_DEPRECATED(true);
+                drawC.asyncAddPathV2(segments, color, fillColor, strokeWidth, closed, event.event_id);
+            } else {
+                // drawC.drawBoundingBox([pos, size]);
+                drawC.addPathV2(segments, color, fillColor, strokeWidth, closed, event.event_id);
+                if (updateDisplay) { drawC.updateDisplay_DEPRECATED(true); }
+            }
+        }
+        function V3() {
+
+        }
+        if (event.content.objtype == "p.path") {
+            if (!("version" in event.content)) {
+                V1(); return
+            }
+            switch (event.content.version) {
+                case 1: V1()
+                case 2: V2()
+                case 3: V3()
+            }
+        }
+    }
+
     activateToolLayer() {
         this.toolLayer.activate()
     }
@@ -121,7 +169,7 @@ export default class PaperCanvas {
     clear() {
         var length = 0;// = paper.project.activeLayer.removeChildren();
         for (let l of paper.project.layers) {
-            if(l === this.toolLayer){
+            if (l === this.toolLayer) {
                 continue
             }
             length += l.removeChildren().length;
@@ -137,7 +185,7 @@ export default class PaperCanvas {
         console.log("!! Paper Canvas redraw START");
         appData.objectStore.allSorted().forEach(obj => {
             if (obj.type == "p.whiteboard.object") {
-                drawEvent(obj, animated, animated);
+                this.drawEvent(obj, animated, animated);
             }
         });
         console.log("!! Paper Canvas redraw DONE in", Date.now() - starttime);

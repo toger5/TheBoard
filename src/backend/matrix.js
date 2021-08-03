@@ -1,7 +1,7 @@
 import * as sdk from "matrix-js-sdk";
 import { showLoading, hideLoading, updateRoomList } from "../main";
 import NotebookTree from '../sturctures/notebook-tree'
-import { drawEvent } from '../drawing'
+// import { drawEvent } from '../drawing'
 
 export default class MatrixBackend {
     constructor() {
@@ -135,28 +135,9 @@ export default class MatrixBackend {
                 console.log("skipped redacted evpped redacted event")
                 return;
             }
-            // // message is replaced
-            // if (replacedEvents.has(msg.event.event_id)){
-            //     console.log("skipped replaced event")
-            //     return;
-            // }
             if (msg.getType() == "p.whiteboard.object") {
-                // console.log("event from : ", new Date(), msg.getDate());
-                // let content = msg.event.content
-                // if("m.relates_to" in msg.event.content){
-                //     if(msg.event.content["m.relates_to"].rel_type == "m.replace"){
-                //         replacedEvents.add(msg.event.content["m.relates_to"].event_id)
-                //         msg.event.content = msg.event.content["m.new_content"];
-                //     }
-                // }
-
-                // if (Date.now() - msg.getDate().getTime() < 200000) {
-                //     // ANIMATED toggle
-                //     drawEvent(msg.event, true);
-                // }
-                // if (Date.now() - msg.getDate().getTime() < 200000) {
                 // ANIMATED toggle
-                drawEvent(msg.event, Date.now() - msg.getDate().getTime() < 200000);
+                appData.drawingCanvas.drawEvent(msg.event, Date.now() - msg.getDate().getTime() < 200000);
                 // }
                 if (msg.status == null) {
                     //event is not sending but loaded from scrollback
@@ -172,8 +153,6 @@ export default class MatrixBackend {
             if (msg.getType() !== "m.room.message") {
                 return; // only use messages
             }
-            // console.log("event: ",msg)
-            // console.log(msg.event.content.body);
         });
     }
 
