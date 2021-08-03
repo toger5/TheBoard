@@ -45,7 +45,7 @@ body {
     box-shadow: 0px 0px 20px #999;
 }
 
-#loginContainer {
+#login-container {
     width: 25em;
     height: auto;
 }
@@ -237,38 +237,7 @@ body {
 /* form{
     margin: 2em;
 } */
-input[type=text],
-select {
-    width: 100%;
-    padding: 12px 20px;
-    margin: 8px 0;
-    display: inline-block;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    box-sizing: border-box;
-}
 
-[type=password],
-select {
-    width: 100%;
-    padding: 12px 20px;
-    margin: 8px 0;
-    display: inline-block;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    box-sizing: border-box;
-}
-
-button.submit {
-    width: 100%;
-    background-color: #4CAF50;
-    color: white;
-    padding: 14px 20px;
-    margin: 8px 0;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-}
 
 button.submit:hover {
     background-color: #45a049;
