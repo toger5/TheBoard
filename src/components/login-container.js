@@ -36,7 +36,7 @@ loginContainerTemplate.innerHTML = `
         <span>The Board</span>
         <span style='font-size: 1em;'> (alpha `+process.env.PACKAGE_VERSION+`)</span>
     </p>
-    <form action="javascript:void(0);" onsubmit="function(){return false;}">
+    <form action="javascript:void(0);" onsubmit="()=>{return false;}">
     <label for='username'>Username:</label><br>
     <input type='text' id='username' name='username' autocomplete="username" placeholder='Your matrix id...'><br>
     <label for='password'>Password:</label><br>

@@ -9,12 +9,8 @@ import init_line_style_selector from "./tools/line-style-selector";
 // import {matrixClient, scrollback, updateRoomTree, createWhiteboard, makeWhitebaordFromRoom } from './main'//backend
 // import { loginClicked } from "./actions.js";
 import "./components/login-container";
-import './resources/style.css'
+// import './resources/style.css'
 
-// import * as sdk from "matrix-js-sdk";
-// import NotebookTree from './sturctures/notebook-tree'
-
-// export var drawingCanvas;
 window.appData = {
     matrixClient: new MatrixBackend(),
     objectStore: new ObjectStore(),

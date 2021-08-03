@@ -6,7 +6,6 @@ module.exports = merge(common,{
   mode: 'development',
   devtool: 'inline-source-map',
   devServer: {
-    contentBase: './'+distName+'/',
     watchContentBase: true
   },
   output: {
