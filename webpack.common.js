@@ -7,14 +7,11 @@ const CopyPlugin = require("copy-webpack-plugin");
 
 module.exports = {
     entry: {
-        main: './src/main.js'
-        // helper: './src/helper.js',
-        // paper: 'paper',
-        // matrix: 'matrix-js-sdk',
-        // main: {
-        //     import: './src/main.js',
-        //     dependOn: ['paper', 'matrix','helper']
-        // },
+        shared: ['paper', 'matrix-js-sdk'],
+        main: {
+            import: './src/main.js',
+            dependOn: 'shared',
+        },
     },
     output: {
         filename: '[name].bundle.js',
@@ -37,6 +34,7 @@ module.exports = {
                 { from: "./src/resources/settings-symbolic.svg" },
                 { from: "./src/resources/style.css" },
                 { from: "./src/resources/favicon.ico" },
+                { from: "./about.md" },
             ],
         }),
     ],
@@ -52,4 +50,7 @@ module.exports = {
             },
         ],
     },
+    optimization:{
+        minimize: true,
+    }
 };
