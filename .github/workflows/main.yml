@@ -54,13 +54,13 @@ jobs:
         uses: thedoctor0/zip-release@4fb9e4ff72847dd3d1c111cf63834e353ed7cb3d
         with:
           type: 'zip'
-          filename: './release/the-board-files.zip'
+          filename: './the-board-files.zip'
           path: dist
       - name: Archive Release
         uses: thedoctor0/zip-release@4fb9e4ff72847dd3d1c111cf63834e353ed7cb3d
         with:
           type: 'tar'
-          filename: './release/the-board-files.tar.gz'
+          filename: './the-board-files.tar.gz'
           path: dist
             
       - name: Add CID to release
