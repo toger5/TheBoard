@@ -57,7 +57,7 @@ function redactLastAction() {
     let id = "";
     let roomId = appData.matrixClient.currentRoomId;
     let userId = appData.matrixClient.client.getUserId();
-    let sortedEvents = objectStore.allSorted();
+    let sortedEvents = appData.objectStore.allSorted();
     for (let i = sortedEvents.length - 1; (id === "" && i >= 0); i--) {
         let event = sortedEvents[i];
         console.log("looping through events to find the one to redact");
@@ -66,7 +66,7 @@ function redactLastAction() {
             break;
         }
     }
-    client.redactEvent(roomId, id).then(t => {
+    appData.matrixClient.client.redactEvent(roomId, id).then(t => {
         console.log("redacted: ", t);
     });
 }
