@@ -1,6 +1,6 @@
 // import { drawingCanvas } from "../drawing";
 import PaperCanvas from "../paper-canvas";
-import { sendPath } from "../actions";
+// import { sendPath } from "../actions";
 // import { objectStore, currentRoomId,drawingCanvas } from "../main";
 // import { matrixClient } from '../main'//backend;
 import { GetToolStrokeWidthIndex } from "./line-style-selector";
@@ -97,28 +97,17 @@ export default class ToolPen {
     toolup(proX, proY) {
         if (this.tool_canceled) { return; }
         if (appData.objectStore.hasRoom(appData.matrixClient.currentRoomId)) {
-            let [corrected_mouse_path, pos, size] = pathPosSizeCorrection(this.mouse_path);
-            let string_path;
-            let version;
-            // if (appData.drawingCanvas instanceof UnlimitedCanvas) {
-            //     string_path = mousePathToString(corrected_mouse_path);
-            //     version = 1;
-            // }
-            // else 
             if (appData.drawingCanvas instanceof PaperCanvas) {
-                let paper_mouse_path = new Path(corrected_mouse_path.map((s) => { return [s[1], s[2]] }));
+                // in mouse path the pressure stroke width is stored. (will be used later to generate a custom path based on that)
+                let paper_mouse_path = new Path(this.mouse_path.map((s) => { return [s[1], s[2]] }));
                 paper_mouse_path.simplify(1 / appData.drawingCanvas.getZoom());
-                string_path = paperPathToString(paper_mouse_path)[2];
+                paper_mouse_path.strokeWidth = this.getStrokeWidth();
+                paper_mouse_path.strokeColor = GetPickerColor();
+                appData.matrixClient.sendPath([paper_mouse_path]);
                 paper_mouse_path.remove();
-                version = 2;
             }
-            sendPath(appData.matrixClient.client, appData.matrixClient.currentRoomId,
-                string_path,
-                this.getStrokeColor(), '#00000000', pos, size, this.getStrokeWidth(), false, version);
-
         } else {
             console.log("NO ROOM SELECTED TO DRAW IN!")
-            appData.drawingCanvas.updateDisplay_DEPRECATED();
         }
         this.toolcancel();
     }

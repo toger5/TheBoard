@@ -1,3 +1,4 @@
+import { isBoardObjectEvent } from './backend/filter';
 import { parsePath, parseBezierPath, parsePoint } from './helper';
 export const paper = require('paper');
 export default class PaperCanvas {
@@ -8,9 +9,11 @@ export default class PaperCanvas {
         this.drawLayer = null;
         this.canvas = null;
     }
-    drawEvent(event, animated, updateDisplay = true) {
+    drawEvent(event, animated) {
         let drawC = appData.drawingCanvas;
         function V1() {
+            if (event.content.objtype != "p.path") { return }
+            let updateDisplay = true
             let points = parsePath(event.content.path, event.content.objpos);
             let pos = parsePoint(event.content.objpos);
             let size = parsePoint(event.content.objsize);
@@ -25,6 +28,7 @@ export default class PaperCanvas {
             }
         }
         function V2() {
+            if (event.content.objtype != "p.path") { return }
             let segments = parseBezierPath(event.content.path, event.content.objpos);
             // let pos = parsePoint(event.content.objpos);
             // let size = parsePoint(event.content.objsize);
@@ -34,26 +38,29 @@ export default class PaperCanvas {
             let fillColor = "objFillColor" in event.content ? event.content.objFillColor : "#00000000"
 
             if (animated) {
-                drawC.updateDisplay_DEPRECATED(true);
                 drawC.asyncAddPathV2(segments, color, fillColor, strokeWidth, closed, event.event_id);
             } else {
                 // drawC.drawBoundingBox([pos, size]);
                 drawC.addPathV2(segments, color, fillColor, strokeWidth, closed, event.event_id);
-                if (updateDisplay) { drawC.updateDisplay_DEPRECATED(true); }
             }
         }
         function V3() {
-
+            switch (event.content.objtype) {
+                case "path": {
+                    for (let pathData of event.content.paths) {
+                        drawC.addPathV3(pathData, event.event_id)
+                    }
+                }
+            }
         }
-        if (event.content.objtype == "p.path") {
-            if (!("version" in event.content)) {
-                V1(); return
-            }
-            switch (event.content.version) {
-                case 1: V1()
-                case 2: V2()
-                case 3: V3()
-            }
+
+        if (!("version" in event.content)) {
+            V1(); return
+        }
+        switch (event.content.version) {
+            case 1: V1()
+            case 2: V2()
+            case 3: V3()
         }
     }
 
@@ -88,15 +95,15 @@ export default class PaperCanvas {
         if (zoomOrigin === null) {
             paper.view.scale(factor)
         } else {
-            var zoomOriProj = paper.view.viewToProject(zoomOrigin);
+            let zoomOriProj = paper.view.viewToProject(zoomOrigin);
             paper.view.scale(factor, zoomOriProj);
         }
     }
     setZoom(zoom, zoomOrigin = paper.view.center) {
-        var currentViewCenter = paper.view.center;
-        var zoomOriProj = paper.view.viewToProject(zoomOrigin);
+        let currentViewCenter = paper.view.center;
+        let zoomOriProj = paper.view.viewToProject(zoomOrigin);
         paper.view.center = zoomOriProj;
-        var scale = paper.view.zoom;
+        let scale = paper.view.zoom;
         paper.view.zoom = zoom;
         paper.view.center = currentViewCenter;
     }
@@ -121,8 +128,26 @@ export default class PaperCanvas {
         // p.tween({ dashArray: [10, 10] }, { dashArray: [1000, 10] }, 3000);
     }
 
+    addPathV3(pdat, id) {
+        let segments = pdat.segments.map((s) => new Segment(new Point(parseFloat(s[0]), parseFloat(s[1])),
+            new Point(parseFloat(s[2]), parseFloat(s[3])),
+            new Point(parseFloat(s[4]), parseFloat(s[5])))
+        );
+        let p = new paper.Path(segments);
+        p.strokeColor = pdat.strokeColor;
+        p.fillColor = pdat.fillColor;
+        p.strokeWidth = pdat.strokeWidth;
+        p.closed = pdat.closed;
+        p.position = p.position.add(new Point(parseFloat(pdat.position.x),parseFloat(pdat.position.y)))
+        p.strokeCap = "round";
+        if (id != "") {
+            p.data.id = id
+        }
+        return p;
+    }
+
     addPathV2(segments, color, fillColor, strokeWidth, closed = false, id = "") {
-        var p = new paper.Path(segments);
+        let p = new paper.Path(segments);
         p.strokeColor = color;
         // if (fillColor != "#00000000") { p.fillColor = fillColor; }
         p.fillColor = fillColor;
@@ -140,7 +165,7 @@ export default class PaperCanvas {
         // }
     }
     addPathV1(points, color, [pos, size], id = "") {
-        var p = new paper.Path();
+        let p = new paper.Path();
         p.strokeColor = color;
         p.strokeWidth = 2;
         p.strokeCap = "round";
@@ -167,7 +192,7 @@ export default class PaperCanvas {
         this.displayPaths.forEach((p) => { p.remove() });
     }
     clear() {
-        var length = 0;// = paper.project.activeLayer.removeChildren();
+        let length = 0;// = paper.project.activeLayer.removeChildren();
         for (let l of paper.project.layers) {
             if (l === this.toolLayer) {
                 continue
@@ -181,16 +206,54 @@ export default class PaperCanvas {
     }
     reload(animated = false) {
         this.clear();
-        var starttime = Date.now();
+        let starttime = Date.now();
         console.log("!! Paper Canvas redraw START");
         appData.objectStore.allSorted().forEach(obj => {
-            if (obj.type == "p.whiteboard.object") {
-                this.drawEvent(obj, animated, animated);
+            if (isBoardObjectEvent(obj.type)) {
+                this.drawEvent(obj, animated);
             }
         });
         console.log("!! Paper Canvas redraw DONE in", Date.now() - starttime);
     }
     getTransformedPointer(x, y) {
         return paper.view.viewToProject(new paper.Point(x, y))
+    }
+}
+
+
+const sleep = ms => {
+    return new Promise(resolve => setTimeout(resolve, ms))
+}
+
+function drawGrid(ctx, grid, size, gridsize, color) {
+    ctx.fillStyle = color;
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 2;
+    if (grid === "dots") {
+        let radius = 3;
+        let xcount = size[0] / gridsize;
+        let ycount = size[1] / gridsize;
+        ctx.beginPath();
+        for (let i = 0; i < xcount; i++) {
+            for (let j = 0; j < ycount; j++) {
+                ctx.moveTo(i * gridsize, j * gridsize);
+                ctx.ellipse(i * gridsize, j * gridsize, radius, radius, 0, 0, Math.PI * 2);
+            }
+        }
+        ctx.fill();
+    }
+    if (grid === "squares") {
+        let xcount = size[0] / gridsize;
+        let ycount = size[1] / gridsize;
+        ctx.beginPath();
+        for (let i = 0; i < xcount; i++) {
+            ctx.moveTo(i * gridsize, 0);
+            ctx.lineTo(i * gridsize, size[1]);
+        }
+        for (let j = 0; j < ycount; j++) {
+            ctx.moveTo(0, j * gridsize);
+            ctx.lineTo(size[0], j * gridsize);
+        }
+        ctx.stroke();
     }
 }

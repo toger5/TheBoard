@@ -25,22 +25,26 @@ Six: `[Pos.x, pos.y, HandleStart.x,HandleStart.y, HandleEnd.x, HandleEnd.y]`
 
 **Pressure Sensitive (var. thickness) Strokes:** Are achievable by calculating the contour of the whole stroke with segments. Than the `fillColor` is used as the stroke color and the `strokeWidth` is `0.0`. For pressure sensitive strokes that have infill (actual infill not the "fake" infill required for the variable stroke thickness) two paths are sent.
 ```JSON
-"com.github.TheBoard.path": {
+"com.github.TheBoard": {
     "content": {
+        "version":NUMBER,
+        "objtype":"path",
         "paths": [
             {
                 "segments": [
                     [0.0, 0.0, 0.0, 0.0, 0.0, 0.0],[]
                 ],
+                "closed":BOOL
                 "fillColor": "",
                 "strokeColor": "",
-                "strokeWidth": 0.0
+                "strokeWidth": 0.0,
+                "position": {
+                    "x": 0.0,
+                    "y": 0.0
+                }
             }
         ],
-        "position": {
-            "x": 0.0,
-            "y": 0.0
-        }
+        
     }
 },
 ```
@@ -157,8 +161,19 @@ Loading is then done by
  1. parsing the commitFile
  1. do a scroll-back on the room.time-line until the time stamp of the commit event.
  1. during the scroll-back remove the redacted events from the parsed commitFile and add the new events.
-
-
+### Commit File
+The commit file is just a json:
+ - the fields: `room_id`, `unsigned`, `event_id` (, `type`) could removed from EVENT.
+```JSON
+{
+    "event_id1":{
+        EVENT
+    },
+    "event_id2":{
+        EVENT
+    }
+}
+```
 ## Room State
 A matrix room is parsed as a whiteboard with the `com.github.TheBoard` state key. It contains the settings and the `lastCommit`.
 ```JSON

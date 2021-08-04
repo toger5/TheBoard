@@ -7,6 +7,9 @@ import { init_color_picker } from "./color-picker";
 import init_tool_wheel from "./tools/tool-wheel";
 import init_line_style_selector from "./tools/line-style-selector";
 import "./components/login-container";
+import { isBoardRoom } from './backend/filter';
+import * as BoardEvent from './backend/board-event-consts';
+import './actions'
 
 window.appData = {
     matrixClient: new MatrixBackend(),
@@ -95,7 +98,7 @@ export async function updateAddRoomList() {
         // let room = visibleRooms[r];
         console.log(Array.from(r.currentState.events.keys()))
         if (r.currentState.events.has('m.space.child')
-            || r.currentState.events.has('p.whiteboard.settings')) {
+            || isBoardRoom(r.currentState.events)) {
             continue // only show rooms which are no spaces and are not already a whiteboard
         }
         let id = r.roomId;
@@ -103,7 +106,7 @@ export async function updateAddRoomList() {
         roomButton.onclick = async function (a) {
             console.log(a);
             a.currentTarget.style.backgroundColor = '#5e5'
-            let room = await makeWhiteboardFromRoom(id);
+            let room = await appData.matrixClient.makeWhiteboardFromRoom(id);
             updateAddRoomList();
             updateRoomList();
             actions.hideAddRoomMenu();
@@ -149,7 +152,7 @@ async function loadRoom(roomId, scrollback_count = -1, allMessages = true) {
         else { s_back = 0; }
     }
     let room = appData.matrixClient.client.getRoom(roomId);
-    let settings = room.currentState.events.get('p.whiteboard.settings');
+    let settings = room.currentState.events.get(BoardEvent.BOARD_ROOM_STATE_NAME);
     if (settings.has("colorpalette")) {
         SetColorPalette(settings.get("colorpalette"))
     }

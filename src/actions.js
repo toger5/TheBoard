@@ -1,7 +1,8 @@
 import { login, updateAddRoomList } from './main'
 // import { matrixClient } from './main'//backend;
 import { parsePoint } from './helper'
-
+import { isBoardObjectEvent } from './backend/filter'
+import * as BoardEvent from './backend/board-event-consts'
 
 window.actions = {
     // loginClicked: loginClicked,
@@ -40,18 +41,18 @@ function toggleGrid() {
     appData.drawingCanvas.reload();
     // appData.drawingCanvas.updateDisplay_DEPRECATED();
 }
-function toggleTool() {
-    if (tool.type === toolType.draw) {
-        tool.type = toolType.erase;
-    }
-    else if (tool.type === toolType.erase) {
-        tool.type = toolType.draw;
-    }
-    // else if (tool === "mouse"){
-    //     tool = "draw";
-    // }
-    document.getElementById("tool").innerText = "Tool: " + tool.getString();
-}
+// function toggleTool() {
+//     if (tool.type === toolType.draw) {
+//         tool.type = toolType.erase;
+//     }
+//     else if (tool.type === toolType.erase) {
+//         tool.type = toolType.draw;
+//     }
+//     // else if (tool === "mouse"){
+//     //     tool = "draw";
+//     // }
+//     document.getElementById("tool").innerText = "Tool: " + tool.getString();
+// }
 function redactLastAction() {
     let id = "";
     let roomId = appData.matrixClient.currentRoomId;
@@ -60,7 +61,7 @@ function redactLastAction() {
     for (let i = sortedEvents.length - 1; (id === "" && i >= 0); i--) {
         let event = sortedEvents[i];
         console.log("looping through events to find the one to redact");
-        if (event.type == "p.whiteboard.object" && event.sender == userId) {
+        if (isBoardObjectEvent(event.type) && event.sender == userId) {
             id = event.event_id;
             break;
         }
@@ -93,25 +94,7 @@ function sendCustomEvent(client, room) {
         "strokeWidth": 3,
         "path": "0 0 0 0 0 0 0 100 0 20 0 0 100 100 0 0 0 0 0 100 0 0 0 0 ",
     };
-    client.sendEvent(room, "p.whiteboard.object", content, "", (err, res) => {
-        console.log(err);
-    });
-}
-export function sendPath(client, room, string_path, color, fillColor, offset, size, strokeWidth, closed, version) {
-    console.log("send random path: ...")
-    const content = {
-        "version": version,
-        "svg": "none",
-        "objtype": "p.path",
-        "objpos": offset[0] + " " + offset[1],
-        "objsize": size[0] + " " + size[1],
-        "objcolor": color == "" ? "#" + ["F55", "5F5", "55F"][Math.floor(Math.random() * 3)] : color,
-        "objFillColor": fillColor == "" ? "#" + ["F55", "5F5", "55F"][Math.floor(Math.random() * 3)] : fillColor,
-        "path": string_path,
-        "strokeWidth": strokeWidth,
-        "closed": closed,
-    };
-    client.sendEvent(room, "p.whiteboard.object", content, "", (err, res) => {
+    client.sendEvent(room, BoardEvent.BOARD_OBJECT_EVENT_NAME, content, "", (err, res) => {
         console.log(err);
     });
 }
@@ -125,7 +108,7 @@ function sendRandomPath(client, room) {
         "objcolor": "#" + ["F55", "5F5", "55F"][Math.floor(Math.random() * 3)],
         "path": randomPath(),
     };
-    client.sendEvent(room, "p.whiteboard.object", content, "", (err, res) => {
+    client.sendEvent(room, BoardEvent.BOARD_OBJECT_EVENT_NAME, content, "", (err, res) => {
         console.log(err);
     });
 }
@@ -139,7 +122,7 @@ function sendRandomWalk(client, room) {
         "objcolor": "#" + ["F55", "5F5", "55F"][Math.floor(Math.random() * 3)],
         "path": randomStroke(),
     };
-    client.sendEvent(room, "p.whiteboard.object", content, "", (err, res) => {
+    client.sendEvent(room, BoardEvent.BOARD_OBJECT_EVENT_NAME, content, "", (err, res) => {
         console.log(err);
     });
 }
@@ -192,46 +175,6 @@ function formSubmit(e) {
     return false;
 }
 
-// function replaceLastEvent(matrixClient, currentRoomId) {
-//     let id = "";
-//     // let room = client.getRoom(roomId);
-//     let userId = matrixClient.getUserId();
-//     let sortedEvents = objectStore.allSorted();
-//     for (i = sortedEvents.length - 1; (id === "" && i >= 0); i--) {
-//         let event = sortedEvents[i];
-//         console.log("looping through events to find the one to redact");
-//         if (event.type == "p.whiteboard.object" && event.sender == userId) {
-//             id = event.event_id;
-//             break;
-//         }
-//     }
-//     let replaceId = id;
-//     const content = {
-//         "version": 2,
-//         "svg": "none",
-//         "objtype": "p.path",
-//         "objpos": "100 100",
-//         "objcolor": "#000",
-//         "closed": true,
-//         "objFillColor": '#ff000030',
-//         "strokeWidth": 3,
-//         "path": "0 0 0 0 0 0 0 100 0 0 0 0 100 100 0 0 0 0 100 0 0 0 0 0",
-//     };
-//     // const replaceContent = {
-//     //     "body": "",
-//     //     "m.new_content": content,
-//     //     "m.relates_to": {
-//     //         "rel_type": "m.replace",
-//     //         "event_id": replaceId
-//     //     }
-//     // }
-//     matrixClient.sendEvent(currentRoomId, "p.whiteboard.object", content, "", (err, res) => {
-//         console.log(err);
-//     });
-//     matrixClient.redactEvent(currentRoomId, replaceId).then(t => {
-//         console.log("redacted for replace ", t);
-//     });
-// }
 function lastEvent() {
     let lastEvent = null;
     // let room = client.getRoom(roomId);
@@ -240,7 +183,7 @@ function lastEvent() {
     for (let i = sortedEvents.length - 1; i >= 0; i--) {
         let event = sortedEvents[i];
         console.log("looping through events to find the one to redact");
-        if (event.type == "p.whiteboard.object" && event.sender == userId) {
+        if (isBoardObjectEvent(event.type) && event.sender == userId) {
             lastEvent = event;
             break;
         }
@@ -248,7 +191,7 @@ function lastEvent() {
     return lastEvent;
 }
 function replaceEvent(idToReplace, newContent) {
-    appData.matrixClient.client.sendEvent(appData.matrixClient.currentRoomId, "p.whiteboard.object", newContent, "", (err, res) => {
+    appData.matrixClient.client.sendEvent(appData.matrixClient.currentRoomId, BoardEvent.BOARD_OBJECT_EVENT_NAME, newContent, "", (err, res) => {
         console.log(err);
     });
     appData.matrixClient.client.redactEvent(appData.matrixClient.currentRoomId, idToReplace).then(t => {
@@ -291,7 +234,6 @@ function showAddRoomMenu() {
     updateAddRoomList()
     let addRoomMenu = document.getElementById("add-room-container")
     addRoomMenu.style.display = 'block'
-
 }
 function hideAddRoomMenu() {
     let addRoomMenu = document.getElementById("add-room-container")

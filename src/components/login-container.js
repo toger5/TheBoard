@@ -2,7 +2,7 @@ import { hideLoading, showLoading } from "../main";
 import { AutoDiscovery } from "matrix-js-sdk";
 
 const loginContainerTemplate = document.createElement('template');
-loginContainerTemplate.innerHTML = `
+loginContainerTemplate.innerHTML = /*html*/`
 <link href="style.css" rel="stylesheet" type="text/css">
 <style>
     span {
@@ -34,7 +34,7 @@ loginContainerTemplate.innerHTML = `
 <div class='center-container' id='login-container'>
     <p>
         <span>The Board</span>
-        <span style='font-size: 1em;'> (alpha `+process.env.PACKAGE_VERSION+`)</span>
+        <span style='font-size: 1em;'> (alpha `+process.env.PACKAGE_VERSION+ /*html*/`)</span>
     </p>
     <form action="javascript:void(0);" onsubmit="()=>{return false;}">
     <label for='username'>Username:</label><br>
@@ -112,4 +112,3 @@ export class LoginContainer extends HTMLElement {
 if (!customElements.get('login-container')) {
     customElements.define('login-container', LoginContainer);
 }
-

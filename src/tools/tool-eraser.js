@@ -1,6 +1,6 @@
 // import {  } from "../drawing";
 // import { objectStore } from '../main'
-// import {  } from '../main'//backend;
+// import { sleep } from './paper-canvas';
 import { GetToolStrokeWidthIndex } from "./line-style-selector";
 import { mousePathToString, paperPathToString, pathPosSizeCorrection, setAlpha } from "../helper";
 
@@ -61,25 +61,6 @@ export default class ToolEraser {
     toolup(proX, proY) {
         if (this.tool_canceled) { return; }
 
-        // console.log("try to erase");
-        // let pt = drawingCanvas.getTransformedPointer(proX, proY);
-        // let sortedEvents = objectStore.allSorted();
-        // var id = ""
-        // let eraser_size = 70;
-        // let userId = matrixClient.getUserId();
-        // for (let i = sortedEvents.length - 1; i >= 0; i--) {
-        //     let event = sortedEvents[i];
-        //     if (event.type == "p.whiteboard.object" && event.sender == userId) {
-        //         let points = parsePath(event.content.path, event.content.objpos);
-        //         for (let j in points) {
-        //             let p = points[j];
-        //             if ((pt.x - p[1]) ** 2 + (pt.y - p[2]) ** 2 < eraser_size) {
-        //                 id = event.event_id;
-        //                 break;
-        //             }
-        //         }
-        //     }
-        // }
         this.toolcancel();
 
         console.log(this.idsToDelete)

@@ -1,8 +1,9 @@
 import * as sdk from "matrix-js-sdk";
 import { showLoading, hideLoading, updateRoomList } from "../main";
 import NotebookTree from '../sturctures/notebook-tree'
+import { isBoardCommitEvent, isBoardObjectEvent, isBoardRoom } from "./filter";
 // import { drawEvent } from '../drawing'
-
+import * as BoardEvent from './board-event-consts'
 export default class MatrixBackend {
     constructor() {
         this.client = null
@@ -18,11 +19,9 @@ export default class MatrixBackend {
         console.log("got all visible rooms" + (Date.now() - dateNow))
         let spaces = visibleRooms.filter(r => r.currentState.events.has('m.space.child'))
 
-
-        for (let r in visibleRooms) {
-            let room = visibleRooms[r];
-            console.log(Array.from(room.currentState.events.keys()))
-            if (!room.currentState.events.has('p.whiteboard.settings')) {
+        for (let room of visibleRooms) {
+            // console.log(Array.from(room.currentState.events.keys()))
+            if (!isBoardRoom(room.currentState.events)) {
                 continue // only show rooms which are marked as whitebaord rooms
             }
             let found = spaces.find(spaceRoom => spaceRoom.currentState.events.get('m.space.child').has(room.roomId))
@@ -41,7 +40,6 @@ export default class MatrixBackend {
     }
 
     async createWhiteboard(visibility, whiteboardName) {
-
         let roomOpt = {
             // room_alias_name
             visibility: visibility,
@@ -51,17 +49,13 @@ export default class MatrixBackend {
         showLoading("Creating whiteboard with Name: " + whiteboardName)
         let roomCreateData = await appData.matrixClient.client.createRoom(roomOpt);
         hideLoading();
-        appData.matrixClient.makeWhitebaordFromRoom.bind(appData.matrixClient);
-        return appData.matrixClient.makeWhitebaordFromRoom(roomCreateData.room_id);
+        appData.matrixClient.makeWhiteboardFromRoom.bind(appData.matrixClient);
+        return appData.matrixClient.makeWhiteboardFromRoom(roomCreateData.room_id);
     }
-
-
-
-
-    async makeWhitebaordFromRoom(roomId) {
+    async makeWhiteboardFromRoom(roomId) {
         let content = {}
         let client = appData.matrixClient.client;
-        let stateId = await client.sendStateEvent(roomId, "p.whiteboard.settings", content, "")
+        let stateId = await client.sendStateEvent(roomId, BoardEvent.BOARD_ROOM_STATE_NAME, content, "")
         showLoading("make Room " + client.getRoom(roomId).name + "a whiteboard")
         let prom = new Promise(function (resolve, reject) {
             let listenerFunc = function (msg, state, prevEvent) {
@@ -75,7 +69,6 @@ export default class MatrixBackend {
         })
         return prom;
     }
-
 
     async login(username, password, baseUrl, loginCallback) {
         showLoading("login with: " + username + " on server: " + baseUrl);
@@ -102,8 +95,6 @@ export default class MatrixBackend {
         showLoading("initial sync");
     }
 
-
-
     setupClientConnections() {
         this.client.on("sync", function (state, prevState, data) {
             switch (state) {
@@ -121,12 +112,14 @@ export default class MatrixBackend {
             }
         });
         this.client.on("Room.localEchoUpdated", function (msg, room, oldId, newStatus) {
-            if (msg.getType() === "p.whiteboard.object" && msg.status === "sent") {
+            if (isBoardObjectEvent(msg.getType()) && msg.status === "sent") {
+
                 let item = project.getItem({ class: "Path", match: function (item) { return item.data.id == oldId } })
                 if (item) {
                     item.data.id = msg.event.event_id
                 }
-                appData.objectStore.add(msg.event);            }
+                appData.objectStore.add(msg.event);
+            }
         })
         // var replacedEvents = new Set();
         this.client.on("Room.timeline", function (msg, room, toStartOfTimeline) {
@@ -134,27 +127,26 @@ export default class MatrixBackend {
                 console.log("skipped redacted evpped redacted event")
                 return;
             }
-            if (msg.getType() == "p.whiteboard.object") {
-                // ANIMATED toggle
-                appData.drawingCanvas.drawEvent(msg.event, Date.now() - msg.getDate().getTime() < 200000);
-                // }
+            if (isBoardObjectEvent(msg.getType())) {
+                let animated = Date.now() - msg.getDate().getTime() < 200000;
+                appData.drawingCanvas.drawEvent(msg.event, animated);
+
                 if (msg.status == null) {
                     //event is not sending but loaded from scrollback
                     appData.objectStore.add(msg.event);
                 }
             }
-            if (msg.getType() == "m.room.redaction") {
-                // this is debateable. When an event is super slow the canvas will still show it until some other event happens to trigger a redraw
-                // if (Date.now() - msg.event.origin_server_ts < 200000) {
+            else if (isBoardCommitEvent(msg.getType())) {
+                console.log("Commit Event", msg.event)
+            }
+            else if (msg.getType() == "m.room.redaction") {
                 appData.objectStore.redactById(msg.event.redacts, msg.event.room_id);
-                // }
             }
-            if (msg.getType() !== "m.room.message") {
-                return; // only use messages
-            }
+            // if (msg.getType() !== "m.room.message") {
+            //     return;
+            // }
         });
     }
-
 
     scrollback(roomId, scrollback_count = 200, loadingMsg = null) {
         console.log("load scrollback for: " + roomId);
@@ -175,6 +167,41 @@ export default class MatrixBackend {
                     hideLoading();
                     resolve(room);
                 });
+        });
+    }
+
+
+    // Sending
+    sendPath(paths, color, fillColor) {
+        let precision = 3;
+        let pathsObjArr = paths.map((p) => {
+            let pZeroPos = p.clone();
+            pZeroPos.position = pZeroPos.position.subtract(pZeroPos.bounds.topLeft);
+            let pathObj = {
+                "segments": pZeroPos.segments.map((s) => [s.point.x, s.point.y, s.handleIn.x, s.handleIn.y, s.handleOut.x, s.handleOut.y].map((v) => v.toFixed(precision))),
+                "closed": pZeroPos.closed,
+                "fillColor": pZeroPos.fillColor ? pZeroPos.fillColor.toCSS(true) : null,
+                "strokeColor": pZeroPos.strokeColor ? pZeroPos.strokeColor.toCSS(true) : null,
+                "strokeWidth": pZeroPos.strokeWidth,
+                "position": {
+                    "x": p.bounds.topLeft.x.toFixed(precision),
+                    "y": p.bounds.topLeft.y.toFixed(precision)
+                }
+            }
+
+            pZeroPos.remove()
+            return pathObj;
+        })
+        const content = {
+            "version": 3,
+            "objtype": "path",
+            "paths": pathsObjArr,
+        };
+        appData.matrixClient.sendBoardObjectEvent(content)
+    }
+    sendBoardObjectEvent(content) {
+        appData.matrixClient.client.sendEvent(appData.matrixClient.currentRoomId, BoardEvent.BOARD_OBJECT_EVENT_NAME, content, "", (err, res) => {
+            console.log(err);
         });
     }
 }

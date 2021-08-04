@@ -2,7 +2,7 @@
 // import { Path, Color, Point } from "paper/dist/paper-core";
 import { GetPickerColor } from "../color-picker";
 import { GetToolStrokeWidthIndex } from "./line-style-selector";
-import { sendPath } from "../actions";
+// import { sendPath } from "../actions";
 // import { objectStore, currentRoomId, drawingCanvas} from "../main";
 // import { matrixClient } from '../main'//backend;
 import { mousePathToString, paperPathToString, pathPosSizeCorrection, setAlpha } from "../helper";
@@ -38,10 +38,8 @@ export default class ToolRect {
     toolmove(proX, proY, pressure) {
         console.log("toolmove");
         this.canvas_rect.segments[1].point.x = proX
-        this.canvas_rect.segments[2].point.x = proX
-        this.canvas_rect.segments[2].point.y = proY
+        this.canvas_rect.segments[2].point = new paper.Point(proX, proY)
         this.canvas_rect.segments[3].point.y = proY
-        // this.canvas_rect.lastSegment.point = new paper.Point(proX, proY);
     }
 
     toolup(proX, proY) {
@@ -51,12 +49,16 @@ export default class ToolRect {
 
             // let paper_mouse_path = new paper.Path(corrected_mouse_path.map((s) => { return [s[1], s[2]] }));
 
-            let [pos, size, string_path] = paperPathToString(this.canvas_rect);
+            // let [pos, size, string_path] = paperPathToString(this.canvas_rect);
             // paper_mouse_path.remove();
-            let version = 2;
-            sendPath(appData.matrixClient.client, appData.matrixClient.currentRoomId,
-                string_path,
-                GetPickerColor(), setAlpha(GetPickerColor(), 0.08),[pos.x, pos.y], [size.width, size.height], this.getStrokeWidth(), true, version);
+            // let version = 2;
+            this.canvas_rect.fillColor = setAlpha(GetPickerColor(), 0.08);
+            this.canvas_rect.strokeColor = GetPickerColor();
+            appData.matrixClient.sendPath([this.canvas_rect]);
+
+            // sendPath(appData.matrixClient.client, appData.matrixClient.currentRoomId,
+            //     string_path,
+            //     GetPickerColor(), setAlpha(GetPickerColor(), 0.08),[pos.x, pos.y], [size.width, size.height], this.getStrokeWidth(), true, version);
         } else {
             console.log("NO ROOM SELECTED TO DRAW IN!")
             appData.drawingCanvas.updateDisplay_DEPRECATED();
