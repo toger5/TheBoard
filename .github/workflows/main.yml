@@ -78,7 +78,7 @@ jobs:
           echo -e "\n\nIPFS CID: ${{ steps.ipfs.outputs.HASH }}" >> dist/changes.txt
           
           # use git tag's subject as release name
-          echo "NAME=$(git tag -l --format='%(contents:subject)' $(git describe --tag) || git describe --tag)" >> $GITHUB_ENV
+          echo "NAME=$(git tag -l --format='%(contents:subject)' $(git describe --tag) && git describe --tag)" >> $GITHUB_ENV
           
           # if the version number contains a - (for example v1.0.0-alpha1, v1.0.0-rc1, etc) the release is marked as a prerelease
           echo "IS_PRERELEASE=$(! [[ $(git describe --tag) =~ "-" ]]) $?" >> $GITHUB_ENV
