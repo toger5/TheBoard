@@ -153,7 +153,7 @@ async function loadRoom(roomId, scrollback_count = -1, allMessages = true) {
     }
     let room = appData.matrixClient.client.getRoom(roomId);
     let settings = room.currentState.events.get(BoardEvent.BOARD_ROOM_STATE_NAME);
-    if (settings.has("colorpalette")) {
+    if (settings && settings.has("colorpalette")) {
         SetColorPalette(settings.get("colorpalette"))
     }
     showLoading("load room history");

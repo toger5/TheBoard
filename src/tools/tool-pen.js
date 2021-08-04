@@ -49,8 +49,7 @@ export default class ToolPen {
         this.previewPaths.push(prev);
 
         let colorAlpha = new Color(this.getStrokeColor());
-        colorAlpha.alpha = colorAlpha.alpha * 0.6;
-        // let colorAlpha = setAlpha(this.getStrokeColor(), 0.3);
+        colorAlpha.alpha = colorAlpha.alpha * 0.8;
         prev.strokeColor = colorAlpha;
         prev.strokeWidth = this.getStrokeWidth();
         prev.strokeCap = "round"
@@ -99,7 +98,7 @@ export default class ToolPen {
         if (appData.objectStore.hasRoom(appData.matrixClient.currentRoomId)) {
             if (appData.drawingCanvas instanceof PaperCanvas) {
                 // in mouse path the pressure stroke width is stored. (will be used later to generate a custom path based on that)
-                let paper_mouse_path = new Path(this.mouse_path.map((s) => { return [s[1], s[2]] }));
+                let paper_mouse_path = this.previewPaths[this.previewPaths.length - 1].clone()//new Path(this.mouse_path.map((s) => { return [s[1], s[2]] }));
                 paper_mouse_path.simplify(1 / appData.drawingCanvas.getZoom());
                 paper_mouse_path.strokeWidth = this.getStrokeWidth();
                 paper_mouse_path.strokeColor = GetPickerColor();

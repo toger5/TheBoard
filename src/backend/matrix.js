@@ -2,7 +2,7 @@ import * as sdk from "matrix-js-sdk";
 import { showLoading, hideLoading, updateRoomList } from "../main";
 import NotebookTree from '../sturctures/notebook-tree'
 import { isBoardCommitEvent, isBoardObjectEvent, isBoardRoom } from "./filter";
-// import { drawEvent } from '../drawing'
+import { setAlpha } from "../helper";
 import * as BoardEvent from './board-event-consts'
 export default class MatrixBackend {
     constructor() {
@@ -180,8 +180,8 @@ export default class MatrixBackend {
             let pathObj = {
                 "segments": pZeroPos.segments.map((s) => [s.point.x, s.point.y, s.handleIn.x, s.handleIn.y, s.handleOut.x, s.handleOut.y].map((v) => v.toFixed(precision))),
                 "closed": pZeroPos.closed,
-                "fillColor": pZeroPos.fillColor ? pZeroPos.fillColor.toCSS(true) : null,
-                "strokeColor": pZeroPos.strokeColor ? pZeroPos.strokeColor.toCSS(true) : null,
+                "fillColor": pZeroPos.fillColor ? setAlpha(pZeroPos.fillColor.toCSS(true), pZeroPos.fillColor.alpha) : null,
+                "strokeColor": pZeroPos.strokeColor ? setAlpha(pZeroPos.strokeColor.toCSS(true), pZeroPos.strokeColor.alpha) : null,
                 "strokeWidth": pZeroPos.strokeWidth,
                 "position": {
                     "x": p.bounds.topLeft.x.toFixed(precision),

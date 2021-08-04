@@ -48,7 +48,8 @@ export default class PaperCanvas {
             switch (event.content.objtype) {
                 case "path": {
                     for (let pathData of event.content.paths) {
-                        drawC.addPathV3(pathData, event.event_id)
+                        let addPathFunc = animated ? drawC.asyncAddPathV3 : drawC.addPathV3
+                        addPathFunc(pathData, event.event_id)
                     }
                 }
             }
@@ -115,7 +116,7 @@ export default class PaperCanvas {
     }
     asyncAddPathV2(segments, color, fillColor, strokeWidth, closed = false, id = "") {
         // TODO make async animation using dash
-        let p = this.addPathV2(segments, color, fillColor, strokeWidth, closed, id);
+        let p = appData.drawingCanvas.addPathV2(segments, color, fillColor, strokeWidth, closed, id);
         let length = 0;
         length = p.length;
         p.dashArray = [length, length];
@@ -127,7 +128,15 @@ export default class PaperCanvas {
         })
         // p.tween({ dashArray: [10, 10] }, { dashArray: [1000, 10] }, 3000);
     }
-
+    asyncAddPathV3(pdat, id) {
+        let p = appData.drawingCanvas.addPathV3(pdat, id);
+        let l = p.length;
+        p.dashArray = [l, l];
+        p.tween({ dashOffset: l }, { dashOffset: 0 }, 2 * l).then(() => {
+            p.dashArray = []
+        })
+        return p;
+    }
     addPathV3(pdat, id) {
         let segments = pdat.segments.map((s) => new Segment(new Point(parseFloat(s[0]), parseFloat(s[1])),
             new Point(parseFloat(s[2]), parseFloat(s[3])),
@@ -138,7 +147,7 @@ export default class PaperCanvas {
         p.fillColor = pdat.fillColor;
         p.strokeWidth = pdat.strokeWidth;
         p.closed = pdat.closed;
-        p.position = p.position.add(new Point(parseFloat(pdat.position.x),parseFloat(pdat.position.y)))
+        p.position = p.position.add(new Point(parseFloat(pdat.position.x), parseFloat(pdat.position.y)))
         p.strokeCap = "round";
         if (id != "") {
             p.data.id = id

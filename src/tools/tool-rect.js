@@ -52,7 +52,10 @@ export default class ToolRect {
             // let [pos, size, string_path] = paperPathToString(this.canvas_rect);
             // paper_mouse_path.remove();
             // let version = 2;
-            this.canvas_rect.fillColor = setAlpha(GetPickerColor(), 0.08);
+            let colorAlpha = new Color(GetPickerColor());
+            colorAlpha.alpha = 0.08;
+            let cA = setAlpha(GetPickerColor(), 0.08);
+            this.canvas_rect.fillColor = colorAlpha;// setAlpha(GetPickerColor(), 0.08);
             this.canvas_rect.strokeColor = GetPickerColor();
             appData.matrixClient.sendPath([this.canvas_rect]);
 
