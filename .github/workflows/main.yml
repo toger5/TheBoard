@@ -72,13 +72,13 @@ jobs:
       - name: Release Notes
         run: |
           # release notes       
-          git tag -l --format='%(contents:body)' $(git describe --tag) > changes.txt
+          git tag -l --format='%(contents:body)' ${{github.ref}} > changes.txt
           
           # ipfs cid to end of release notes
           echo -e "\n\nIPFS CID: ${{ steps.ipfs.outputs.HASH }}" >> changes.txt
           
           # use git tag's subject as release name
-          echo "NAME=$(git tag -l --format='%(contents:subject)' $(git describe --tag))" >> $GITHUB_ENV
+          echo "NAME=$(git tag -l --format='%(contents:subject)' ${{github.ref}})" >> $GITHUB_ENV
                     
       # GitHub Release
       - name: Release
