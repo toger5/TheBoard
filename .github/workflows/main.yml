@@ -82,6 +82,9 @@ jobs:
           
           # if the version number contains a - (for example v1.0.0-alpha1, v1.0.0-rc1, etc) the release is marked as a prerelease
           echo "IS_PRERELEASE=$([[ $(git describe --tag) =~ "-" ]])" >> $GITHUB_ENV
+          cat $GITHUB_ENV
+          echo $GITHUB_ENV
+          git describe --tag
           
       # GitHub Release
       - name: Release
