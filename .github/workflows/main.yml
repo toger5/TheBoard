@@ -91,3 +91,4 @@ jobs:
           prerelease: ${{env.IS_PRERELEASE}}
           name: ${{env.NAME}}
           bodyFile: dist/changes.txt
+          token: ${{ secrets.GITHUB_TOKEN }}
