@@ -12,8 +12,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-        with:
-          fetch-depth: 0
 
       # following 2 are github suggested caching for yarn
       - name: Get yarn cache directory path
@@ -28,12 +26,13 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-yarn-
 
+      # build the app
       - name: install
         run: yarn install
       - name: build
         run: yarn build
 
-
+      # VARIOUS DEPLOYS
       - name: Deploy 🚀
         uses: JamesIves/github-pages-deploy-action@4.1.4
         with:
@@ -49,29 +48,42 @@ jobs:
           pinata-secret-api-key: ${{ secrets.PINATASECRETAPIKEY }}
           verbose: true
           remove-old: true
-      - name: Make release dir
-        run: mkdir release
+
+      # prepare release files
       - name: Archive Release
-        uses: thedoctor0/zip-release@master
+        uses: thedoctor0/zip-release@4fb9e4ff72847dd3d1c111cf63834e353ed7cb3d
         with:
           type: 'zip'
           filename: './release/the-board-files.zip'
           path: dist
       - name: Archive Release
-        uses: thedoctor0/zip-release@master
+        uses: thedoctor0/zip-release@4fb9e4ff72847dd3d1c111cf63834e353ed7cb3d
         with:
           type: 'tar'
           filename: './release/the-board-files.tar.gz'
           path: dist
             
       - name: Add CID to release
-        run: 'echo ${{ steps.ipfs.outputs.HASH }} > ./release/ipfs.cid'
-      - name: a
-        run: ls release
+        run: 'echo ${{ steps.ipfs.outputs.HASH }} > ./ipfs.cid'
+        
+      # prepare release notes
+      - name: Release Notes
+        run: |
+          # release notes       
+          git tag -l --format='%(contents:body)' $(git describe --tag) > dist/changes.txt
+          
+          # ipfs cid to end of release notes
+          echo -e "\n\nIPFS CID: ${{ steps.ipfs.outputs.HASH }}" >> dist/changes.txt
+          
+          # if the version number contains a - (for example v1.0.0-alpha1, v1.0.0-rc1, etc) the release is marked as a prerelease
+          echo "IS_PRERELEASE=$([[ $(git describe --tag) =~ "-" ]])" >> $GITHUB_ENV
+          
+      # GitHub Release
       - name: Release
-        uses: svenstaro/upload-release-action@v2
+        uses: softprops/action-gh-release@v1
         with:
-          repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: "release/"
-          tag: ${{ github.ref }}
-
+          file: |
+            the-board-files*
+            ipfs.cid
+          prerelease: ${{env.IS_PRERELEASE}}
+          body_path: dist/changes.txt
