@@ -73,15 +73,15 @@ jobs:
         run: |
           # release notes       
           git tag -l --format='%(contents:body)' $(git describe --tags)} > changes.txt
-          cat changes.txt
           
           # ipfs cid to end of release notes
           echo -e "\n\nIPFS CID: ${{ steps.ipfs.outputs.HASH }}" >> changes.txt
           
           # use git tag's subject as release name
           echo "NAME=$(git tag -l --format='%(contents:subject)' $(git describe --tags))" >> $GITHUB_ENV
-          echo $(git describe --tags)
-                    
+      - name: Setup tmate session
+        uses: mxschmitt/action-tmate@v3
+        timeout-minutes: 15
       # GitHub Release
       - name: Release
         uses: ncipollo/release-action@v1
