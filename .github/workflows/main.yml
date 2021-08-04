@@ -14,7 +14,10 @@ jobs:
       - uses: actions/checkout@v2
         with:
           fetch-depth: 0
-
+      # see: https://github.com/actions/checkout/issues/290
+      - name: Fetch Tags
+        run: git fetch --force --tags
+        
       # following 2 are github suggested caching for yarn
       - name: Get yarn cache directory path
         id: yarn-cache-dir-path
@@ -79,9 +82,7 @@ jobs:
           
           # use git tag's subject as release name
           echo "NAME=$(git tag -l --format='%(contents:subject)' $(git describe --tags))" >> $GITHUB_ENV
-      - name: Setup tmate session
-        uses: mxschmitt/action-tmate@v3
-        timeout-minutes: 15
+
       # GitHub Release
       - name: Release
         uses: ncipollo/release-action@v1
