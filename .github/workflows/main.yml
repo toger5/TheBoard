@@ -75,6 +75,9 @@ jobs:
           # ipfs cid to end of release notes
           echo -e "\n\nIPFS CID: ${{ steps.ipfs.outputs.HASH }}" >> dist/changes.txt
           
+          # use git tag's subject as release name
+          echo "NAME=$(git tag -l --format='%(contents:subject)' $(git describe --tag))" >> $GITHUB_ENV
+          
           # if the version number contains a - (for example v1.0.0-alpha1, v1.0.0-rc1, etc) the release is marked as a prerelease
           echo "IS_PRERELEASE=$([[ $(git describe --tag) =~ "-" ]])" >> $GITHUB_ENV
           
@@ -82,8 +85,9 @@ jobs:
       - name: Release
         uses: softprops/action-gh-release@v1
         with:
-          file: |
+          files: |
             the-board-files*
             ipfs.cid
           prerelease: ${{env.IS_PRERELEASE}}
+          name: ${{env.NAME}}
           body_path: dist/changes.txt
