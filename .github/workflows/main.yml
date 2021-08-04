@@ -66,7 +66,8 @@ jobs:
             
       - name: Add CID to release
         run: 'echo ${{ steps.ipfs.outputs.HASH }} > ./release/ipfs.cid'
-
+      - name: a
+        run: ls release
       - name: Release
         uses: svenstaro/upload-release-action@v2
         with:
