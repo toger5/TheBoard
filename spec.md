@@ -32,7 +32,7 @@ Six: `[Pos.x, pos.y, HandleStart.x,HandleStart.y, HandleEnd.x, HandleEnd.y]`
         "paths": [
             {
                 "segments": [
-                    [0.0, 0.0, 0.0, 0.0, 0.0, 0.0],[]
+                    ["0.0 0.0 0.0 0.0 0.0 0.0"],[]
                 ],
                 "closed":BOOL
                 "fillColor": "",

@@ -138,9 +138,12 @@ export default class PaperCanvas {
         return p;
     }
     addPathV3(pdat, id) {
-        let segments = pdat.segments.map((s) => new Segment(new Point(parseFloat(s[0]), parseFloat(s[1])),
-            new Point(parseFloat(s[2]), parseFloat(s[3])),
-            new Point(parseFloat(s[4]), parseFloat(s[5])))
+        let segments = pdat.segments.map((seg) => {
+            let s = seg.split(" ");
+            return new Segment(new Point(parseFloat(s[0]), parseFloat(s[1])),
+                new Point(parseFloat(s[2]), parseFloat(s[3])),
+                new Point(parseFloat(s[4]), parseFloat(s[5])))
+        }
         );
         let p = new paper.Path(segments);
         p.strokeColor = pdat.strokeColor;

@@ -173,12 +173,12 @@ export default class MatrixBackend {
 
     // Sending
     sendPath(paths, color, fillColor) {
-        let precision = 3;
+        let precision = 2;
         let pathsObjArr = paths.map((p) => {
             let pZeroPos = p.clone();
             pZeroPos.position = pZeroPos.position.subtract(pZeroPos.bounds.topLeft);
             let pathObj = {
-                "segments": pZeroPos.segments.map((s) => [s.point.x, s.point.y, s.handleIn.x, s.handleIn.y, s.handleOut.x, s.handleOut.y].map((v) => v.toFixed(precision))),
+                "segments": pZeroPos.segments.map((s) => [s.point.x, s.point.y, s.handleIn.x, s.handleIn.y, s.handleOut.x, s.handleOut.y].map((v) => v.toFixed(precision)).join(" ")),
                 "closed": pZeroPos.closed,
                 "fillColor": pZeroPos.fillColor ? setAlpha(pZeroPos.fillColor.toCSS(true), pZeroPos.fillColor.alpha) : null,
                 "strokeColor": pZeroPos.strokeColor ? setAlpha(pZeroPos.strokeColor.toCSS(true), pZeroPos.strokeColor.alpha) : null,
