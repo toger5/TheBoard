@@ -1,0 +1,26 @@
+on: 
+  pull_request:
+    branches:
+      - "**"
+  push:
+    branches:
+      - "**"
+    tags:
+      - "!v**"
+  
+
+name: Build test
+
+jobs:
+  check:
+    name: Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: run tests
+        run: yarn run test
+      - uses: actions/upload-artifact@v2
+        with:
+          name: builds
+          path: up-rewrite
+
