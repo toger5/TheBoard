@@ -65,7 +65,7 @@ jobs:
           path: dist
             
       - name: Add CID to release
-        run: 'echo ${{ steps.ipfs.outputs.HASH } > ./release/ipfs.cid'
+        run: 'echo ${{ steps.ipfs.outputs.HASH }} > ./release/ipfs.cid'
 
       - name: Release
         uses: svenstaro/upload-release-action@v2
