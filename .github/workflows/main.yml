@@ -85,11 +85,9 @@ jobs:
           
       # GitHub Release
       - name: Release
-        uses: softprops/action-gh-release@v1
+        uses: ncipollo/release-action@v1
         with:
-          files: |
-            the-board-files*
-            ipfs.cid
+          artifacts: the-board-files*,ipfs.cid
           prerelease: ${{env.IS_PRERELEASE}}
           name: ${{env.NAME}}
-          body_path: dist/changes.txt
+          bodyFile: dist/changes.txt
