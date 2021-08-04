@@ -39,3 +39,9 @@ jobs:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           file: "dist/"
           tag: ${{ github.ref }}
+
+      - name: Deploy 🚀
+        uses: JamesIves/github-pages-deploy-action@4.1.4
+        with:
+          branch: pages # The branch the action should deploy to.
+          folder: dist # The folder the action should deploy.
