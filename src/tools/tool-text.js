@@ -136,7 +136,7 @@ export default class ToolText {
             this.previewItem.visible = true;
         }
         if (this.previewText){
-            this.previewItem.visible = true;
+            this.previewText.visible = true;
             this.previewText.content = "Text..."
         }
     }
@@ -145,7 +145,7 @@ export default class ToolText {
             this.previewItem.visible = false;
         }
         if (this.previewText){
-            this.previewItem.visible = false;
+            this.previewText.visible = false;
         }
     }
 }

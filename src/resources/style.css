@@ -78,8 +78,15 @@ body {
 }
 
 #topbar button {
-    height: auto;
+    height: 25px;
+    margin: 2px;
+    border: solid 1px #aaa;
+    border-radius: 5px;
+    background-color: white;
     min-width: 6em;
+}
+#topbar button:hover {
+    background-color: #eee;
 }
 
 .pickr {
