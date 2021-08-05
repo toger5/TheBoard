@@ -13,14 +13,13 @@ export default class ToolText {
         this.textEditMode = false
         this.previewItem = null;
         this.previewText = null;
-        this.strokeWidthOptions = [15, 30, 45, 60];
+        this.strokeWidthOptions = [10, 30, 50, 80];
     }
     getTextSize() {
         return this.strokeWidthOptions[GetToolStrokeWidthIndex()];
     }
     tooldown(proX, proY, pressure) {
         
-
     }
     toolmove(proX, proY, pressure) {
         console.log("textToolMove");
@@ -30,10 +29,12 @@ export default class ToolText {
     toolup(proX, proY) {
         console.log("textToolUp");
         if (this.textEditMode) {
+            this.toolcancel()
+            this.toolpreviewmove(new Point(proX,proY))
             //move cursor
             return
         }
-        showLoading("Press Enter to send the Text")
+        showLoading("Press Enter to send the Text (click or esc to cancel)")
         this.previewText.content = ""
         this.updateBox()
 
@@ -44,16 +45,18 @@ export default class ToolText {
             this.previewText.content = input.value 
             this.updateBox()
         }
-        input.onkeypress =(e)=>{
+        input.onkeyup =(e)=>{
             if (e.key === "Enter") {
                 appData.matrixClient.sendText(this.previewText);
-                this.textEditMode = false;
-                this.previewText.content = "Text..."
-                this.updateBox()
+                this.toolcancel()
                 this.previewText.visible = false
                 this.previewItem.visible = false
                 hideLoading()
                 // this.previewText.fillColor = setAlpha(GetPickerColor(),0.5);
+            }
+            if (e.key === "Escape"){
+                this.toolcancel()
+                this.toolpreviewmove(new Point(proX,proY))
             }
         }
         document.body.appendChild(input)
@@ -84,10 +87,9 @@ export default class ToolText {
     }
     toolcancel() {
         console.log("CANCEL");
-        // if (this.canvas_line !== null) {
-        //     this.canvas_line.remove();
-        // }
-        // this.canvas_line = null;
+        this.textEditMode = false
+        this.previewText.content = "Text..."
+        this.updateBox()
         this.tool_canceled = true;
     }
     toolpreviewmove(pos) {

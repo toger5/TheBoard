@@ -114,7 +114,7 @@ export default class MatrixBackend {
         this.client.on("Room.localEchoUpdated", function (msg, room, oldId, newStatus) {
             if (isBoardObjectEvent(msg.getType()) && msg.status === "sent") {
 
-                let item = project.getItem({ class: "Path", match: function (item) { return item.data.id == oldId } })
+                let item = project.getItem({match: function (item) { return item.data.id == oldId } })
                 if (item) {
                     item.data.id = msg.event.event_id
                 }

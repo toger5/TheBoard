@@ -90,7 +90,7 @@ export default class ObjectStore {
         if (remove) {
             if (id in room.allDict) {
                 delete room.allDict[id];
-                let item = paper.project.getItem({ class: "Path", match: function (item) { return item.data.id == id } })
+                let item = paper.project.getItem({match: function (item) { return item.data.id == id } })
                 if (item) { item.remove(); } else { console.log("could not find item for id: ", id) }
             } else {
                 console.log("unecassary redact called for id: ", id)

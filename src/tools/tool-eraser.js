@@ -35,8 +35,9 @@ export default class ToolEraser {
         this.addItemsFromPoint(new paper.Point(proX, proY))
     }
     addItemsFromPoint(testPoint) {
-        var hitOptions = {
+        let hitOptions = {
             stroke: true,
+            fill: true,
             tolerance: this.getStrokeWidth(),
             match: function (hitRes) {
                 return !("markedForDeletion" in hitRes.item.data)
@@ -44,8 +45,8 @@ export default class ToolEraser {
             }
         };
 
-        var hitResult = paper.project.hitTest(testPoint, hitOptions);
-        var i = 0;
+        let hitResult = paper.project.hitTest(testPoint, hitOptions);
+        let i = 0;
         while (hitResult && i < 10) {
             if (!hitResult) { continue }
             console.log('hitResult', hitResult);
