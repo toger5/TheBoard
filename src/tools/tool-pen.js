@@ -101,7 +101,7 @@ export default class ToolPen {
                 let paper_mouse_path = this.previewPaths[this.previewPaths.length - 1].clone()//new Path(this.mouse_path.map((s) => { return [s[1], s[2]] }));
                 paper_mouse_path.simplify(1 / appData.drawingCanvas.getZoom());
                 paper_mouse_path.strokeWidth = this.getStrokeWidth();
-                paper_mouse_path.strokeColor = GetPickerColor();
+                paper_mouse_path.strokeColor = this.getStrokeColor();
                 appData.matrixClient.sendPath([paper_mouse_path]);
                 paper_mouse_path.remove();
             }
