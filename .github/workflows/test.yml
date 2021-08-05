@@ -33,9 +33,11 @@ jobs:
       - name: install files
         run: yarn install
       - name: run tests
+        run: yarn build
+      - name: run tests
         run: yarn run test
       - uses: actions/upload-artifact@v2
         with:
           name: builds
-          path: up-rewrite
+          path: dist/
 
