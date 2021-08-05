@@ -1,7 +1,7 @@
 # Matrix Whiteboard (TheBoard)
 This defines a set of events which describe structures in a 2d plane.
 These events are shared over a matrix room with all participants.
-They can interactivly create a content on a whiteboard.
+They can interactively create content on a whiteboard.
 
 ## Draw Events
 ### Path
@@ -52,15 +52,18 @@ Six: `[Pos.x, pos.y, HandleStart.x,HandleStart.y, HandleEnd.x, HandleEnd.y]`
 ### Text
 
 ```JSON
-"com.github.TheBoard.text": {
+"com.github.TheBoard": {
     "content": {
-        "text": "",
-        "fontSize": 0.0,
-        "font": "",
+        "version":3,
+        "text": "Hello World",
+        "fontSize": 20,
+        "fontFamily": "",
+        "color":"#000",
         "position": {
-            "x": 0.0,
+            "x": 100.0,
             "y": 0.0
-        }
+        },
+        "objtype":"text"
     }
 }
 ```

@@ -51,6 +51,11 @@ export default class PaperCanvas {
                         let addPathFunc = animated ? drawC.asyncAddPathV3 : drawC.addPathV3
                         addPathFunc(pathData, event.event_id)
                     }
+                    break;
+                }
+                case "text": {
+                    drawC.addText(event.content, event.event_id)
+                    break;
                 }
             }
         }
@@ -128,8 +133,8 @@ export default class PaperCanvas {
         })
         // p.tween({ dashArray: [10, 10] }, { dashArray: [1000, 10] }, 3000);
     }
-    asyncAddPathV3(pdat, id) {
-        let p = appData.drawingCanvas.addPathV3(pdat, id);
+    asyncAddPathV3(pathContent, id) {
+        let p = appData.drawingCanvas.addPathV3(pathContent, id);
         let l = p.length;
         p.dashArray = [l, l];
         p.tween({ dashOffset: l }, { dashOffset: 0 }, 2 * l).then(() => {
@@ -137,20 +142,22 @@ export default class PaperCanvas {
         })
         return p;
     }
-    addPathV3(pdat, id) {
-        let segments = pdat.segments.map((seg) => {
-            let s = seg.split(" ");
+    addPathV3(pathContent, id) {
+        let segments = pathContent.segments.map((seg) => {
+            let s;
+            if(seg.split){s  = seg.split(" ")}
+            else{s=seg}
             return new Segment(new Point(parseFloat(s[0]), parseFloat(s[1])),
                 new Point(parseFloat(s[2]), parseFloat(s[3])),
                 new Point(parseFloat(s[4]), parseFloat(s[5])))
         }
         );
         let p = new paper.Path(segments);
-        p.strokeColor = pdat.strokeColor;
-        p.fillColor = pdat.fillColor;
-        p.strokeWidth = pdat.strokeWidth;
-        p.closed = pdat.closed;
-        p.position = p.position.add(new Point(parseFloat(pdat.position.x), parseFloat(pdat.position.y)))
+        p.strokeColor = pathContent.strokeColor;
+        p.fillColor = pathContent.fillColor;
+        p.strokeWidth = pathContent.strokeWidth;
+        p.closed = pathContent.closed;
+        p.position = p.position.add(new Point(parseFloat(pathContent.position.x), parseFloat(pathContent.position.y)))
         p.strokeCap = "round";
         if (id != "") {
             p.data.id = id
@@ -161,7 +168,6 @@ export default class PaperCanvas {
     addPathV2(segments, color, fillColor, strokeWidth, closed = false, id = "") {
         let p = new paper.Path(segments);
         p.strokeColor = color;
-        // if (fillColor != "#00000000") { p.fillColor = fillColor; }
         p.fillColor = fillColor;
 
         p.strokeWidth = strokeWidth;
@@ -187,6 +193,20 @@ export default class PaperCanvas {
         p.moveTo(new paper.Point(points[0][1], points[0][2]));
         for (let i = 1; i < points.length; i++) {
             p.lineTo(new paper.Point(points[i][1], points[i][2]));
+        }
+    }
+
+    addText(textContent, id){
+        let text = new PointText({
+            point: [parseFloat(textContent.position.x), parseFloat(textContent.position.y)],
+            content: textContent.text,
+            fillColor: textContent.color,
+            fontFamily: textContent.fontFamily,
+            fontWeight: 'normal',
+            fontSize: parseFloat(textContent.fontSize)
+        });
+        if (id != "") {
+            text.data.id = id
         }
     }
     updateDisplay_DEPRECATED() {

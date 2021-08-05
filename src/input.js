@@ -2,8 +2,10 @@ import ToolPen from './tools/tool-pen.js'
 import ToolEraser from './tools/tool-eraser.js'
 import ToolLine from './tools/tool-line.js'
 import ToolRect from './tools/tool-rect.js'
+import ToolText from './tools/tool-text.js'
 // import { drawingCanvas } from './main.js'
 import { dist } from './helper.js'
+import { GetToolStrokeWidthIndex } from './tools/line-style-selector.js'
 
 export var tools = {
     "tool-type-pen": new ToolPen(),
@@ -12,7 +14,7 @@ export var tools = {
     "tool-type-line": new ToolLine(),
     "tool-type-rect": new ToolRect(),
     "tool-type-ellipse": null,
-    "tool-type-text": null,
+    "tool-type-text": new ToolText(),
     "tool-type-line-width": null
 }
 export var activeTool = tools["tool-type-pen"];

@@ -172,7 +172,7 @@ export default class MatrixBackend {
 
 
     // Sending
-    sendPath(paths, color, fillColor) {
+    sendPath(paths) {
         let precision = 2;
         let pathsObjArr = paths.map((p) => {
             let pZeroPos = p.clone();
@@ -196,6 +196,22 @@ export default class MatrixBackend {
             "version": 3,
             "objtype": "path",
             "paths": pathsObjArr,
+        };
+        appData.matrixClient.sendBoardObjectEvent(content)
+    }
+    sendText(textPaperItem) {
+        let precision = 2;
+        const content = {
+            "version": 3,
+            "text": textPaperItem.content,
+            "fontSize": parseInt(textPaperItem.fontSize),
+            "fontFamily": textPaperItem.fontFamily,
+            "color": textPaperItem.fillColor.toCSS(true),
+            "position": {
+                "x": textPaperItem.point.x.toFixed(precision),
+                "y": textPaperItem.point.y.toFixed(precision)
+            },
+            "objtype": "text"
         };
         appData.matrixClient.sendBoardObjectEvent(content)
     }

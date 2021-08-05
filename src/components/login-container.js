@@ -103,7 +103,7 @@ export class LoginContainer extends HTMLElement {
         pwd_input.addEventListener("keypress", function (event) {
             if (event.key === "Enter") {
                 event.preventDefault();
-                document.getElementById("login-submit").click();
+                content.getElementById("login-submit").click();
             }
         });
         this.shadowRoot.appendChild(content);
