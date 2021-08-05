@@ -24,7 +24,7 @@ window.onload = function () {
     init_tool_wheel();
     init_line_style_selector();
 
-    window.actions.updateRoomList = ()=>{updateRoomList()};
+    window.actions.updateRoomList = () => { updateRoomList() };
     window.actions.updateAddRoomList = updateAddRoomList;
 }
 export function updateRoomList() {
@@ -36,7 +36,7 @@ export function updateRoomList() {
         let notebookRoom = appData.matrixClient.client.getRoom(noteb)
         leftbarBody.appendChild(createNotebook(notebookRoom.name, roomTree.notebooks[noteb]))
     }
-    
+
     let spacer = document.createElement('div');
     spacer.style.height = '10px'
     leftbarBody.appendChild(spacer)
@@ -47,7 +47,7 @@ export function updateRoomList() {
 
     let addButton = document.createElement('button');
     addButton.id = 'add-room-button'
-    addButton.onclick = (e)=>{actions.showAddRoomMenu()}
+    addButton.onclick = (e) => { actions.showAddRoomMenu() }
     addButton.innerText = '+'
     leftbarBody.appendChild(addButton)
     // <button id="add-room-button" onclick="actions.showAddRoomMenu()">+</button>
@@ -151,22 +151,28 @@ export function hideLoading() {
 // }
 async function loadRoom(roomId, scrollback_count = -1, allMessages = true) {
     let drawC = appData.drawingCanvas;
+    let client = appData.matrixClient.client;
     console.log(drawC);
     drawC.clear();
     drawC.resetOffset();
     drawC.resetZoom();
     drawC.setZoom(0.5)
-    showLoading("switching Room to: " + appData.matrixClient.currentRoomId);
-    console.log("switching Room to: " + appData.matrixClient.currentRoomId);
+
+    // animate class list to the left. no-room-selected class puts it in the center:
     document.getElementById('leftbar').classList.remove('no-room-selected');
+
     appData.objectStore.addRoom(roomId);
+
     appData.matrixClient.currentRoomId = roomId;
+
     let s_back = scrollback_count;
     if (scrollback_count == -1) {
         if (Object.keys(appData.objectStore.all()).length == 0) { s_back = 300; }
         else { s_back = 0; }
     }
-    let room = appData.matrixClient.client.getRoom(roomId);
+    let room = client.getRoom(roomId);
+    showLoading("switching Room to: " + room.name + "<span style='font-size:10px' >" + roomId + "</span>");
+    document.getElementById('roomNameLabel').innerText = room.name
     let settings = room.currentState.events.get(BoardEvent.BOARD_ROOM_STATE_NAME);
     if (settings && settings.has("colorpalette")) {
         SetColorPalette(settings.get("colorpalette"))
