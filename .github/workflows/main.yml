@@ -69,25 +69,12 @@ jobs:
           path: dist
             
       - name: Add CID to release
-        run: 'echo ${{ steps.ipfs.outputs.HASH }} > ./ipfs.cid'
-        
-      # prepare release notes
-      - name: Release Notes
-        run: |
-          # release notes       
-          git tag -l --format='%(contents:body)' $(git describe --tags)} > changes.txt
-          
-          # ipfs cid to end of release notes
-          echo -e "\n\nIPFS CID: ${{ steps.ipfs.outputs.HASH }}" >> changes.txt
-          
-          # use git tag's subject as release name
-          echo "NAME=$(git tag -l --format='%(contents:subject)' $(git describe --tags))" >> $GITHUB_ENV
+        run: 'echo ${{ steps.ipfs.outputs.HASH }} > ./ipfs-cid.txt'
 
       # GitHub Release
       - name: Release
         uses: ncipollo/release-action@v1
         with:
-          artifacts: the-board-files*,ipfs.cid
-          name: ${{env.NAME}}
+          artifacts: the-board-files*,ipfs-cid.txt
           bodyFile: changes.txt
           token: ${{ secrets.GITHUB_TOKEN }}
