@@ -1,4 +1,4 @@
-import { login, updateAddRoomList } from './main'
+import { hideLoading, login, showLoading, updateAddRoomList } from './main'
 // import { matrixClient } from './main'//backend;
 import { parsePoint } from './helper'
 import { isBoardObjectEvent } from './backend/filter'
@@ -14,7 +14,9 @@ window.actions = {
     hideAddRoomMenu: hideAddRoomMenu,
     showSettingsMenu: showSettingsMenu,
     hideSettingsMenu: hideSettingsMenu,
-    toggleLeftBar: toggleLeftBar
+    toggleLeftBar: toggleLeftBar,
+    showLoading: showLoading,
+    hideLoading: hideLoading,
 }
 function sendmsgs(amount, client, room) {
     for (let i = 0; i < amount; i++) {

@@ -37,12 +37,15 @@ body {
     left: 50%;
     transform: translate(-50%, -50%);
     height: auto;
-    background-color: rgb(240, 240, 240);
-    border-radius: 1em;
+    background-color: #fff;/*rgb(240, 240, 240);*/
+    border-radius: 5px;
     padding: 2em;
     padding-top: 0.5em;
     z-index: 100;
-    box-shadow: 0px 0px 20px #999;
+    box-shadow: 0px 0px 30px #e0e0e0;
+    border-style: solid;
+    border-width: 1px;
+    border-color: #b2b2b2;
 }
 
 #login-container {
@@ -87,22 +90,21 @@ body {
 }
 
 #leftbar {
-    width: 13em;
+    width: 250px;
     display: flex;
     flex-direction: column;
     max-height: 60%;
-    /* flex: 0 0 16em; */
-    /* display: flex; */
-    /* flex-direction: column; */
-    position: absolute;
+    transform:none;
+    padding: 0;
     left: 1.5em;
     top: 1.5em;
     background-color: white;
-    box-shadow: 0px 0px 20px #999;
-    border-radius: 1em;
-    /* overflow-y: scroll; */
     z-index: 1;
     transition: 1s;
+    /* position: absolute; */
+    /* box-shadow: 0px 0px 30px #e0e0e0; */
+    /* border-radius: 5px; */
+    /* overflow-y: scroll; */
 }
 
 #leftbar.no-room-selected {
@@ -140,8 +142,8 @@ body {
 
 #leftbar-footer {
     border-style: solid;
-    border-bottom-left-radius: 1em;
-    border-bottom-right-radius: 1em;
+    border-bottom-left-radius: 5px;
+    border-bottom-right-radius: 5px;
     height: 2.5em;
     line-height: 2.5;
     text-align: center;
@@ -154,7 +156,7 @@ body {
 }
 
 #leftbar-footer:hover {
-    border-style: dashed;
+    /* border-style: dashed; */
     background-color: #ddd;
 }
 
@@ -169,7 +171,9 @@ body {
     line-height: 2.5em;
     background-color: #fff;
     transition: 0.8s;
-    border: none
+    border: none;
+    margin-top: 10px;
+    border-top: solid 1px #999;
 }
 
 #add-room-button:hover {
@@ -179,13 +183,12 @@ body {
 
 .room-button {
     margin: 0px;
-    background-color: #eee;
+    background-color: #fff;
     text-align: left;
     padding: 5px;
     padding-left: 20px;
     font-size: 14px;
     width: 100%;
-    transition: 0.5s;
     transition: 1s;
     border-width: 0px;
     border-left-width: 2px;
@@ -221,17 +224,20 @@ body {
 }
 
 #loading {
-    display: none;
+    display: block;
     position: absolute;
+    transform: translate(0, -80px);
     padding-left: 2em;
     top: 0px;
-    left: 16em;
+    box-shadow: 0px 0px 30px #e0e0e0;
+    font-weight: 300;
+    left: 300px;
     right: 0;
-    border-bottom-left-radius: 1em;
-    /* width: 100%; */
-    height: 3.5em;
+    border-bottom-left-radius: 5px;
+    height: 50px;
     text-align: left;
-    background-color: rgba(0.5, 0.5, 0.5, 0.3);
+    background-color: rgba(255, 255, 255, 0.6);
+    transition: 0.3s;
 }
 
 /* form{
@@ -278,12 +284,12 @@ button.submit:hover {
     width: 45px;
     height: 45px;
     margin: 0;
-    box-shadow: 0px 0px 15px #999;
-    background-color: #ffffff70;
+    box-shadow: 0px 0px 30px #e0e0e0;
+    background-color: #ffffffdd;
     border-style: none;
     overflow: hidden;
     border-radius: 50%;
-    transition: 0.2s;
+    transition: 0.4s;
     position: absolute;
     transform: translate(-50%, 50%);
 }
@@ -291,16 +297,16 @@ button.submit:hover {
 .tool-elements.active {
     background-color: white;
     border-style: solid;
-    border-width: 2px;
-    border-color: black;
-    border-style: dotted;
+    border-width: 1px;
+    border-color: rgb(73, 73, 73);
+    /* border-style: dotted; */
     width: 52px;
     height: 52px;
 }
 
 .tool-elements:hover {
     background-color: white;
-    box-shadow: 0px 0px 5px #555;
+    box-shadow: 0px 0px 10px rgb(136, 136, 136);
 }
 
 #settings-button {
@@ -331,8 +337,8 @@ button.submit:hover {
     width: 45px;
     height: 45px;
     margin: 0;
-    box-shadow: 0px 0px 15px #999;
-    background-color: #ffffff70;
+    box-shadow: 0px 0px 30px #e0e0e0;
+    background-color: #ffffffdd;
     border-style: none;
     overflow: hidden;
     border-radius: 50%;
@@ -351,9 +357,10 @@ button.submit:hover {
 }
 
 .notebook-header {
+    margin-top: 10px;
     border-left-width: 10px;
     border-left-style: solid;
     padding: 5px;
-    background-color: #eee;
+    background-color: #fff;
 
 }

@@ -31,13 +31,26 @@ export function updateRoomList() {
     let roomTree = appData.matrixClient.updateRoomTree()
     let leftbarBody = document.getElementById("leftbar-body")
     leftbarBody.innerHTML = ''
+
     for (let noteb of Object.keys(roomTree.notebooks)) {
         let notebookRoom = appData.matrixClient.client.getRoom(noteb)
         leftbarBody.appendChild(createNotebook(notebookRoom.name, roomTree.notebooks[noteb]))
     }
+    
+    let spacer = document.createElement('div');
+    spacer.style.height = '10px'
+    leftbarBody.appendChild(spacer)
+
     for (let whiteboard of roomTree.whiteboards) {
         leftbarBody.appendChild(createDOMWhiteboard(whiteboard, '#eee'))
     }
+
+    let addButton = document.createElement('button');
+    addButton.id = 'add-room-button'
+    addButton.onclick = (e)=>{actions.showAddRoomMenu()}
+    addButton.innerText = '+'
+    leftbarBody.appendChild(addButton)
+    // <button id="add-room-button" onclick="actions.showAddRoomMenu()">+</button>
     // let id = room.roomId;
     // var roomButton = document.createElement("div");
     // console.log(id)
@@ -120,13 +133,15 @@ export async function updateAddRoomList() {
 }
 export function showLoading(msg) {
     let loading = document.getElementById("loading");
-    loading.style.display = "block";
+    // loading.style.display = "block";
+    loading.style.transform = 'translate(0, 0)'
     let span = document.getElementById("loading-span");
     span.innerHTML = msg
 }
 export function hideLoading() {
     let loading = document.getElementById("loading");
-    loading.style.display = "none";
+    // loading.style.display = "none";
+    loading.style.transform = 'translate(0, -80px)'
 }
 
 // function cancelRoomLoading() {
