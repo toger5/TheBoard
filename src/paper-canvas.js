@@ -1,3 +1,4 @@
+import { Point } from 'paper/dist/paper-core';
 import { isBoardObjectEvent } from './backend/filter';
 import { parsePath, parseBezierPath, parsePoint } from './helper';
 export const paper = require('paper');
@@ -11,14 +12,13 @@ export default class PaperCanvas {
     }
     drawEvent(event, animated) {
         let drawC = appData.drawingCanvas;
-        function V1() {
+        function pathV1() {
             if (event.content.objtype != "p.path") { return }
             let updateDisplay = true
             let points = parsePath(event.content.path, event.content.objpos);
             let pos = parsePoint(event.content.objpos);
             let size = parsePoint(event.content.objsize);
             let color = "objcolor" in event.content ? event.content.objcolor : "#000"
-            // let strokeWidth = parseFloat(event.content.strokeWidth);
             if (animated) {
                 drawC.asyncAddPathV1([pos.x, pos.y], points, color);
             } else {
@@ -27,11 +27,9 @@ export default class PaperCanvas {
                 if (updateDisplay) { drawC.updateDisplay_DEPRECATED(true); }
             }
         }
-        function V2() {
+        function pathV2() {
             if (event.content.objtype != "p.path") { return }
             let segments = parseBezierPath(event.content.path, event.content.objpos);
-            // let pos = parsePoint(event.content.objpos);
-            // let size = parsePoint(event.content.objsize);
             let strokeWidth = parseFloat(event.content.strokeWidth);
             let closed = ("closed" in event.content && event.content.closed)
             let color = "objcolor" in event.content ? event.content.objcolor : "#000"
@@ -40,33 +38,41 @@ export default class PaperCanvas {
             if (animated) {
                 drawC.asyncAddPathV2(segments, color, fillColor, strokeWidth, closed, event.event_id);
             } else {
-                // drawC.drawBoundingBox([pos, size]);
                 drawC.addPathV2(segments, color, fillColor, strokeWidth, closed, event.event_id);
             }
+
         }
-        function V3() {
-            switch (event.content.objtype) {
-                case "path": {
-                    for (let pathData of event.content.paths) {
-                        let addPathFunc = animated ? drawC.asyncAddPathV3 : drawC.addPathV3
-                        addPathFunc(pathData, event.event_id)
-                    }
-                    break;
-                }
-                case "text": {
-                    drawC.addText(event.content, event.event_id)
-                    break;
-                }
+        function pathV3() {
+            for (let pathData of event.content.paths) {
+                let addPathFunc = animated ? drawC.asyncAddPathV3 : drawC.addPathV3
+                addPathFunc(pathData, event.event_id)
             }
         }
 
-        if (!("version" in event.content)) {
-            V1(); return
+        function evPath() {
+            if (!("version" in event.content)) {
+                pathV1(); return
+            }
+            switch (event.content.version) {
+                case 1: pathV1(); break;
+                case 2: pathV2(); break;
+                case 3: pathV3(); break;
+            }
         }
-        switch (event.content.version) {
-            case 1: V1()
-            case 2: V2()
-            case 3: V3()
+        function evText() {
+            drawC.addText(event.content, event.event_id)
+        }
+        function evImage() {
+            drawC.addImage(event.content, event.event_id)
+        }
+
+        switch (event.content.objtype) {
+            case "path":
+            case "p.path":
+                evPath()
+                break;
+            case "text": evText(); break;
+            case "image": evImage(); break;
         }
     }
 
@@ -145,8 +151,8 @@ export default class PaperCanvas {
     addPathV3(pathContent, id) {
         let segments = pathContent.segments.map((seg) => {
             let s;
-            if(seg.split){s  = seg.split(" ")}
-            else{s=seg}
+            if (seg.split) { s = seg.split(" ") }
+            else { s = seg }
             return new Segment(new Point(parseFloat(s[0]), parseFloat(s[1])),
                 new Point(parseFloat(s[2]), parseFloat(s[3])),
                 new Point(parseFloat(s[4]), parseFloat(s[5])))
@@ -196,7 +202,7 @@ export default class PaperCanvas {
         }
     }
 
-    addText(textContent, id){
+    addText(textContent, id) {
         let text = new PointText({
             point: [parseFloat(textContent.position.x), parseFloat(textContent.position.y)],
             content: textContent.text,
@@ -208,6 +214,20 @@ export default class PaperCanvas {
         if (id != "") {
             text.data.id = id
         }
+    }
+    addImage(imageContent, id) {
+        let url = imageContent.url;
+        let position = new Point(parseFloat(imageContent.position.x), parseFloat(imageContent.position.x))
+        let size = new Size(parseFloat(imageContent.size.width), parseFloat(imageContent.size.height))
+        if (url.split(":")[0] === "mxc") {
+            url = appData.matrixClient.client.mxcUrlToHttp(url, size.width, size.height, "scale", true)
+        }
+        console.log("image URL to download: ", url)
+        let image = new Raster({source:url,position:position,size:size})
+        if (id != "") {
+            image.data.id = id
+        }
+        return image
     }
     updateDisplay_DEPRECATED() {
         if (this.dispPath !== null) {

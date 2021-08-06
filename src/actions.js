@@ -17,6 +17,19 @@ window.actions = {
     toggleLeftBar: toggleLeftBar,
     showLoading: showLoading,
     hideLoading: hideLoading,
+    sendImageFromFile:sendImageFromFile,
+}
+function sendImageFromFile(file){
+    let url = URL.createObjectURL(file)
+    let img = appData.drawingCanvas.addImage({url:url},'$someID')
+    appData.matrixClient.sendImage(img, file)
+    img.opacity = 0.4
+    // appData.drawingCanvas.addImage({
+    //     url: url,
+    //     size: {width:'100',height:'100'},
+    //     // position: {x:'-300',y:'-300'}
+
+    // })
 }
 function sendmsgs(amount, client, room) {
     for (let i = 0; i < amount; i++) {

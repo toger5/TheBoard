@@ -114,7 +114,7 @@ export default class MatrixBackend {
         this.client.on("Room.localEchoUpdated", function (msg, room, oldId, newStatus) {
             if (isBoardObjectEvent(msg.getType()) && msg.status === "sent") {
 
-                let item = project.getItem({match: function (item) { return item.data.id == oldId } })
+                let item = project.getItem({ match: function (item) { return item.data.id == oldId } })
                 if (item) {
                     item.data.id = msg.event.event_id
                 }
@@ -197,12 +197,13 @@ export default class MatrixBackend {
             "objtype": "path",
             "paths": pathsObjArr,
         };
-        appData.matrixClient.sendBoardObjectEvent(content)
+        return appData.matrixClient.sendBoardObjectEvent(content)
     }
+
     sendText(textPaperItem) {
         let precision = 2;
         const content = {
-            "version": 3,
+            "version": 1,
             "text": textPaperItem.content,
             "fontSize": parseInt(textPaperItem.fontSize),
             "fontFamily": textPaperItem.fontFamily,
@@ -213,10 +214,32 @@ export default class MatrixBackend {
             },
             "objtype": "text"
         };
-        appData.matrixClient.sendBoardObjectEvent(content)
+        return appData.matrixClient.sendBoardObjectEvent(content)
     }
+
+    async sendImage(textPaperRaster, file) {
+        let precision = 2;
+        // let file = new File(textPaperRaster.source,)
+        appData.matrixClient.client.uploadContent(file).then((mxcUrl) => {
+            const content = {
+                "version": 1,
+                "url": mxcUrl,
+                "position": {
+                    "x": textPaperRaster.position.x.toFixed(precision),
+                    "y": textPaperRaster.position.y.toFixed(precision)
+                },
+                "size": {
+                    "width": textPaperRaster.size.width.toFixed(precision),
+                    "height": textPaperRaster.size.height.toFixed(precision)
+                },
+                "objtype": "image"
+            };
+            return appData.matrixClient.sendBoardObjectEvent(content)
+        })
+    }
+
     sendBoardObjectEvent(content) {
-        appData.matrixClient.client.sendEvent(appData.matrixClient.currentRoomId, BoardEvent.BOARD_OBJECT_EVENT_NAME, content, "", (err, res) => {
+        return appData.matrixClient.client.sendEvent(appData.matrixClient.currentRoomId, BoardEvent.BOARD_OBJECT_EVENT_NAME, content, "", (err, res) => {
             console.log(err);
         });
     }

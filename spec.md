@@ -80,7 +80,8 @@ The image file itself is uploaded to a matrix file server. The event only stores
         "position": {
             "x": 0.0,
             "y": 0.0
-        }
+        },
+        "objtype":"image"
     }
 }
 ```

@@ -7,11 +7,11 @@
         content="width=device-width, initial-scale=0.7, maximum-scale=1, viewport-fit=cover, user-scalable=no, shrink-to-fit=no">
     <meta name="HandheldFriendly" content="true">
     <title>TheBoard</title>
-    
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Just+Another+Hand&display=swap" rel="stylesheet"> 
-    
+    <link href="https://fonts.googleapis.com/css2?family=Just+Another+Hand&display=swap" rel="stylesheet">
+
     <link href="style.css" rel="stylesheet" type="text/css">
     <link rel="icon" href="favicon.ico" type="image/x-icon" />
 </head>
@@ -19,8 +19,7 @@
 <body>
     <div id="loading">
         <div style="display: flex; align-content: center; height: 100%;">
-            <span id="loading-span"
-                style="align-self: center; text-align: center;">Loading</span>
+            <span id="loading-span" style="align-self: center; text-align: center;">Loading</span>
         </div>
     </div>
     <div id="topbar">
@@ -35,10 +34,11 @@
         <button onclick="appData.drawingCanvas.resetZoom()">Reset Zoom</button>
     </div>
 
-    <div id="leftbar" class="no-room-selected center-container" >
+    <div id="leftbar" class="no-room-selected center-container">
         <div id='leftbar-header'>
             <div id="userIdLabel"></div>
-            <div style="padding: 5px;"><span id="roomNameLabel" style="font-size:10px;">Select a whiteboard...</span></div>
+            <div style="padding: 5px;"><span id="roomNameLabel" style="font-size:10px;">Select a whiteboard...</span>
+            </div>
         </div>
         <div id='leftbar-expand'>
             <div id='leftbar-body'>
@@ -100,6 +100,11 @@
     <div class="center-container" id="settings-container" style="display: none;">
         <button style="float: right;" onclick="actions.hideSettingsMenu()">close</button>
         <p id="room-menu-room-id">roomId</p>
+        <input type="file" accept="image/png, image/jpeg" id="file-input" />
+        <button onclick="
+        // appData.matrixClient.sendImage()
+        actions.sendImageFromFile(document.getElementById('file-input').files[0],'$someID')
+        ">Upload File</button>
     </div>
     <div class="center-container" id="add-room-container" style="display: none;">
         <div style="height:100%;display: flex;flex-direction: column;">
