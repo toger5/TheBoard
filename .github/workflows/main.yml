@@ -43,6 +43,8 @@ jobs:
         with:
           branch: pages # The branch the action should deploy to.
           folder: dist # The folder the action should deploy.
+        if: ${{ !contains(github.ref, "-") }} # not prerelease
+          
       - name: Add to IPFS
         id: ipfs
         uses: anantaramdas/ipfs-pinata-deploy-action@v1.6.4 
@@ -53,6 +55,7 @@ jobs:
           pinata-secret-api-key: ${{ secrets.PINATASECRETAPIKEY }}
           verbose: true
           remove-old: true
+        if: ${{ !contains(github.ref, "-") }} # not prerelease
 
       # prepare release files
       - name: Archive Release
@@ -70,10 +73,12 @@ jobs:
             
       - name: Add CID to release
         run: 'echo ${{ steps.ipfs.outputs.HASH }} > ./ipfs-cid.txt'
+        if: ${{ !contains(github.ref, "-") }} # not prerelease
 
       # GitHub Release
       - name: Release
         uses: ncipollo/release-action@v1
         with:
           artifacts: the-board-files*,ipfs-cid.txt
+          prerelease: ${{ contains(github.ref, "-") }}
           token: ${{ secrets.GITHUB_TOKEN }}
