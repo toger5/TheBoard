@@ -78,8 +78,15 @@ body {
 }
 
 #topbar button {
-    height: auto;
+    height: 25px;
+    margin: 2px;
+    border: solid 1px #aaa;
+    border-radius: 5px;
+    background-color: white;
     min-width: 6em;
+}
+#topbar button:hover {
+    background-color: #eee;
 }
 
 .pickr {
@@ -158,11 +165,6 @@ body {
 #leftbar-footer:hover {
     /* border-style: dashed; */
     background-color: #ddd;
-}
-
-#leftbar span {
-    color: white;
-    width: auto;
 }
 
 #add-room-button {
@@ -271,7 +273,7 @@ button.submit:hover {
 #tool-wheel {
     position: absolute;
     pointer-events: none;
-    bottom: 1em;
+    bottom: 50px;
     left: 1em;
     width: 16em;
     height: 16em;
