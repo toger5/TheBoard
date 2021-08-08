@@ -273,7 +273,7 @@ button.submit:hover {
 #tool-wheel {
     position: absolute;
     pointer-events: none;
-    bottom: 1em;
+    bottom: 50px;
     left: 1em;
     width: 16em;
     height: 16em;
