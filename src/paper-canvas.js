@@ -120,9 +120,11 @@ export default class PaperCanvas {
         let scale = paper.view.zoom;
         paper.view.zoom = zoom;
         paper.view.center = currentViewCenter;
+        paper.view.emit('zoom')
     }
     resetZoom() {
         this.setZoom(1);
+        paper.view.emit('zoom')
     }
     asyncAddPathV1() {
         console.log("WAIT WHAT???")
