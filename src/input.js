@@ -73,7 +73,7 @@ export default function init_input(element) {
         console.log("onpointerup");
         let project_pt = appData.drawingCanvas.getTransformedPointer(e.offsetX, e.offsetY);
         if (e.pointerType == "touch") {
-            touchesCache = touchesCache.filter((cache_event) => { cache_event.pointerId == e.pointerId });
+            touchesCache = touchesCache.filter((cache_event) => (cache_event.pointerId == e.pointerId));
             touchesCacheBegin = touchesCacheBegin.filter((cache_event) => { cache_event.pointerId == e.pointerId });
             touchPanCache = new DOMPoint(0, 0);
             handleTouchType = "";
