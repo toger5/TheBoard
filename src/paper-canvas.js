@@ -1,4 +1,4 @@
-import { Point } from 'paper/dist/paper-core';
+// import { Point, Rectangle } from 'paper/dist/paper-core';
 import { isBoardObjectEvent } from './backend/filter';
 import { parsePath, parseBezierPath, parsePoint } from './helper';
 export const paper = require('paper');
@@ -110,6 +110,7 @@ export default class PaperCanvas {
             let zoomOriProj = paper.view.viewToProject(zoomOrigin);
             paper.view.scale(factor, zoomOriProj);
         }
+        paper.view.emit('zoom')
     }
     setZoom(zoom, zoomOrigin = paper.view.center) {
         let currentViewCenter = paper.view.center;
@@ -223,10 +224,16 @@ export default class PaperCanvas {
             url = appData.matrixClient.client.mxcUrlToHttp(url)
         }
         console.log("image URL to download: ", url)
-        let image = new Raster({ source: url, position: position, size: size })
+        let image = new Raster({ source: url, position: position })
         if (id != "") {
             image.data.id = id
         }
+        image.onLoad = (e) => {
+            image.bounds = new Rectangle({ center: position, size: size });
+            image.opacity = 1.0
+            image.tween({ opacity: 0.0 }, { opacity: 1.0 }, 800)
+        }
+        // image.source = url
         return image
     }
     updateDisplay_DEPRECATED() {
