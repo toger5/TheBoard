@@ -9,7 +9,7 @@ export default class ToolText {
 
         // Tool state
         this.canvas_line = null;
-        this.tool_canceled = true;
+        // this.tool_canceled = true;
         this.textEditMode = false
         this.previewItem = null;
         this.previewText = null;
@@ -90,7 +90,7 @@ export default class ToolText {
         this.textEditMode = false
         this.previewText.content = "Text..."
         this.updateBox()
-        this.tool_canceled = true;
+        // this.tool_canceled = true;
     }
     toolpreviewmove(pos) {
         if (this.textEditMode) { return }
@@ -131,6 +131,7 @@ export default class ToolText {
         this.previewItem.segments[3].point = b.topRight.add(new Point(d,-d))
     }
     activate() {
+        // this.tool_canceled = false
         this.textEditMode = false
         if (this.previewItem) {
             this.previewItem.visible = true;
