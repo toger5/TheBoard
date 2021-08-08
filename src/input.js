@@ -144,8 +144,8 @@ function handlePanZoom() {
     let start2 = drawC.getTransformedPointer(touchesCacheBegin[1].clientX - cx, touchesCacheBegin[1].clientY - cy);
     let current1 = drawC.getTransformedPointer(touchesCache[0].clientX - cx, touchesCache[0].clientY - cy);
     let current2 = drawC.getTransformedPointer(touchesCache[1].clientX - cx, touchesCache[1].clientY - cy);
-    var PINCH_THRESHOLD = 70 //drawC.canvas.clientWidth / 40;
-    var PAN_THRESHOLD = 40
+    var PINCH_THRESHOLD = 100 //drawC.canvas.clientWidth / 40;
+    var PAN_THRESHOLD = 30
     var distStart = dist(start1, start2);
     var distCurrent = dist(current1, current2);
     var currentCenter = current1.add(current2).multiply(0.5); //new paper.Point((current1.x + current2.x) / 2, (current1.y + current2.y) / 2)
@@ -158,7 +158,15 @@ function handlePanZoom() {
         return
     }
     if (handleTouchType == "") {
+        if(pinchDistDelta > PINCH_THRESHOLD && panDistDelta > PAN_THRESHOLD){
         handleTouchType = pinchDistDelta > panDistDelta ? "pinch" : "pan"
+        }
+        else if(pinchDistDelta > PINCH_THRESHOLD){
+            handleTouchType= "pinch"
+        }
+        else if(panDistDelta > PAN_THRESHOLD){
+            handleTouchType= "pan"
+        }
     }
     if (handleTouchType == "pinch") {
         // Zoom
