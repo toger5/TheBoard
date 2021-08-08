@@ -230,8 +230,8 @@ export default class MatrixBackend {
                     "y": textPaperRaster.position.y.toFixed(precision)
                 },
                 "size": {
-                    "width": Math.round(textPaperRaster.size.width.toFixed(precision)),
-                    "height": Math.round(textPaperRaster.size.height.toFixed(precision))
+                    "width": Math.round(textPaperRaster.bounds.size.width.toFixed(precision)),
+                    "height": Math.round(textPaperRaster.bounds.size.height.toFixed(precision))
                 },
                 "objtype": "image"
             };
