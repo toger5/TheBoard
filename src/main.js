@@ -193,8 +193,8 @@ async function loadRoom(roomId, scrollback_count = -1, allMessages = true) {
         scrollBackToken = room.oldState.paginationToken;
         if (!allMessages) { break; }
     }
-    drawC.reload();
-    drawC.updateDisplay_DEPRECATED();
+    // drawC.reload();
+    // drawC.updateDisplay_DEPRECATED();
 }
 
 
