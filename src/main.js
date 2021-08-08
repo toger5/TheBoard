@@ -154,17 +154,17 @@ async function loadRoom(roomId, scrollback_count = -1, allMessages = true) {
     let client = appData.matrixClient.client;
     console.log(drawC);
     drawC.clear();
+    
+    // animate class list to the left. no-room-selected class puts it in the center:
+    document.getElementById('leftbar').classList.remove('no-room-selected');
+    
+    appData.objectStore.addRoom(roomId);
+    
+    appData.matrixClient.currentRoomId = roomId;
     drawC.resetOffset();
     drawC.resetZoom();
     drawC.setZoom(0.5)
-
-    // animate class list to the left. no-room-selected class puts it in the center:
-    document.getElementById('leftbar').classList.remove('no-room-selected');
-
-    appData.objectStore.addRoom(roomId);
-
-    appData.matrixClient.currentRoomId = roomId;
-
+    drawC.reload();
     let s_back = scrollback_count;
     if (scrollback_count == -1) {
         if (Object.keys(appData.objectStore.all()).length == 0) { s_back = 300; }
@@ -193,7 +193,6 @@ async function loadRoom(roomId, scrollback_count = -1, allMessages = true) {
         scrollBackToken = room.oldState.paginationToken;
         if (!allMessages) { break; }
     }
-    // drawC.reload();
     // drawC.updateDisplay_DEPRECATED();
 }
 

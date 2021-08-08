@@ -90,6 +90,7 @@ export default class PaperCanvas {
         paper.install(window)
         this.drawLayer = paper.project.activeLayer;
         this.toolLayer = new paper.Layer()
+        this.activateDrawLayer()
     }
     offset(offset_delta) {
         paper.view.center = paper.view.center.subtract(offset_delta);
@@ -141,7 +142,7 @@ export default class PaperCanvas {
         // p.tween({ dashArray: [10, 10] }, { dashArray: [1000, 10] }, 3000);
     }
     asyncAddPathV3(pathContent, id) {
-        let p = appData.drawingCanvas.addPathV3(pathContent, id);
+        let p = appData.drawingCanvas.addPathV3(pathContent, id, true);
         let l = p.length;
         p.dashArray = [l, l];
         p.tween({ dashOffset: l }, { dashOffset: 0 }, 2 * l).then(() => {
@@ -149,7 +150,7 @@ export default class PaperCanvas {
         })
         return p;
     }
-    addPathV3(pathContent, id) {
+    addPathV3(pathContent, id, noFade = false) {
         let segments = pathContent.segments.map((seg) => {
             let s;
             if (seg.split) { s = seg.split(" ") }
@@ -169,6 +170,9 @@ export default class PaperCanvas {
         if (id != "") {
             p.data.id = id
         }
+        if (!noFade) {
+            p.tween({ opacity: 0.0 }, { opacity: 1.0 }, 800)
+        }
         return p;
     }
 
@@ -183,11 +187,8 @@ export default class PaperCanvas {
         if (id != "") {
             p.data.id = id
         }
+        p.tween({ opacity: 0.0 }, { opacity: 1.0 }, 800)
         return p;
-        // p.moveTo(new paper.Point(points[0][1], points[0][2]));
-        // for (let i = 1; i < points.length; i++) {
-        //     p.lineTo(new paper.Point(points[i][1], points[i][2]));
-        // }
     }
     addPathV1(points, color, [pos, size], id = "") {
         let p = new paper.Path();
@@ -201,6 +202,7 @@ export default class PaperCanvas {
         for (let i = 1; i < points.length; i++) {
             p.lineTo(new paper.Point(points[i][1], points[i][2]));
         }
+        p.tween({ opacity: 0.0 }, { opacity: 1.0 }, 800)
     }
 
     addText(textContent, id) {
@@ -215,6 +217,7 @@ export default class PaperCanvas {
         if (id != "") {
             text.data.id = id
         }
+        text.tween({ opacity: 0.0 }, { opacity: 1.0 }, 800)
     }
     addImage(imageContent, id) {
         let url = imageContent.url;
@@ -251,14 +254,8 @@ export default class PaperCanvas {
         this.displayPaths.forEach((p) => { p.remove() });
     }
     clear() {
-        let length = 0;// = paper.project.activeLayer.removeChildren();
-        for (let l of paper.project.layers) {
-            if (l === this.toolLayer) {
-                continue
-            }
-            length += l.removeChildren().length;
-        }
-        console.log("removed ", length, " items")
+        let length = appData.drawingCanvas.drawLayer.removeChildren().length
+        console.log("removded ", length, " items")
     }
     drawBoundingBox(box) {
         // console.log("drawBoundingBox not implemented for paper-canvas")
