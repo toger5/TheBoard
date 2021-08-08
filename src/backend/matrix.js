@@ -220,7 +220,8 @@ export default class MatrixBackend {
     async sendImage(textPaperRaster, file) {
         let precision = 2;
         // let file = new File(textPaperRaster.source,)
-        appData.matrixClient.client.uploadContent(file).then((mxcUrl) => {
+        appData.matrixClient.client.uploadContent(file, {onlyContentUri:true,progressHandler:(prog)=>{showLoading("Upload Image: "+Math.round(prog.loaded/prog.total*100))+"%"}}).then((mxcUrl) => {
+            hideLoading();
             const content = {
                 "version": 1,
                 "url": mxcUrl,
@@ -229,8 +230,8 @@ export default class MatrixBackend {
                     "y": textPaperRaster.position.y.toFixed(precision)
                 },
                 "size": {
-                    "width": textPaperRaster.size.width.toFixed(precision),
-                    "height": textPaperRaster.size.height.toFixed(precision)
+                    "width": Math.round(textPaperRaster.size.width.toFixed(precision)),
+                    "height": Math.round(textPaperRaster.size.height.toFixed(precision))
                 },
                 "objtype": "image"
             };

@@ -6,6 +6,7 @@ import ToolText from './tools/tool-text.js'
 // import { drawingCanvas } from './main.js'
 import { dist } from './helper.js'
 import { GetToolStrokeWidthIndex } from './tools/line-style-selector.js'
+import ToolImage from './tools/tool-image.js'
 
 export var tools = {
     "tool-type-pen": new ToolPen(),
@@ -15,6 +16,7 @@ export var tools = {
     "tool-type-rect": new ToolRect(),
     "tool-type-ellipse": null,
     "tool-type-text": new ToolText(),
+    "tool-type-image": new ToolImage(),
     "tool-type-line-width": null
 }
 export var activeTool = tools["tool-type-pen"];

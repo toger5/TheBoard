@@ -217,13 +217,13 @@ export default class PaperCanvas {
     }
     addImage(imageContent, id) {
         let url = imageContent.url;
-        let position = new Point(parseFloat(imageContent.position.x), parseFloat(imageContent.position.x))
+        let position = new Point(parseFloat(imageContent.position.x), parseFloat(imageContent.position.y))
         let size = new Size(parseFloat(imageContent.size.width), parseFloat(imageContent.size.height))
         if (url.split(":")[0] === "mxc") {
-            url = appData.matrixClient.client.mxcUrlToHttp(url, size.width, size.height, "scale", true)
+            url = appData.matrixClient.client.mxcUrlToHttp(url)
         }
         console.log("image URL to download: ", url)
-        let image = new Raster({source:url,position:position,size:size})
+        let image = new Raster({ source: url, position: position, size: size })
         if (id != "") {
             image.data.id = id
         }

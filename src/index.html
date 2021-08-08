@@ -71,8 +71,10 @@
         <button class='tool-elements' id="tool-type-line">Line</button>
         <button class='tool-elements' id="tool-type-rect">Rect</button>
         <button class='tool-elements' id="tool-type-text">Text</button>
-
+        <button class='tool-elements' id="tool-type-image">Image</button>
         <!-- <button id="tool-type-ellipse">Ellipse</button> -->
+
+        <input id="image-file-select-input" type="file" accept="image/png, image/jpeg" id="file-input" style="display: none;"/>
         <div id="line-type-selector" class='tool-elements'>
             <button id="line-type-selector-button"
                 style="width: 100%;height: 100%;margin:0;border-style: none;background-color: transparent;">
@@ -100,11 +102,6 @@
     <div class="center-container" id="settings-container" style="display: none;">
         <button style="float: right;" onclick="actions.hideSettingsMenu()">close</button>
         <p id="room-menu-room-id">roomId</p>
-        <input type="file" accept="image/png, image/jpeg" id="file-input" />
-        <button onclick="
-        // appData.matrixClient.sendImage()
-        actions.sendImageFromFile(document.getElementById('file-input').files[0],'$someID')
-        ">Upload File</button>
     </div>
     <div class="center-container" id="add-room-container" style="display: none;">
         <div style="height:100%;display: flex;flex-direction: column;">

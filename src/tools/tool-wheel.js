@@ -16,7 +16,7 @@ export default function init_tool_wheel() {
   settingsButton.style.left = center.x
   settingsButton.style.bottom = center.y
   let rad = center.x + 15;
-  let offset = -Math.PI / 10;// -Math.PI / 4;
+  let offset = -Math.PI / 4;// -Math.PI / 4;
   for (let i = 0; i < children.length; i++) {
     // all units in em
     console.log(children[i].tagName);
