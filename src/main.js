@@ -149,10 +149,8 @@ export function hideLoading() {
 //         resolve();
 //     });
 // }
-async function loadRoom(roomId, scrollback_count = -1, allMessages = true) {
+async function loadRoom(roomId, scrollback_count = 500, allMessages = true) {
     let drawC = appData.drawingCanvas;
-    let client = appData.matrixClient.client;
-    console.log(drawC);
     drawC.clear();
     
     // animate class list to the left. no-room-selected class puts it in the center:
@@ -164,13 +162,10 @@ async function loadRoom(roomId, scrollback_count = -1, allMessages = true) {
     drawC.resetOffset();
     drawC.resetZoom();
     drawC.setZoom(0.5)
-    drawC.reload();
-    let s_back = scrollback_count;
-    if (scrollback_count == -1) {
-        if (Object.keys(appData.objectStore.all()).length == 0) { s_back = 300; }
-        else { s_back = 0; }
-    }
-    let room = client.getRoom(roomId);
+    drawC.reload(); // load already cached messages which we will won't get from scrollback events
+
+    // setup gui for the loading process
+    let room = appData.matrixClient.client.getRoom(roomId);
     showLoading("switching Room to: " + room.name + "<span style='font-size:10px' >" + roomId + "</span>");
     document.getElementById('roomNameLabel').innerText = room.name
     let settings = room.currentState.events.get(BoardEvent.BOARD_ROOM_STATE_NAME);
@@ -179,21 +174,19 @@ async function loadRoom(roomId, scrollback_count = -1, allMessages = true) {
     }
     showLoading("load room history");
     const dateOptions = { year: 'numeric', month: 'numeric', day: 'numeric', hour: 'numeric' };
-    let scrollBackToken = true
     let currentScrollbackDate = new Date()
     let nowDate = new Date();
     let createDate = new Date(room.currentState.getStateEvents('m.room.create', "").event.origin_server_ts);
     let totalLoaded = 0
-    while (scrollBackToken) {
+    while (true) {
         let percent = 1 - ((currentScrollbackDate - createDate) / (nowDate - createDate))
-        let roomLoaded = await appData.matrixClient.scrollback(appData.matrixClient.currentRoomId, s_back, "Loaded: " + Math.floor(percent * 100) + "% (elements: " + totalLoaded + ")</br> <span style='font-size:10px'>to Date: " + currentScrollbackDate.toLocaleDateString('de-DE', dateOptions) + "  Target: " + createDate.toLocaleDateString('de-DE', dateOptions) + "</span>");
-        drawC.updateDisplay_DEPRECATED();
+        let roomLoaded = await appData.matrixClient.scrollback(appData.matrixClient.currentRoomId, scrollback_count, "Loaded: " + Math.floor(percent * 100) + "% (elements: " + totalLoaded + ")</br> <span style='font-size:10px'>to Date: " + currentScrollbackDate.toLocaleDateString('de-DE', dateOptions) + "  Target: " + createDate.toLocaleDateString('de-DE', dateOptions) + "</span>");
         currentScrollbackDate = new Date(roomLoaded.timeline[0].event.origin_server_ts);
-        totalLoaded += s_back;
-        scrollBackToken = room.oldState.paginationToken;
-        if (!allMessages) { break; }
+        if (totalLoaded === roomLoaded.timeline.length) { console.log("Stop Loading because: totalLoaded == roomLoaded.timeline.length"); break; }
+        if (roomLoaded.oldState.paginationToken == null) { console.log("Stop Loading because: paginationToken"); break; }
+        if (!allMessages) { break }
+        totalLoaded = roomLoaded.timeline.length;
     }
-    // drawC.updateDisplay_DEPRECATED();
 }
 
 

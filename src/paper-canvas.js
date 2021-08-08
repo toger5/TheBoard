@@ -226,15 +226,15 @@ export default class PaperCanvas {
         if (url.split(":")[0] === "mxc") {
             url = appData.matrixClient.client.mxcUrlToHttp(url)
         }
-        console.log("image URL to download: ", url)
+        // console.log("image URL to download: ", url)
         let image = new Raster({ source: url, position: position })
         if (id != "") {
             image.data.id = id
         }
+        image.bounds = new Rectangle({ center: position, size: size });
+        image.tween({ opacity: 0.0 }, { opacity: 1.0 }, 800)
         image.onLoad = (e) => {
             image.bounds = new Rectangle({ center: position, size: size });
-            image.opacity = 1.0
-            image.tween({ opacity: 0.0 }, { opacity: 1.0 }, 800)
         }
         // image.source = url
         return image
@@ -263,7 +263,7 @@ export default class PaperCanvas {
     reload(animated = false) {
         this.clear();
         let starttime = Date.now();
-        console.log("!! Paper Canvas redraw START");
+        // console.log("!! Paper Canvas redraw START");
         appData.objectStore.allSorted().forEach(obj => {
             if (isBoardObjectEvent(obj.type)) {
                 this.drawEvent(obj, animated);

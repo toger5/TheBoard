@@ -38,11 +38,8 @@ export default class ToolPen {
         this.mouse_path = [[0, proX, proY, pressure * 4]];
 
         appData.drawingCanvas.activateToolLayer()
-        for (let path of this.previewPaths) {
-            if (!path.visible) {
-                path.remove()
-            }
-        }
+        this.previewPaths = this.previewPaths.filter(p => p.visible)
+        console.log("preview Paths: ", this.previewPaths)
         this.previewPaths.filter((path) => { path.visible })
 
         let prev = new Path();

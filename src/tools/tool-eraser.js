@@ -70,7 +70,7 @@ export default class ToolEraser {
             appData.matrixClient.client.redactEvent(appData.matrixClient.currentRoomId, id).then(t => {
                 console.log("redacted (eraser): ", t);
             });
-            this.idsToDelete = this.idsToDelete.filter((itemId) => { return itemId == id })
+            // this.idsToDelete = this.idsToDelete.filter((itemId) => { return itemId == id })
             // await sleep(300);
         }
         this.idsToDelete = [];

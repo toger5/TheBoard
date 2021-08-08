@@ -13,10 +13,10 @@ export default class MatrixBackend {
     updateRoomTree() {
         let roomTree = new NotebookTree();
         let dateNow = Date.now()
-        console.log("startGettingVisibleRooms")
+        // console.log("startGettingVisibleRooms")
         // return new Promise( (resolve, reject) {
         let visibleRooms = this.client.getRooms();
-        console.log("got all visible rooms" + (Date.now() - dateNow))
+        // console.log("got all visible rooms" + (Date.now() - dateNow))
         let spaces = visibleRooms.filter(r => r.currentState.events.has('m.space.child'))
 
         for (let room of visibleRooms) {
@@ -78,7 +78,7 @@ export default class MatrixBackend {
         appData.matrixClient = this;
         window.actions.createWhiteboard = this.createWhiteboard;
         window.actions.scrollback = this.scrollback;
-        this.setupClientConnections();
+        appData.matrixClient.setupClientConnections();
         let registeredResult = await this.client.loginWithPassword(username, password, function (err) {
             if (err instanceof Error) {
                 showLoading(err.message)
@@ -123,16 +123,14 @@ export default class MatrixBackend {
         })
         // var replacedEvents = new Set();
         this.client.on("Room.timeline", function (msg, room, toStartOfTimeline) {
-            if (msg.isRedacted()) {
-                console.log("skipped redacted evpped redacted event")
-                return;
-            }
+            if (msg.isRedacted()) { return; } // skipp redacted events
             if (isBoardObjectEvent(msg.getType())) {
                 let animated = Date.now() - msg.getDate().getTime() < 200000;
-                appData.drawingCanvas.drawEvent(msg.event, animated);
-
+                if (msg.event.room_id === appData.matrixClient.currentRoomId) {
+                    appData.drawingCanvas.drawEvent(msg.event, animated);
+                }
                 if (msg.status == null) {
-                    //event is not sending but loaded from scrollback
+                    // event already has a proper ID. because it is not status == sending, but loaded from scrollback
                     appData.objectStore.add(msg.event);
                 }
             }
@@ -140,7 +138,10 @@ export default class MatrixBackend {
                 console.log("Commit Event", msg.event)
             }
             else if (msg.getType() == "m.room.redaction") {
-                appData.objectStore.redactById(msg.event.redacts, msg.event.room_id);
+                let room = appData.matrixClient.client.getRoom(msg.event.room_id)
+                if (room.timeline[0].getTs() < msg.getTs()) {
+                    appData.objectStore.redactById(msg.event.redacts, msg.getRoomId());
+                }
             }
             // if (msg.getType() !== "m.room.message") {
             //     return;
@@ -149,21 +150,18 @@ export default class MatrixBackend {
     }
 
     scrollback(roomId, scrollback_count = 200, loadingMsg = null) {
-        console.log("load scrollback for: " + roomId);
-        console.log("load scrollback with element count: " + scrollback_count);
         if (loadingMsg) { showLoading(loadingMsg); } else {
             showLoading("load " + scrollback_count + " elements from message history");
         }
         let client = this.client;
-        let curRoomId = this.currentRoomId;
         return new Promise(function (resolve, reject) {
             if (scrollback_count == 0) {
                 hideLoading();
-                resolve(client.getRoom(curRoomId));
+                resolve(client.getRoom(roomId));
             }
             client.scrollback(client.getRoom(roomId), scrollback_count)
                 .then((room) => {
-                    console.log("scrollback loaded");
+                    // console.log("scrollback loaded");
                     hideLoading();
                     resolve(room);
                 });
@@ -220,7 +218,7 @@ export default class MatrixBackend {
     async sendImage(textPaperRaster, file) {
         let precision = 2;
         // let file = new File(textPaperRaster.source,)
-        appData.matrixClient.client.uploadContent(file, {onlyContentUri:true,progressHandler:(prog)=>{showLoading("Upload Image: "+Math.round(prog.loaded/prog.total*100))+"%"}}).then((mxcUrl) => {
+        appData.matrixClient.client.uploadContent(file, { onlyContentUri: true, progressHandler: (prog) => { showLoading("Upload Image: " + Math.round(prog.loaded / prog.total * 100)) + "%" } }).then((mxcUrl) => {
             hideLoading();
             const content = {
                 "version": 1,
