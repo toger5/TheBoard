@@ -35,6 +35,7 @@ export default class ToolImage {
     }
     toolsubmit() {
         appData.matrixClient.sendImage(this.previewImage, this.selectedFile)
+        this.previewGroup.visible = false;
         this.toolcancel()
     }
     toolup(proX, proY) {
@@ -79,8 +80,8 @@ export default class ToolImage {
         // this.textEditMode = true
     }
     toolcancel() {
-        this.previewGroup.visible = false;
-        console.log("CANCEL");
+        // this.previewGroup.visible = false;
+        console.log("CANCEL does nothing for the image tool");
         // this.textEditMode = false
         // this.previewText.content = "Text..."
         // this.updateBox()
@@ -160,7 +161,7 @@ export default class ToolImage {
 
             tool.cancelButton = new paper.Raster(CancelIcon)
             tool.previewGroup.addChild(tool.cancelButton)
-            tool.cancelButton.onClick = () => { tool.toolcancel() }
+            tool.cancelButton.onClick = () => { tool.toolcancel(); this.previewGroup.visible = false; }
             tool.submitButton = new paper.Raster(CreateIcon)
             tool.submitButton.onClick = () => { tool.toolsubmit() }
             tool.previewGroup.addChild(tool.submitButton)

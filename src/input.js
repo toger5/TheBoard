@@ -27,7 +27,7 @@ var touchesCache = [];
 var touchesCacheBegin = [];
 var touchZoomCache = 0;
 var touchPanCache = new DOMPoint(0, 0);
-export function setActiveTool(id){
+export function setActiveTool(id) {
     activeTool = tools[id];
 }
 export default function init_input(element) {
@@ -51,14 +51,16 @@ export default function init_input(element) {
             activeTool.tooldown(project_pt.x, project_pt.y, e.pressure);
         }
     };
+    function mouseOrPen(e) { return (e.pointerType == "mouse" || e.pointerType == "pen") }
     el.onpointermove = function (e) {
         // e.preventDefault()
         // console.log("onpointermove");
-        if ((e.buttons == 1 && (e.pointerType == "mouse" || e.pointerType == "pen"))
-            || (e.pointerType == 'touch' && touchesCache.length < 2)) {
-            let project_pt = appData.drawingCanvas.getTransformedPointer(e.offsetX, e.offsetY);
-            activeTool.toolmove(project_pt.x, project_pt.y, e.pressure);
-        } else if (e.buttons == 4 && (e.pointerType == "mouse" || e.pointerType == "pen")) {
+        if ((e.buttons == 1 && mouseOrPen(e)) || (e.pointerType == 'touch' && touchesCache.length < 2)) {
+            if (!activeTool.tool_canceled) {
+                let project_pt = appData.drawingCanvas.getTransformedPointer(e.offsetX, e.offsetY);
+                activeTool.toolmove(project_pt.x, project_pt.y, e.pressure);
+            }
+        } else if (e.buttons == 4 && mouseOrPen(e)) {
             let offset = new paper.Point(e.movementX, e.movementY)
             appData.drawingCanvas.offset(offset.divide(appData.drawingCanvas.getZoom()));
         }
@@ -73,8 +75,8 @@ export default function init_input(element) {
         console.log("onpointerup");
         let project_pt = appData.drawingCanvas.getTransformedPointer(e.offsetX, e.offsetY);
         if (e.pointerType == "touch") {
-            touchesCache = touchesCache.filter((cache_event) => (cache_event.pointerId == e.pointerId));
-            touchesCacheBegin = touchesCacheBegin.filter((cache_event) => { cache_event.pointerId == e.pointerId });
+            touchesCache = touchesCache.filter((cache_event) => (cache_event.pointerId !== e.pointerId));
+            touchesCacheBegin = touchesCacheBegin.filter((cache_event) => (cache_event.pointerId !== e.pointerId));
             touchPanCache = new DOMPoint(0, 0);
             handleTouchType = "";
             touchZoomCache = 0;
@@ -136,7 +138,7 @@ var touchZoomCache = 0;
 var touchPanCache = new DOMPoint(0, 0);
 var handleTouchType = ""
 function handlePanZoom() {
-    let drawC=appData.drawingCanvas
+    let drawC = appData.drawingCanvas
     let cx = drawC.canvas.getBoundingClientRect().x;
     let cy = drawC.canvas.getBoundingClientRect().y;
     let canvasZoom = drawC.getZoom();
@@ -158,14 +160,14 @@ function handlePanZoom() {
         return
     }
     if (handleTouchType == "") {
-        if(pinchDistDelta > PINCH_THRESHOLD && panDistDelta > PAN_THRESHOLD){
-        handleTouchType = pinchDistDelta > panDistDelta ? "pinch" : "pan"
+        if (pinchDistDelta > PINCH_THRESHOLD && panDistDelta > PAN_THRESHOLD) {
+            handleTouchType = pinchDistDelta > panDistDelta ? "pinch" : "pan"
         }
-        else if(pinchDistDelta > PINCH_THRESHOLD){
-            handleTouchType= "pinch"
+        else if (pinchDistDelta > PINCH_THRESHOLD) {
+            handleTouchType = "pinch"
         }
-        else if(panDistDelta > PAN_THRESHOLD){
-            handleTouchType= "pan"
+        else if (panDistDelta > PAN_THRESHOLD) {
+            handleTouchType = "pan"
         }
     }
     if (handleTouchType == "pinch") {
