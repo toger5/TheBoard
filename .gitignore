@@ -1,6 +1,8 @@
 transform.js
-node_modules
+transform.html
+history
+.vscode
+node_modules/
 dist/
 distDev/
-.vscode
-history/
+npm-debug.log
