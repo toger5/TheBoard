@@ -95,6 +95,7 @@ export default class PaperCanvas {
     offset(offset_delta) {
         paper.view.center = paper.view.center.subtract(offset_delta);
     }
+
     resetOffset() {
         this.setOffset(new paper.Point(0, 0));
     }
@@ -124,6 +125,10 @@ export default class PaperCanvas {
     }
     resetZoom() {
         this.setZoom(1);
+        paper.view.emit('zoom')
+    }
+    setMatrix(matrix) {
+        paper.view.matrix = matrix
         paper.view.emit('zoom')
     }
     asyncAddPathV1() {
