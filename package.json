@@ -15,6 +15,7 @@
   },
   "homepage": "https://github.com/toger5/TheBoard#readme",
   "dependencies": {
+    "@vue/compiler-sfc": "^3.2.2",
     "buffer": "^6.0.3",
     "css-loader": "^6.2.0",
     "html-webpack-plugin": "^5.3.2",
@@ -23,6 +24,8 @@
     "paper": "^0.12.15",
     "simplify-js": "^1.2.4",
     "style-loader": "^3.2.1",
+    "vue": "^3.2.2",
+    "vue-loader": "^16.5.0",
     "webpack-dev-server": "^3.11.2",
     "webpack-merge": "^5.8.0"
   },

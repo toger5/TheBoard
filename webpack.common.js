@@ -4,6 +4,7 @@ const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const pconf = require('./package.json')
 const path = require('path');
 const CopyPlugin = require("copy-webpack-plugin");
+const { VueLoaderPlugin } = require('vue-loader');
 
 module.exports = {
     entry: {
@@ -38,6 +39,7 @@ module.exports = {
                 { from: "./landingPage/_config.yaml" },
             ],
         }),
+        new VueLoaderPlugin(),
     ],
     module: {
         rules: [
@@ -49,6 +51,15 @@ module.exports = {
                 test: /\.(png|svg|jpg|jpeg|gif)$/i,
                 type: 'asset/resource',
             },
+            {
+                test: /.vue$/,
+                loader: 'vue-loader'
+            },
         ],
+    },
+    resolve: {
+        alias: {
+            'vue': 'vue/dist/vue.esm-bundler.js'
+        }
     },
 };
