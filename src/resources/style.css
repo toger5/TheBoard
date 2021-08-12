@@ -95,15 +95,29 @@ body {
     transform: translateY(0);
     display: flex;
 }
-
+#right-panel {
+    display: flex;
+    flex-direction: column;
+    right: 1.5em;
+    left:auto;
+    top: 1.5em;
+    max-height: 50%;
+    transform:none;
+    padding: 0;
+    width: 200px;
+    background-color: white;
+    z-index: 1;
+    transition: 1s;
+}
 #leftbar {
     width: 250px;
     display: flex;
     flex-direction: column;
-    max-height: 60%;
+    max-height: 50%;
     transform:none;
     padding: 0;
     left: 1.5em;
+    right:auto;
     top: 1.5em;
     background-color: white;
     z-index: 1;

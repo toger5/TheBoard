@@ -10,8 +10,10 @@ import "./components/login-container";
 import { isBoardRoom } from './backend/filter';
 import * as BoardEvent from './backend/board-event-consts';
 import './actions'
+import {rightPanel} from './components/right-panel/right-panel.js'
 
 window.appData = {
+    rightPanel: rightPanel,
     matrixClient: new MatrixBackend(),
     objectStore: new ObjectStore(),
     drawingCanvas: new PaperCanvas()
@@ -152,7 +154,7 @@ export function hideLoading() {
 async function loadRoom(roomId, scrollback_count = 500, allMessages = true) {
     let drawC = appData.drawingCanvas;
     drawC.clear();
-    
+
     // animate class list to the left. no-room-selected class puts it in the center:
     document.getElementById('leftbar').classList.remove('no-room-selected');
     
@@ -163,9 +165,16 @@ async function loadRoom(roomId, scrollback_count = 500, allMessages = true) {
     drawC.resetZoom();
     drawC.setZoom(0.5)
     drawC.reload(); // load already cached messages which we will won't get from scrollback events
-
+    
     // setup gui for the loading process
     let room = appData.matrixClient.client.getRoom(roomId);
+    let memDict = (await appData.matrixClient.client.getJoinedRoomMembers(roomId)).joined
+    appData.rightPanel.members = Object.entries( memDict ).map(e=>{
+        let returnDict = e[1]
+        returnDict.avatar_url = appData.matrixClient.client.mxcUrlToHttp(returnDict.avatar_url, 40, 40, 'scale')
+        return returnDict
+    })
+
     showLoading("switching Room to: " + room.name + "<span style='font-size:10px' >" + roomId + "</span>");
     document.getElementById('roomNameLabel').innerText = room.name
     let settings = room.currentState.events.get(BoardEvent.BOARD_ROOM_STATE_NAME);
