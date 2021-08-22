@@ -10,7 +10,7 @@ export default class PaperCanvas {
         this.drawLayer = null;
         this.canvas = null;
     }
-    drawEvent(event, animated) {
+    drawEvent(event, animated, toBeginningOfTimeline = false) {
         let drawC = appData.drawingCanvas;
         function pathV1() {
             if (event.content.objtype != "p.path") { return }
@@ -19,13 +19,15 @@ export default class PaperCanvas {
             let pos = parsePoint(event.content.objpos);
             let size = parsePoint(event.content.objsize);
             let color = "objcolor" in event.content ? event.content.objcolor : "#000"
+            let addedPath;
             if (animated) {
                 drawC.asyncAddPathV1([pos.x, pos.y], points, color);
             } else {
                 drawC.drawBoundingBox([[pos.x, pos.y], size]);
-                drawC.addPathV1(points, color, [[pos.x, pos.y], size], event.event_id);
+                addedPath = drawC.addPathV1(points, color, [[pos.x, pos.y], size], event.event_id);
                 if (updateDisplay) { drawC.updateDisplay_DEPRECATED(true); }
             }
+            return addedPath
         }
         function pathV2() {
             if (event.content.objtype != "p.path") { return }
@@ -34,18 +36,18 @@ export default class PaperCanvas {
             let closed = ("closed" in event.content && event.content.closed)
             let color = "objcolor" in event.content ? event.content.objcolor : "#000"
             let fillColor = "objFillColor" in event.content ? event.content.objFillColor : "#00000000"
-
+            let addedPath;
             if (animated) {
-                drawC.asyncAddPathV2(segments, color, fillColor, strokeWidth, closed, event.event_id);
+                addedPath = drawC.asyncAddPathV2(segments, color, fillColor, strokeWidth, closed, event.event_id);
             } else {
-                drawC.addPathV2(segments, color, fillColor, strokeWidth, closed, event.event_id);
+                addedPath = drawC.addPathV2(segments, color, fillColor, strokeWidth, closed, event.event_id);
             }
-
+            return addedPath
         }
         function pathV3() {
             for (let pathData of event.content.paths) {
                 let addPathFunc = animated ? drawC.asyncAddPathV3 : drawC.addPathV3
-                addPathFunc(pathData, event.event_id)
+                return addPathFunc(pathData, event.event_id)
             }
         }
 
@@ -53,26 +55,35 @@ export default class PaperCanvas {
             if (!("version" in event.content)) {
                 pathV1(); return
             }
+            let addedPath;
             switch (event.content.version) {
-                case 1: pathV1(); break;
-                case 2: pathV2(); break;
-                case 3: pathV3(); break;
+                case 1: addedPath = pathV1(); break;
+                case 2: addedPath = pathV2(); break;
+                case 3: addedPath = pathV3(); break;
             }
+            return addedPath;
         }
         function evText() {
-            drawC.addText(event.content, event.event_id)
+            return drawC.addText(event.content, event.event_id)
         }
         function evImage() {
-            drawC.addImage(event.content, event.event_id)
+            return drawC.addImage(event.content, event.event_id)
         }
-
+        let addedItem;
         switch (event.content.objtype) {
             case "path":
             case "p.path":
-                evPath()
+                addedItem = evPath()
                 break;
-            case "text": evText(); break;
-            case "image": evImage(); break;
+            case "text": addedItem = evText(); break;
+            case "image": addedItem = evImage(); break;
+        }
+        if(addedItem){
+            if (toBeginningOfTimeline) {
+                addedItem.sendToBack()
+            }
+        }else{
+            console.log("no addedItem")
         }
     }
 
@@ -146,6 +157,7 @@ export default class PaperCanvas {
         p.tween({ dashOffset: length }, { dashOffset: 0 }, 2 * length).then(() => {
             p.dashArray = []
         })
+        return p
         // p.tween({ dashArray: [10, 10] }, { dashArray: [1000, 10] }, 3000);
     }
     asyncAddPathV3(pathContent, id) {
@@ -210,6 +222,7 @@ export default class PaperCanvas {
             p.lineTo(new paper.Point(points[i][1], points[i][2]));
         }
         p.tween({ opacity: 0.0 }, { opacity: 1.0 }, 800)
+        return p
     }
 
     addText(textContent, id) {
@@ -225,6 +238,7 @@ export default class PaperCanvas {
             text.data.id = id
         }
         text.tween({ opacity: 0.0 }, { opacity: 1.0 }, 800)
+        return text
     }
     addImage(imageContent, id) {
         let url = imageContent.url;

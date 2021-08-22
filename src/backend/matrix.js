@@ -125,9 +125,12 @@ export default class MatrixBackend {
         this.client.on("Room.timeline", function (msg, room, toStartOfTimeline) {
             if (msg.isRedacted()) { return; } // skipp redacted events
             if (isBoardObjectEvent(msg.getType())) {
-                let animated = Date.now() - msg.getDate().getTime() < 200000;
+                let age = Date.now() - msg.getDate().getTime();
+                console.log("age ", age)
+                let animated = Date.now() - msg.getDate().getTime() < 10000;
+                let toBeginningOfTimeline = !animated;
                 if (msg.event.room_id === appData.matrixClient.currentRoomId) {
-                    appData.drawingCanvas.drawEvent(msg.event, animated);
+                    appData.drawingCanvas.drawEvent(msg.event, animated, toBeginningOfTimeline);
                 }
                 if (msg.status == null) {
                     // event already has a proper ID. because it is not status == sending, but loaded from scrollback
