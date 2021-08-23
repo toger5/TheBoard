@@ -10,6 +10,7 @@ import "./components/login-container";
 import { isBoardRoom } from './backend/filter';
 import * as BoardEvent from './backend/board-event-consts';
 import './actions'
+import './components/right-panel/right-panel'
 
 window.appData = {
     matrixClient: new MatrixBackend(),
