@@ -1,5 +1,6 @@
 
 import init_input from './input.js'
+// import 'core-js'
 import ObjectStore from './sturctures/object-store'
 import MatrixBackend from './backend/matrix.js';
 import PaperCanvas from './paper-canvas'
@@ -10,12 +11,12 @@ import "./components/login-container";
 import { isBoardRoom } from './backend/filter';
 import * as BoardEvent from './backend/board-event-consts';
 import './actions'
-import './components/right-panel/right-panel'
+import {RightPanel} from './components/right-panel/right-panel'
 
 window.appData = {
     matrixClient: new MatrixBackend(),
     objectStore: new ObjectStore(),
-    drawingCanvas: new PaperCanvas()
+    drawingCanvas: new PaperCanvas(),
 }
 
 window.onload = function () {
@@ -24,7 +25,7 @@ window.onload = function () {
     init_color_picker();
     init_tool_wheel();
     init_line_style_selector();
-
+    window.appData.rightPanel = new RightPanel()
     window.actions.updateRoomList = () => { updateRoomList() };
     window.actions.updateAddRoomList = updateAddRoomList;
 }
@@ -167,6 +168,8 @@ async function loadRoom(roomId, scrollback_count = 500, allMessages = true) {
 
     // setup gui for the loading process
     let room = appData.matrixClient.client.getRoom(roomId);
+    appData.rightPanel.updateMember(roomId)
+
     showLoading("switching Room to: " + room.name + "<span style='font-size:10px' >" + roomId + "</span>");
     document.getElementById('roomNameLabel').innerText = room.name
     let settings = room.currentState.events.get(BoardEvent.BOARD_ROOM_STATE_NAME);

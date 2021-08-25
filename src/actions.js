@@ -5,7 +5,6 @@ import { isBoardObjectEvent } from './backend/filter'
 import * as BoardEvent from './backend/board-event-consts'
 
 window.actions = {
-    // loginClicked: loginClicked,
     redactLastAction: redactLastAction,
     formSubmit: formSubmit,
     replaceLastEvent: replaceLastEvent,

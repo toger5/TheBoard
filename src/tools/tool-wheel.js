@@ -25,8 +25,7 @@ export default function init_tool_wheel() {
     let pos = new Point(Math.sin(angle) * rad, Math.cos(angle) * rad);
     child.style.left = center.x + pos.x;
     child.style.bottom = center.y + pos.y;
-  }
-  for (let b of children) {
+    let b = child;
     if (!(b.id in tools)) { continue }
     b.onclick = function (buttonEv) {
       for (let btn of children) {

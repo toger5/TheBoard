@@ -14,6 +14,13 @@
             {
                 "pragma": "jsxElem"
             }
+        ],
+        [
+            "@babel/plugin-transform-for-of",
+            {
+                // "loose": true, // defaults to false
+                "allowArrayLike": true // defaults to false
+            }
         ]
     ]
 }

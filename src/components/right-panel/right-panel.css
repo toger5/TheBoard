@@ -1,0 +1,68 @@
+#right-panel {
+    z-index: 1;
+    position: absolute;
+    right: 30px;
+    top: 60px;
+    width: 230px;
+    padding: 0;
+}
+
+#scroll {
+    width: 100%;
+    height: 100%;
+    max-height: 400px;
+    overflow-y: scroll;
+}
+
+.buttons-bar {
+    display: flex;
+    height: 40px;
+}
+
+.buttons-bar button {
+    flex: 1;
+    border-style: solid;
+    border-width: 0;
+    border-left-width: 1px;
+    border-right-width: 1px;
+}
+
+.buttons-bar button:first-child {
+    border-top-left-radius: 5px;
+}
+
+.buttons-bar button:last-child {
+    border-top-right-radius: 5px;
+}
+
+.tab-container {
+    transition: 0.7s;
+    min-height: 400px;
+}
+
+.active-tab {
+    background-color: white;
+}
+
+.pb {
+    text-align: center;
+    color: white;
+    padding: auto;
+    font-size: 21px;
+    flex-shrink: 0;
+    margin: 3px;
+    width: 30;
+    height: 30;
+    background-color: purple;
+    border-radius: 50%;
+    overflow: hidden;
+}
+
+.user-container {
+    display: flex;
+}
+
+.user-name-label {
+    margin: auto;
+    /* text-align: center; */
+}
