@@ -1,7 +1,33 @@
 // import { Point, Rectangle } from 'paper/dist/paper-core';
 import { isBoardObjectEvent } from './backend/filter';
-import { parsePath, parseBezierPath, parsePoint,parsePointDeprecated } from './helper';
+import { parsePath, parseBezierPath, parsePoint, parsePointDeprecated } from './helper';
 export const paper = require('paper');
+export class DrawFilter {
+    constructor() {
+        // this.opacity = 1.0
+        // this.fillColor = null
+        // this.strokeColor = null
+        // this.boudingBox = false
+        this.filterFunc = function (event) { return true }
+        this.trueModifiaction = function (item) { }
+        this.falseModifiaction = function (item) { }
+    }
+    apply(event, item) {
+        if (this.filterFunc(event)) {
+            this.trueModifiaction(item)
+        } else {
+            this.falseModifiaction(item)
+        }
+    }
+}
+export class UserFilter extends DrawFilter {
+    constructor(userId) {
+        super()
+        this.userId = userId
+        this.filterFunc = function (event) { return event.sender === this.userId }
+        this.falseModifiaction = function (item) { item.opacity *= 0.2 }
+    }
+}
 export default class PaperCanvas {
     constructor() {
         this.css_id = "paper-canvas";
@@ -9,8 +35,17 @@ export default class PaperCanvas {
         this.toolLayer = null
         this.drawLayer = null;
         this.canvas = null;
+        this.drawFilter = []
     }
-    drawEvent(event, animated, toBeginningOfTimeline = false) {
+    addFilter(f) {
+        this.drawFilter.push(f)
+        this.reload(false, false)
+    }
+    clearFilter() {
+        this.drawFilter = []
+        this.reload(false, false)
+    }
+    drawEvent(event, animated, toBeginningOfTimeline = false, fade = true) {
         let drawC = appData.drawingCanvas;
         function pathV1() {
             if (event.content.objtype != "p.path") { return }
@@ -78,12 +113,20 @@ export default class PaperCanvas {
             case "text": addedItem = evText(); break;
             case "image": addedItem = evImage(); break;
         }
-        if(addedItem){
+        if (addedItem) {
+            addedItem.data.event = event
             if (toBeginningOfTimeline) {
                 addedItem.sendToBack()
             }
-        }else{
+        } else {
             console.log("no addedItem")
+        }
+        //filter:
+        this.drawFilter.forEach(f => f.apply(event, addedItem))
+        if (fade) {
+            addedItem.tween({ opacity: 0.0 }, { opacity: addedItem.opacity }, 800)
+        } else {
+            addedItem.tween({ opacity: 1.0 }, { opacity: addedItem.opacity }, 400)
         }
     }
 
@@ -169,7 +212,7 @@ export default class PaperCanvas {
         })
         return p;
     }
-    addPathV3(pathContent, id, noFade = false) {
+    addPathV3(pathContent, id) {
         let segments = pathContent.segments.map((seg) => {
             let s;
             if (seg.split) { s = seg.split(" ") }
@@ -189,9 +232,6 @@ export default class PaperCanvas {
         if (id != "") {
             p.data.id = id
         }
-        if (!noFade) {
-            p.tween({ opacity: 0.0 }, { opacity: 1.0 }, 800)
-        }
         return p;
     }
 
@@ -206,7 +246,6 @@ export default class PaperCanvas {
         if (id != "") {
             p.data.id = id
         }
-        p.tween({ opacity: 0.0 }, { opacity: 1.0 }, 800)
         return p;
     }
     addPathV1(points, color, [pos, size], id = "") {
@@ -221,7 +260,6 @@ export default class PaperCanvas {
         for (let i = 1; i < points.length; i++) {
             p.lineTo(new paper.Point(points[i][1], points[i][2]));
         }
-        p.tween({ opacity: 0.0 }, { opacity: 1.0 }, 800)
         return p
     }
 
@@ -237,7 +275,6 @@ export default class PaperCanvas {
         if (id != "") {
             text.data.id = id
         }
-        text.tween({ opacity: 0.0 }, { opacity: 1.0 }, 800)
         return text
     }
     addImage(imageContent, id) {
@@ -253,9 +290,13 @@ export default class PaperCanvas {
             image.data.id = id
         }
         image.bounds = new Rectangle({ center: position, size: size });
-        image.tween({ opacity: 0.0 }, { opacity: 1.0 }, 800)
+        let placeholder = new paper.Path.Rectangle({ center: position, size: size, strokeColor: '#777777ff', strokeWidth: 3, dashArray: [20, 40] })
+        placeholder.tween({dashOffset:0},{dashOffset:5000}, 60000)
+        placeholder.sendToBack()
         image.onLoad = (e) => {
+            placeholder.remove()
             image.bounds = new Rectangle({ center: position, size: size });
+            // image.tween({ opacity: 0.0 }, { opacity: image.opacity }, 800)
         }
         // image.source = url
         return image
@@ -266,7 +307,7 @@ export default class PaperCanvas {
             this.displayPaths.push(this.dispPath);
             this.dispPath = null;
         }
-        // for(p of this.displayPaths){
+        // for (let p of this.displayPaths){
         //     p.remove();
         // }
     }
@@ -281,13 +322,13 @@ export default class PaperCanvas {
     drawBoundingBox(box) {
         // console.log("drawBoundingBox not implemented for paper-canvas")
     }
-    reload(animated = false) {
+    reload(animated = false, fade = true) {
         this.clear();
         let starttime = Date.now();
         // console.log("!! Paper Canvas redraw START");
         appData.objectStore.allSorted().forEach(obj => {
             if (isBoardObjectEvent(obj.type)) {
-                this.drawEvent(obj, animated);
+                this.drawEvent(obj, animated, false, fade);
             }
         });
         console.log("!! Paper Canvas redraw DONE in", Date.now() - starttime);

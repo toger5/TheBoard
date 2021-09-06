@@ -1,6 +1,6 @@
 {
   "name": "theboard_matrix",
-  "version": "0.10.3",
+  "version": "0.11.0",
   "description": "A Whiteboard using the matrix protocol for collaboration and cloud storage",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 0",
