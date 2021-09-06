@@ -11,8 +11,9 @@ import "./components/login-container";
 import { isBoardRoom } from './backend/filter';
 import * as BoardEvent from './backend/board-event-consts';
 import './actions'
-import {RightPanel} from './components/right-panel/right-panel'
-
+import { RightPanel } from './components/right-panel/right-panel'
+import { BOARD_OBJECT_EVENT_NAME } from './backend/board-event-consts'
+import { posFromEv, sizeFromEv } from './helper'
 window.appData = {
     matrixClient: new MatrixBackend(),
     objectStore: new ObjectStore(),
@@ -154,17 +155,16 @@ export function hideLoading() {
 async function loadRoom(roomId, scrollback_count = 500, allMessages = true) {
     let drawC = appData.drawingCanvas;
     drawC.clear();
-    
+
     // animate class list to the left. no-room-selected class puts it in the center:
     document.getElementById('leftbar').classList.remove('no-room-selected');
-    
+
     appData.objectStore.addRoom(roomId);
-    
+
     appData.matrixClient.currentRoomId = roomId;
-    drawC.resetOffset();
-    drawC.resetZoom();
-    drawC.setZoom(0.5)
-    drawC.reload(); // load already cached messages which we will won't get from scrollback events
+    drawC.setZoom(1.0)
+    let viewNeedToScrollToLastObject = centerToNewestObject()
+    drawC.reload() // load already cached messages which we won't get from scrollback events
 
     // setup gui for the loading process
     let room = appData.matrixClient.client.getRoom(roomId);
@@ -185,12 +185,25 @@ async function loadRoom(roomId, scrollback_count = 500, allMessages = true) {
     while (true) {
         let percent = 1 - ((currentScrollbackDate - createDate) / (nowDate - createDate))
         let roomLoaded = await appData.matrixClient.scrollback(appData.matrixClient.currentRoomId, scrollback_count, "Loaded: " + Math.floor(percent * 100) + "% (elements: " + totalLoaded + ")</br> <span style='font-size:10px'>to Date: " + currentScrollbackDate.toLocaleDateString('de-DE', dateOptions) + "  Target: " + createDate.toLocaleDateString('de-DE', dateOptions) + "</span>");
+        if (viewNeedToScrollToLastObject) {
+            viewNeedToScrollToLastObject = centerToNewestObject()
+        }
         currentScrollbackDate = new Date(roomLoaded.timeline[0].event.origin_server_ts);
         if (totalLoaded === roomLoaded.timeline.length) { console.log("Stop Loading because: totalLoaded == roomLoaded.timeline.length"); break; }
         if (roomLoaded.oldState.paginationToken == null) { console.log("Stop Loading because: paginationToken"); break; }
         if (!allMessages) { break }
         totalLoaded = roomLoaded.timeline.length;
+
+    }
+    function centerToNewestObject() {
+        let allSorted = appData.objectStore.allSorted()
+        if (allSorted.length > 0) {
+            let lastObj = allSorted[allSorted.length - 1]
+            let pos = posFromEv(lastObj.content);
+            let size = sizeFromEv(lastObj.content);
+            appData.drawingCanvas.setOffset(pos.add(size.multiply(0.5)))
+            return false
+        }
+        return true
     }
 }
-
-

@@ -13,7 +13,7 @@ export function parsePath(p_path, objpos) {
 }
 export function parseBezierPath(p_path, objpos) {
     let arr = p_path.split(" ");
-    arr = arr.filter((e)=>e!="")
+    arr = arr.filter((e) => e != "")
     var offset = objpos.split(" ");
     var returnval = [];
     for (let i = 0; i < arr.length; i += 6) {
@@ -81,11 +81,25 @@ export function paperPathPosSizeCorrection(path) {
 export function dist(p, q) {
     return Math.sqrt((p.x - q.x) ** 2 + (p.y - q.y) ** 2);
 }
-export function parsePoint(string) {
+export function parsePointDeprecated(string) {
     let arr = (string || "0 0").split(" ");
     return new paper.Point(parseFloat(arr[0]), parseFloat(arr[1]));
 }
-
+export function parsePoint(point) {
+    let pointArr = [point.x, point.y]
+    return new paper.Point(pointArr);
+}
+export function posFromEv(evContent) {
+    switch (evContent.objtype) {
+        case "path": return parsePoint(evContent.paths[0].position)
+        default: return parsePoint(evContent.position)
+    }
+}
+export function sizeFromEv(evContent) {
+    // TODO save or calculate obj size
+    console.log("using unimplemented objsize function: { return new paper.Point(0, 0) }")
+    return new paper.Point(0, 0)
+}
 export function setAlpha(color, opacity) {
     // coerce values so ti is between 0 and 1.
     const _opacity = Math.round(Math.min(Math.max(opacity || 1, 0), 1) * 255);

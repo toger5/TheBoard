@@ -59,7 +59,6 @@ export default class ObjectStore {
             });
             console.log("sorted all events: ", Date.now() - begin_sort, "ms")
             return allList;
-            return this.currentRoom().all;
         } else {
             // If there is not current room set, the default behaviour is en empty list -> canvas gets cleared
             return []

@@ -1,6 +1,6 @@
 // import { Point, Rectangle } from 'paper/dist/paper-core';
 import { isBoardObjectEvent } from './backend/filter';
-import { parsePath, parseBezierPath, parsePoint } from './helper';
+import { parsePath, parseBezierPath, parsePoint,parsePointDeprecated } from './helper';
 export const paper = require('paper');
 export default class PaperCanvas {
     constructor() {
@@ -16,8 +16,8 @@ export default class PaperCanvas {
             if (event.content.objtype != "p.path") { return }
             let updateDisplay = true
             let points = parsePath(event.content.path, event.content.objpos);
-            let pos = parsePoint(event.content.objpos);
-            let size = parsePoint(event.content.objsize);
+            let pos = parsePointDeprecated(event.content.objpos);
+            let size = parsePointDeprecated(event.content.objsize);
             let color = "objcolor" in event.content ? event.content.objcolor : "#000"
             let addedPath;
             if (animated) {
