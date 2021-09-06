@@ -34,7 +34,7 @@ export class RightPanel {
         onClick: () => { this.tabIndex = 1; this.update() },
         label: <img src={toolIcon}></img>
       },
-      container: <div class="tab-container">GibtNixZuSehen</div>
+      container: <div class="tab-container"><p style="color:grey; text-align:center"> No tool options available </p></div>
     }
     let tabs = [memberTab, toolOptionsTab]
 
