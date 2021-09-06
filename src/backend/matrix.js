@@ -126,7 +126,7 @@ export default class MatrixBackend {
             if (msg.isRedacted()) { return; } // skipp redacted events
             if (isBoardObjectEvent(msg.getType())) {
                 let age = Date.now() - msg.getDate().getTime();
-                console.log("age ", age)
+                // console.log("age ", age)
                 let animated = Date.now() - msg.getDate().getTime() < 10000;
                 let toBeginningOfTimeline = !animated;
                 if (msg.event.room_id === appData.matrixClient.currentRoomId) {

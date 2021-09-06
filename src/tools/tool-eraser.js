@@ -3,7 +3,7 @@
 // import { sleep } from './paper-canvas';
 import { GetToolStrokeWidthIndex } from "./line-style-selector";
 import { mousePathToString, paperPathToString, pathPosSizeCorrection, setAlpha } from "../helper";
-
+import { UserFilter } from "../paper-canvas";
 
 export default class ToolEraser {
     constructor() {
@@ -103,8 +103,13 @@ export default class ToolEraser {
         if (this.previewItem) {
             this.previewItem.visible = true
         }
+        appData.drawingCanvas.addFilter(new UserFilter(appData.matrixClient.client.getUserId()))
     }
     deactivate() {
-        this.previewItem.visible = false
+        if (this.previewItem != null) {
+            this.previewItem.visible = false
+        }
+        appData.drawingCanvas.clearFilter()
+
     }
 }
