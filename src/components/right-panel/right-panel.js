@@ -1,5 +1,4 @@
 import jsxElem, { render } from "jsx-no-react";
-import { promiseMapSeries } from "matrix-js-sdk/lib/utils";
 import "./right-panel.css";
 import userIcon from "./userIcon.svg"
 import toolIcon from "./toolIcon.svg"

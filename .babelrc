@@ -6,20 +6,20 @@
                 "useBuiltIns": "usage",
                 "corejs": 3
             }
+        ],
+        [
+            "@babel/preset-react",
+            {
+                "pragma": "jsxElem.createElement",
+                "pragmaFrag": "jsxElem.Fragment"
+            }
         ]
     ],
     "plugins": [
         [
-            "@babel/plugin-transform-react-jsx",
-            {
-                "pragma": "jsxElem"
-            }
-        ],
-        [
             "@babel/plugin-transform-for-of",
             {
-                // "loose": true, // defaults to false
-                "allowArrayLike": true // defaults to false
+                "allowArrayLike": true
             }
         ]
     ]
