@@ -6,8 +6,10 @@ import PaperCanvas from "../paper-canvas";
 import { GetToolStrokeWidthIndex } from "./line-style-selector";
 import { GetPickerColor } from "../color-picker";
 import { mousePathToString, paperPathToString, pathPosSizeCorrection, setAlpha } from "../helper";
-export default class ToolPen {
+import Tool from "./tool-super";
+export default class ToolPen extends Tool {
     constructor(marker = false) {
+        super()
         this.isMarker = marker
 
         // Tool state

@@ -2,17 +2,19 @@
 // import { objectStore } from '../main'
 // import { sleep } from './paper-canvas';
 import { GetToolStrokeWidthIndex } from "./line-style-selector";
-import { mousePathToString, paperPathToString, pathPosSizeCorrection, setAlpha } from "../helper";
-import { UserFilter } from "../paper-canvas";
-
-export default class ToolEraser {
+import { UserFilter, DrawFilter } from "../paper-canvas";
+import jsxElem, { render } from "jsx-no-react"
+import Tool from "./tool-super";
+import { OBJTYPE_IMAGE, OBJTYPE_TEXT, OBJTYPE_PATH } from "../backend/board-event-consts";
+export default class ToolEraser extends Tool {
     constructor() {
-
+        super()
         // Tool state
         this.removedElementsArray
         this.tool_canceled = false
         this.idsToDelete = []
-
+        this.ignoredObjectTypes = new Set([OBJTYPE_IMAGE])
+        this.ignoredObjectFilter = new DrawFilter()
         // Tool settings
         // this.strokeWidth = 10;
         this.strokeWidthOptions = [5, 10, 20, 40];
@@ -21,7 +23,15 @@ export default class ToolEraser {
         this.previewItem = null
 
     }
-
+    updateDrawFilter() {
+        let ignors = this.ignoredObjectTypes
+        this.ignoredObjectFilter.filterFunc = function (event) {
+            return !ignors.has(event.content.objtype)
+        }
+        this.ignoredObjectFilter.falseModifiaction = function (item) { item.opacity *= 0.2 }
+        appData.drawingCanvas.addFilter(this.ignoredObjectFilter)
+        appData.drawingCanvas.reload(false, false)
+    }
     getStrokeWidth() {
         return this.strokeWidthOptions[GetToolStrokeWidthIndex()];
     }
@@ -50,7 +60,9 @@ export default class ToolEraser {
         while (hitResult && i < 10) {
             if (!hitResult) { continue }
             console.log('hitResult', hitResult);
-            if (appData.objectStore.getById(hitResult.item.data.id).sender == appData.matrixClient.client.getUserId()) {
+            let objectEvent = appData.objectStore.getById(hitResult.item.data.id)
+            if (objectEvent.sender == appData.matrixClient.client.getUserId() // TODO only filter by user when the permission settings dont allow the deletion
+                && !this.ignoredObjectTypes.has(objectEvent.content.objtype)) {
                 hitResult.item.opacity = 0.5;
                 hitResult.item.data.markedForDeletion = true
                 this.idsToDelete.push(hitResult.item.data.id)
@@ -103,13 +115,41 @@ export default class ToolEraser {
         if (this.previewItem) {
             this.previewItem.visible = true
         }
+
         appData.drawingCanvas.addFilter(new UserFilter(appData.matrixClient.client.getUserId()))
+        this.updateDrawFilter.call(this)
     }
     deactivate() {
         if (this.previewItem != null) {
             this.previewItem.visible = false
         }
         appData.drawingCanvas.clearFilter()
-
+    }
+    getSettingsPanel() {
+        let ignors = this.ignoredObjectTypes
+        function changedCheckbox(string, state) {
+            if (state) {
+                ignors.delete(string)
+            } else {
+                ignors.add(string)
+            }
+            this.updateDrawFilter.call(this)
+        }
+        let styleCheckbox = {
+            margin: '10px'
+        }
+        return <>
+            <p style="text-align:center;">Eraser</p>
+            <input style={styleCheckbox} type="checkbox" id="IDimages" onchange={
+                (e) => {
+                    changedCheckbox.call(this, OBJTYPE_IMAGE, e.target.checked)
+                }
+            } checked={!ignors.has(OBJTYPE_IMAGE)} />
+            <label for="IDimages">images</label><br />
+            <input style={styleCheckbox} type="checkbox" id="IDtext" onchange={(e) => { changedCheckbox.call(this, OBJTYPE_TEXT, e.target.checked) }} checked={!ignors.has(OBJTYPE_TEXT)} />
+            <label for="IDtext">text</label><br />
+            <input style={styleCheckbox} type="checkbox" id="IDlines" onchange={(e) => { changedCheckbox.call(this, OBJTYPE_PATH, e.target.checked) }} checked={!ignors.has(OBJTYPE_PATH)} />
+            <label for="IDlines">lines</label><br />
+        </>
     }
 }

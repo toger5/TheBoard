@@ -5,15 +5,15 @@ import { setAlpha } from "../helper";
 import { hideLoading, showLoading } from "../main";
 import CreateIcon from './create-icon-2.png';
 import CancelIcon from './cancel-icon-2.png';
-
+import Tool from "./tool-super";
 let HANDLE_SIZE = 25
 let HANDLE_BORDER_SIZE = 1
 let HANDLE_COLOR_IDLE = "#ffffff77"
 let HANLDE_COLOR_BORDER = '#34a4eb'
 let HANDLE_COLOR_ACTIVE = "#ffffffcc"
-export default class ToolImage {
+export default class ToolImage extends Tool{
     constructor() {
-
+        super()
         // Tool state
         this.canvas_line = null
         this.tool_canceled = true

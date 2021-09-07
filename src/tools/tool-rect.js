@@ -6,10 +6,10 @@ import { GetToolStrokeWidthIndex } from "./line-style-selector";
 // import { objectStore, currentRoomId, drawingCanvas} from "../main";
 // import { matrixClient } from '../main'//backend;
 import { mousePathToString, paperPathToString, pathPosSizeCorrection, setAlpha } from "../helper";
-
-export default class ToolRect {
+import Tool from "./tool-super";
+export default class ToolRect extends Tool{
     constructor() {
-
+        super()
         // Tool state
         this.canvas_rect = null;
 

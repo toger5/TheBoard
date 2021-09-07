@@ -33,6 +33,7 @@ let handleTouchType = ""
 
 export function setActiveTool(id) {
     activeTool = tools[id];
+    window.appData.rightPanel.setToolPanel(activeTool.getSettingsPanel())
 }
 
 export default function init_input(element) {

@@ -38,8 +38,10 @@ export default class PaperCanvas {
         this.drawFilter = []
     }
     addFilter(f) {
-        this.drawFilter.push(f)
-        this.reload(false, false)
+        if (!this.drawFilter.includes(f)) {
+            this.drawFilter.push(f)
+            // this.reload(false, false)
+        }
     }
     clearFilter() {
         this.drawFilter = []
@@ -126,7 +128,7 @@ export default class PaperCanvas {
         if (fade) {
             addedItem.tween({ opacity: 0.0 }, { opacity: addedItem.opacity }, 800)
         } else {
-            addedItem.tween({ opacity: 1.0 }, { opacity: addedItem.opacity }, 400)
+            // addedItem.tween({ opacity: 1.0 }, { opacity: addedItem.opacity }, 400)
         }
     }
 
@@ -291,12 +293,16 @@ export default class PaperCanvas {
         }
         image.bounds = new Rectangle({ center: position, size: size });
         let placeholder = new paper.Path.Rectangle({ center: position, size: size, strokeColor: '#777777ff', strokeWidth: 3, dashArray: [20, 40] })
-        placeholder.tween({dashOffset:0},{dashOffset:5000}, 60000)
+        placeholder.tween({ dashOffset: 0 }, { dashOffset: 5000 }, 60000)
         placeholder.sendToBack()
-        image.onLoad = (e) => {
+        if (!image.loaded) {
+            image.onLoad = (e) => {
+                placeholder.remove()
+                image.bounds = new Rectangle({ center: position, size: size });
+            }
+        } else {
             placeholder.remove()
             image.bounds = new Rectangle({ center: position, size: size });
-            // image.tween({ opacity: 0.0 }, { opacity: image.opacity }, 800)
         }
         // image.source = url
         return image

@@ -130,7 +130,7 @@ export default class MatrixBackend {
                 let animated = Date.now() - msg.getDate().getTime() < 10000;
                 let toBeginningOfTimeline = !animated;
                 if (msg.event.room_id === appData.matrixClient.currentRoomId) {
-                    appData.drawingCanvas.drawEvent(msg.event, animated, toBeginningOfTimeline);
+                    appData.drawingCanvas.drawEvent(msg.event, animated, toBeginningOfTimeline, false);
                 }
                 if (msg.status == null) {
                     // event already has a proper ID. because it is not status == sending, but loaded from scrollback

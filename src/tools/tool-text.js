@@ -3,10 +3,10 @@ import { GetPickerColor } from "../color-picker";
 import { GetToolStrokeWidthIndex } from "./line-style-selector";
 import { setAlpha } from "../helper";
 import { hideLoading, showLoading } from "../main";
-
-export default class ToolText {
+import Tool from "./tool-super";
+export default class ToolText extends Tool{
     constructor() {
-
+        super()
         // Tool state
         this.canvas_line = null;
         // this.tool_canceled = true;

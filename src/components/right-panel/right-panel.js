@@ -7,6 +7,7 @@ export class RightPanel {
     this.rightPanelContainer = <div id='right-panel' class="container"></div>
     this.userList = []
     this.tabIndex = 0
+    this.toolPanel = null
     render(this.rightPanelContainer, document.body)
     this.update()
   }
@@ -17,6 +18,11 @@ export class RightPanel {
       returnDict.avatar_url = appData.matrixClient.client.mxcUrlToHttp(returnDict.avatar_url, 40, 40, 'scale')
       return returnDict
     })
+    this.update()
+  }
+  setToolPanel(panel) {
+    console.log("update Tool panel with: ", panel)
+    this.toolPanel = panel
     this.update()
   }
   update() {
@@ -34,7 +40,7 @@ export class RightPanel {
         onClick: () => { this.tabIndex = 1; this.update() },
         label: <img src={toolIcon}></img>
       },
-      container: <div class="tab-container"><p style="color:grey; text-align:center"> No tool options available </p></div>
+      container: this.toolPanel ? this.toolPanel : <div class="tab-container"><p style="color:grey; text-align:center"> No tool options available </p></div>
     }
     let tabs = [memberTab, toolOptionsTab]
 

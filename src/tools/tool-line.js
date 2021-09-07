@@ -6,11 +6,11 @@ import { GetPickerColor } from "../color-picker";
 // import { Path, Color, Point } from "paper/dist/paper-core";
 import { GetToolStrokeWidthIndex } from "./line-style-selector";
 import { mousePathToString, paperPathToString, pathPosSizeCorrection, setAlpha } from "../helper";
+import Tool from "./tool-super";
 
-
-export default class ToolLine {
+export default class ToolLine extends Tool{
     constructor() {
-
+        super()
         // Tool state
         this.canvas_line = null;
         // this.mouse_path_last_time = Date.now();
