@@ -174,8 +174,7 @@ export default class PaperCanvas {
         let currentViewCenter = paper.view.center;
         let zoomOriProj = paper.view.viewToProject(zoomOrigin);
         paper.view.center = zoomOriProj;
-        let scale = paper.view.zoom;
-        paper.view.zoom = zoom;
+        paper.view.zoom = Math.abs(zoom);
         paper.view.center = currentViewCenter;
         paper.view.emit('zoom')
     }
@@ -341,6 +340,25 @@ export default class PaperCanvas {
     }
     getTransformedPointer(x, y) {
         return paper.view.viewToProject(new paper.Point(x, y))
+    }
+    animateToPoint(center, zoom, duration = 800) {
+        let c = new Point(center)
+        let startCenter = paper.view.center
+        let startZoom = paper.view.zoom
+        let startTime = Date.now()
+        if (paper.view.onFrame === undefined) {
+            paper.view.onFrame = function (event) {
+                let factor = (Date.now() - startTime) / duration
+                paper.view.zoom = startZoom * (1 - factor) + zoom * factor
+                paper.view.center = startCenter.multiply(1 - factor).add(c.multiply(factor))
+                if (factor > 1) {
+                    paper.view.zoom = zoom
+                    paper.view.center = c
+                    paper.view.detach('frame', paper.view.onFrame)
+                    paper.view.onFrame = undefined
+                }
+            }
+        }
     }
 }
 

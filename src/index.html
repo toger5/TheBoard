@@ -30,7 +30,7 @@
             onclick="actions.scrollback(appData.matrixClient.currentRoomId, 1000).then(function(){appData.drawingCanvas.reload()});">
             Load History</button>
         <button onclick="appData.drawingCanvas.reload();">Reload Canvas</button>
-        <button onclick="appData.drawingCanvas.resetOffset()">Go Home</button>
+        <button onclick="appData.drawingCanvas.animateToPoint([0,0], 0.5)">Go Home</button>
         <button onclick="appData.drawingCanvas.resetZoom()">Reset Zoom</button>
     </div>
 
@@ -74,7 +74,8 @@
         <button class='tool-elements' id="tool-type-image">Image</button>
         <!-- <button id="tool-type-ellipse">Ellipse</button> -->
 
-        <input id="image-file-select-input" type="file" accept="image/png, image/jpeg" id="file-input" style="display: none;"/>
+        <input id="image-file-select-input" type="file" accept="image/png, image/jpeg" id="file-input"
+            style="display: none;" />
         <div id="line-type-selector" class='tool-elements'>
             <button id="line-type-selector-button"
                 style="width: 100%;height: 100%;margin:0;border-style: none;background-color: transparent;">
