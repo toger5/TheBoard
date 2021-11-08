@@ -1138,6 +1138,11 @@
   resolved "https://registry.yarnpkg.com/@types/estree/-/estree-0.0.50.tgz#1e0caa9364d3fccd2931c3ed96fdbeaa5d4cca83"
   integrity sha512-C6N5s2ZFtuZRj54k2/zyRhNDjJwwcViAM3Nbm8zjBpbqAdZ00mr0CFxvSKeO8Y/e03WVFLpQMdHYVfUd6SB+Hw==
 
+"@types/events@^3.0.0":
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/@types/events/-/events-3.0.0.tgz#2862f3f58a9a7f7c3e78d79f130dd4d71c25c2a7"
+  integrity sha512-EaObqwIvayI5a8dCzhFrjKzVwKLxjoG9T6Ppd5CEo07LRKfQ8Yokw54r5+Wq7FaBQ+yXRvQAYPrHwya1/UFt9g==
+
 "@types/glob@^7.1.1":
   version "7.1.4"
   resolved "https://registry.yarnpkg.com/@types/glob/-/glob-7.1.4.tgz#ea59e21d2ee5c517914cb4bc8e4153b99e566672"
@@ -3524,6 +3529,14 @@ matrix-js-sdk@^12.1.0:
     qs "^6.9.6"
     request "^2.88.2"
     unhomoglyph "^1.0.6"
+
+matrix-widget-api@^0.1.0-beta.17:
+  version "0.1.0-beta.17"
+  resolved "https://registry.yarnpkg.com/matrix-widget-api/-/matrix-widget-api-0.1.0-beta.17.tgz#392be2bf42990e8f7e16aeadf2546f18681af49b"
+  integrity sha512-hyaDLQNvGvV67Ss23vI69y/ZwVMVz2160LJ2nYyhO0C4mk9zTl0Rbe9jNQ9B453V8MadHLiUUdjzoe++WW+6jA==
+  dependencies:
+    "@types/events" "^3.0.0"
+    events "^3.2.0"
 
 media-typer@0.3.0:
   version "0.3.0"
