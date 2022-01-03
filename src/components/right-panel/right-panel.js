@@ -12,10 +12,10 @@ export class RightPanel {
     this.update()
   }
   async updateMember(roomId) {
-    let memDict = (await appData.matrixClient.client.getJoinedRoomMembers(roomId)).joined
+    let memDict = (await AppData.instance.matrixBackend.client.getJoinedRoomMembers(roomId)).joined
     this.userList = Object.entries(memDict).map(e => {
       let returnDict = e[1]
-      returnDict.avatar_url = appData.matrixClient.client.mxcUrlToHttp(returnDict.avatar_url, 40, 40, 'scale')
+      returnDict.avatar_url = AppData.instance.matrixBackend.client.mxcUrlToHttp(returnDict.avatar_url, 40, 40, 'scale')
       return returnDict
     })
     this.update()

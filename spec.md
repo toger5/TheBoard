@@ -23,7 +23,7 @@ Six: `[Pos.x, pos.y, HandleStart.x,HandleStart.y, HandleEnd.x, HandleEnd.y]`
 
 **Stroke Width** The `strokeWidth` is a `float`. Can be set to `0` to only draw the infill.
 
-**Pressure Sensitive (var. thickness) Strokes:** Are achievable by calculating the contour of the whole stroke with segments. Than the `fillColor` is used as the stroke color and the `strokeWidth` is `0.0`. For pressure sensitive strokes that have infill (actual infill not the "fake" infill required for the variable stroke thickness) two paths are sent.
+**Pressure Sensitive (var. thickness) Strokes:** Are achievable by calculating the contour of the whole stroke with segments. then the `fillColor` is used as the stroke color and the `strokeWidth` is `0.0`. For pressure sensitive strokes that have infill (actual infill not the "fake" infill required for the variable stroke thickness) two paths are sent.
 ```JSON
 "com.github.TheBoard.object": {
     "content": {
@@ -118,7 +118,7 @@ This is a structure feature of TheBoard. A page is just a frame/box. It is only 
 Multiple pages can be aligned on the whiteboard. A use-case example would be to do different exercised on different pages.
 
 **Exporting:**
-The main purpose is exporting. When exporting as a pdf the user can select a collection of pages and they will than be converted to a pdf. A unlimited 2d canvas is otherwise hard to convert to a 1d array of pages.
+The main purpose is exporting. When exporting as a pdf the user can select a collection of pages and they will then be converted to a pdf. A unlimited 2d canvas is otherwise hard to convert to a 1d array of pages.
 
 **Grid:** Another option is to provide custom grids for each page. This is how line or square grids become available.
 ```JSON
@@ -194,9 +194,9 @@ A matrix room is parsed as a whiteboard with the `com.github.TheBoard` state key
 ### Last Commit
 See section **Commits**
 ### settings.colorpalette
-Each room can have its own color palette. It is just an array of colors. A darker variant of each color will be calculated and displayed automatically. There is good usability for up to 10 colors. More than 10 colors are not recommended.
+Each room can have its own color palette. It is just an array of colors. A darker variant of each color will be calculated and displayed automatically. There is good usability for up to 10 colors. More then 10 colors are not recommended.
 ### settings.layers
-A room can have layers. Layers are other rooms that are not listed in the notebook/whiteboard list. A layer can be hidden or shown. The big feature that comes with layer is that you can make non destructive modification to a whiteboard with DIFFERENT ACCESS RULES than the underlying whiteboard/layer. This can be used for private comments on a bigger shared document.
+A room can have layers. Layers are other rooms that are not listed in the notebook/whiteboard list. A layer can be hidden or shown. The big feature that comes with layer is that you can make non destructive modification to a whiteboard with DIFFERENT ACCESS RULES then the underlying whiteboard/layer. This can be used for private comments on a bigger shared document.
 
 ### settings.isLayers
 When a room is marked as a layer it is not listed in the notebook/whiteboard list. This flag is redundant (a layer can also be determined by checking the `settings.layers` array from all other rooms).

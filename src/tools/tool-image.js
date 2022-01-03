@@ -34,12 +34,12 @@ export default class ToolImage extends Tool{
         // this.canvas_line.lastSegment.point = new paper.Point(proX, proY);
     }
     toolsubmit() {
-        appData.matrixClient.sendImage(this.previewImage, this.selectedFile)
+        AppData.instance.matrixBackend.sendImage(this.previewImage, this.selectedFile)
         this.previewGroup.visible = false;
         this.toolcancel()
     }
     toolup(proX, proY) {
-        // appData.matrixClient.sendImage(this.previewImage, this.selectedFile)
+        // AppData.instance.matrixBackend.sendImage(this.previewImage, this.selectedFile)
         // this.previewImage.visible = false
         // console.log("textToolUp");
         // if (this.textEditMode) {
@@ -61,7 +61,7 @@ export default class ToolImage extends Tool{
         // }
         // input.onkeyup =(e)=>{
         //     if (e.key === "Enter") {
-        //         appData.matrixClient.sendText(this.previewText);
+        //         AppData.instance.matrixBackend.sendText(this.previewText);
         //         this.toolcancel()
         //         this.previewText.visible = false
         //         this.previewImage.visible = false
@@ -104,7 +104,7 @@ export default class ToolImage extends Tool{
         console.log("activeted")
         let imageTool = this;
         function initToolElements(tool) {
-            appData.drawingCanvas.activateToolLayer()
+            AppData.instance.drawingCanvas.activateToolLayer()
             tool.previewGroup = new paper.Group()
             tool.previewImage = new paper.Raster()
             tool.previewImage.opacity = 0.8
@@ -165,7 +165,7 @@ export default class ToolImage extends Tool{
             tool.submitButton = new paper.Raster(CreateIcon)
             tool.submitButton.onClick = () => { tool.toolsubmit() }
             tool.previewGroup.addChild(tool.submitButton)
-            appData.drawingCanvas.activateDrawLayer()
+            AppData.instance.drawingCanvas.activateDrawLayer()
         }
 
         document.getElementById("image-file-select-input").click()

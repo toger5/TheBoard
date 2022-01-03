@@ -88,7 +88,7 @@ export class LoginContainer extends HTMLElement {
 
         console.log("username to check: ", username);
         if (checkpwd(pwd) && this.checkUsername(username) && checkServerUrl(baseUrl)) {
-            appData.matrixClient.login(username, pwd, baseUrl, ()=>{this.hide()});
+            AppData.instance.matrixBackend.login(username, pwd, baseUrl, ()=>{this.hide()});
         } else {
             showLoading("username or password dont have the correct format")
         }

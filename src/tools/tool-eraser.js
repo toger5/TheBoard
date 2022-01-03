@@ -6,6 +6,7 @@ import { UserFilter, DrawFilter } from "../paper-canvas";
 import jsxElem, { render } from "jsx-no-react"
 import Tool from "./tool-super";
 import { OBJTYPE_IMAGE, OBJTYPE_TEXT, OBJTYPE_PATH } from "../backend/board-event-consts";
+// import {AppData} from 
 export default class ToolEraser extends Tool {
     constructor() {
         super()
@@ -29,8 +30,8 @@ export default class ToolEraser extends Tool {
             return !ignors.has(event.content.objtype)
         }
         this.ignoredObjectFilter.falseModifiaction = function (item) { item.opacity *= 0.2 }
-        appData.drawingCanvas.addFilter(this.ignoredObjectFilter)
-        appData.drawingCanvas.reload(false, false)
+        AppData.instance.drawingCanvas.addFilter(this.ignoredObjectFilter)
+        AppData.instance.drawingCanvas.reload(false, false)
     }
     getStrokeWidth() {
         return this.strokeWidthOptions[GetToolStrokeWidthIndex()];
@@ -60,8 +61,8 @@ export default class ToolEraser extends Tool {
         while (hitResult && i < 10) {
             if (!hitResult) { continue }
             console.log('hitResult', hitResult);
-            let objectEvent = appData.objectStore.getById(hitResult.item.data.id)
-            if (objectEvent.sender == appData.matrixClient.client.getUserId() // TODO only filter by user when the permission settings dont allow the deletion
+            let objectEvent = AppData.instance.objectStore.getById(hitResult.item.data.id)
+            if (objectEvent.sender == AppData.instance.matrixBackend.client.getUserId() // TODO only filter by user when the permission settings dont allow the deletion
                 && !this.ignoredObjectTypes.has(objectEvent.content.objtype)) {
                 hitResult.item.opacity = 0.5;
                 hitResult.item.data.markedForDeletion = true
@@ -79,7 +80,7 @@ export default class ToolEraser extends Tool {
         console.log(this.idsToDelete)
         for (let id of this.idsToDelete) {
             console.log(id)
-            appData.matrixClient.client.redactEvent(appData.matrixClient.currentRoomId, id).then(t => {
+            AppData.instance.matrixBackend.client.redactEvent(AppData.instance.matrixBackend.currentRoomId, id).then(t => {
                 console.log("redacted (eraser): ", t);
             });
             // this.idsToDelete = this.idsToDelete.filter((itemId) => { return itemId == id })
@@ -94,7 +95,7 @@ export default class ToolEraser extends Tool {
     }
     toolpreviewmove(pos) {
         if (this.previewItem === null) {
-            appData.drawingCanvas.activateToolLayer()
+            AppData.instance.drawingCanvas.activateToolLayer()
             this.previewItem = new paper.Path.Circle(new paper.Point(0, 0), 1);
             this.previewItem.fillColor = '#00000000'
             this.previewItem.strokeWidth = 1
@@ -103,7 +104,7 @@ export default class ToolEraser extends Tool {
             this.previewItem.strokeCap = 'round'
             // this.previewItem.applyMatrix = false
             // this.previewItem.scaling = new paper.Point(this.getStrokeWidth(), this.getStrokeWidth())
-            appData.drawingCanvas.activateDrawLayer()
+            AppData.instance.drawingCanvas.activateDrawLayer()
         }
         if (this.previewItem.bounds.size.width != 2 * this.getStrokeWidth()) {
             let w = 2 * this.getStrokeWidth() / this.previewItem.bounds.size.width
@@ -116,14 +117,14 @@ export default class ToolEraser extends Tool {
             this.previewItem.visible = true
         }
 
-        appData.drawingCanvas.addFilter(new UserFilter(appData.matrixClient.client.getUserId()))
+        AppData.instance.drawingCanvas.addFilter(new UserFilter(AppData.instance.matrixBackend.client.getUserId()))
         this.updateDrawFilter.call(this)
     }
     deactivate() {
         if (this.previewItem != null) {
             this.previewItem.visible = false
         }
-        appData.drawingCanvas.clearFilter()
+        AppData.instance.drawingCanvas.clearFilter()
     }
     getSettingsPanel() {
         let ignors = this.ignoredObjectTypes

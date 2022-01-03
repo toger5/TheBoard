@@ -39,7 +39,7 @@ export default class ToolPen extends Tool {
         this.last_pos = [0, proX, proY, pressure];
         this.mouse_path = [[0, proX, proY, pressure * 4]];
 
-        appData.drawingCanvas.activateToolLayer()
+        AppData.instance.drawingCanvas.activateToolLayer()
         this.previewPaths = this.previewPaths.filter(p => p.visible)
         console.log("preview Paths: ", this.previewPaths)
         this.previewPaths.filter((path) => { path.visible })
@@ -53,7 +53,7 @@ export default class ToolPen extends Tool {
         prev.strokeWidth = this.getStrokeWidth();
         prev.strokeCap = "round"
         prev.moveTo(new Point(proX, proY))
-        appData.drawingCanvas.activateDrawLayer()
+        AppData.instance.drawingCanvas.activateDrawLayer()
 
         console.log("tooldown");
     }
@@ -77,16 +77,16 @@ export default class ToolPen extends Tool {
         this.mouse_path.push(currentPos);
         this.previewPaths[this.previewPaths.length - 1].lineTo(currentPosPoint);
         this.previewPaths[this.previewPaths.length - 1].smooth()
-        // appData.drawingCanvas.drawSegmentDisplay([this.last_pos, currentPos], this.getStrokeColor(), this.getStrokeWidth());
+        // AppData.instance.drawingCanvas.drawSegmentDisplay([this.last_pos, currentPos], this.getStrokeColor(), this.getStrokeWidth());
         this.last_pos = currentPos;
 
     }
     toolpreviewmove(pos) {
         if (this.previewItem === null) {
-            appData.drawingCanvas.activateToolLayer()
+            AppData.instance.drawingCanvas.activateToolLayer()
             this.previewItem = new Path.Circle(new Point(0, 0), 0.5);
             this.previewItem.applyMatrix = false
-            appData.drawingCanvas.activateDrawLayer()
+            AppData.instance.drawingCanvas.activateDrawLayer()
         }
         this.previewItem.scaling = new Point(this.getStrokeWidth(), this.getStrokeWidth())
         this.previewItem.fillColor = this.getStrokeColor();
@@ -94,14 +94,14 @@ export default class ToolPen extends Tool {
     }
     toolup(proX, proY) {
         if (this.tool_canceled) { return; }
-        if (appData.objectStore.hasRoom(appData.matrixClient.currentRoomId)) {
-            if (appData.drawingCanvas instanceof PaperCanvas) {
+        if (AppData.instance.objectStore.hasRoom(AppData.instance.matrixBackend.currentRoomId)) {
+            if (AppData.instance.drawingCanvas instanceof PaperCanvas) {
                 // in mouse path the pressure stroke width is stored. (will be used later to generate a custom path based on that)
                 let paper_mouse_path = this.previewPaths[this.previewPaths.length - 1].clone()//new Path(this.mouse_path.map((s) => { return [s[1], s[2]] }));
-                paper_mouse_path.simplify(1 / appData.drawingCanvas.getZoom());
+                paper_mouse_path.simplify(1 / AppData.instance.drawingCanvas.getZoom());
                 paper_mouse_path.strokeWidth = this.getStrokeWidth();
                 paper_mouse_path.strokeColor = this.getStrokeColor();
-                appData.matrixClient.sendPath([paper_mouse_path]);
+                AppData.instance.matrixBackend.sendPath([paper_mouse_path]);
                 paper_mouse_path.remove();
             }
         } else {

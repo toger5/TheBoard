@@ -1,4 +1,4 @@
-import { hideLoading, login, showLoading, updateAddRoomList } from './main'
+import { hideLoading, login, showLoading, /*updateAddRoomList*/ } from './main'
 // import { matrixClient } from './main'//backend;
 import { parsePoint } from './helper'
 import { isBoardObjectEvent } from './backend/filter'
@@ -20,10 +20,10 @@ window.actions = {
 }
 function sendImageFromFile(file){
     let url = URL.createObjectURL(file)
-    let img = appData.drawingCanvas.addImage({url:url},'$someID')
-    appData.matrixClient.sendImage(img, file)
+    let img = AppData.instance.drawingCanvas.addImage({url:url},'$someID')
+    AppData.instance.matrixBackend.sendImage(img, file)
     img.opacity = 0.4
-    // appData.drawingCanvas.addImage({
+    // AppData.instance.drawingCanvas.addImage({
     //     url: url,
     //     size: {width:'100',height:'100'},
     //     // position: {x:'-300',y:'-300'}
@@ -52,8 +52,8 @@ function toggleGrid() {
     else if (setting_grid === "dots") {
         setting_grid = "";
     }
-    appData.drawingCanvas.reload();
-    // appData.drawingCanvas.updateDisplay_DEPRECATED();
+    AppData.instance.drawingCanvas.reload();
+    // AppData.instance.drawingCanvas.updateDisplay_DEPRECATED();
 }
 // function toggleTool() {
 //     if (tool.type === toolType.draw) {
@@ -69,9 +69,9 @@ function toggleGrid() {
 // }
 function redactLastAction() {
     let id = "";
-    let roomId = appData.matrixClient.currentRoomId;
-    let userId = appData.matrixClient.client.getUserId();
-    let sortedEvents = appData.objectStore.allSorted();
+    let roomId = AppData.instance.matrixBackend.currentRoomId;
+    let userId = AppData.instance.matrixBackend.client.getUserId();
+    let sortedEvents = AppData.instance.objectStore.allSorted();
     for (let i = sortedEvents.length - 1; (id === "" && i >= 0); i--) {
         let event = sortedEvents[i];
         console.log("looping through events to find the one to redact");
@@ -80,7 +80,7 @@ function redactLastAction() {
             break;
         }
     }
-    appData.matrixClient.client.redactEvent(roomId, id).then(t => {
+    AppData.instance.matrixBackend.client.redactEvent(roomId, id).then(t => {
         console.log("redacted: ", t);
     });
 }
@@ -192,8 +192,8 @@ function formSubmit(e) {
 function lastEvent() {
     let lastEvent = null;
     // let room = client.getRoom(roomId);
-    let userId = appData.matrixClient.client.getUserId();
-    let sortedEvents = appData.objectStore.allSorted();
+    let userId = AppData.instance.matrixBackend.client.getUserId();
+    let sortedEvents = AppData.instance.objectStore.allSorted();
     for (let i = sortedEvents.length - 1; i >= 0; i--) {
         let event = sortedEvents[i];
         console.log("looping through events to find the one to redact");
@@ -205,10 +205,10 @@ function lastEvent() {
     return lastEvent;
 }
 function replaceEvent(idToReplace, newContent) {
-    appData.matrixClient.client.sendEvent(appData.matrixClient.currentRoomId, BoardEvent.BOARD_OBJECT_EVENT_NAME, newContent, "", (err, res) => {
+    AppData.instance.matrixBackend.client.sendEvent(AppData.instance.matrixBackend.currentRoomId, BoardEvent.BOARD_OBJECT_EVENT_NAME, newContent, "", (err, res) => {
         console.log(err);
     });
-    appData.matrixClient.client.redactEvent(appData.matrixClient.currentRoomId, idToReplace).then(t => {
+    AppData.instance.matrixBackend.client.redactEvent(AppData.instance.matrixBackend.currentRoomId, idToReplace).then(t => {
         console.log("redacted for replace ", t);
     });
 }
@@ -245,7 +245,7 @@ function toggleLeftBar() {
     }
 }
 function showAddRoomMenu() {
-    updateAddRoomList()
+    // updateAddRoomList()
     let addRoomMenu = document.getElementById("add-room-container")
     addRoomMenu.style.display = 'block'
 }
@@ -257,7 +257,7 @@ function hideAddRoomMenu() {
 function showSettingsMenu() {
     let settingsMenu = document.getElementById("settings-container")
     let roomId = document.getElementById('room-menu-room-id')
-    let room = appData.matrixClient.client.getRoom(appData.matrixClient.currentRoomId);
+    let room = AppData.instance.matrixBackend.client.getRoom(AppData.instance.matrixBackend.currentRoomId);
 
     roomId.innerHTML = room.roomId
     settingsMenu.style.display = 'block'

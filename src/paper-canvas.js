@@ -48,7 +48,7 @@ export default class PaperCanvas {
         this.reload(false, false)
     }
     drawEvent(event, animated, toBeginningOfTimeline = false, fade = true) {
-        let drawC = appData.drawingCanvas;
+        let drawC = AppData.instance.drawingCanvas;
         function pathV1() {
             if (event.content.objtype != "p.path") { return }
             let updateDisplay = true
@@ -191,7 +191,7 @@ export default class PaperCanvas {
     }
     asyncAddPathV2(segments, color, fillColor, strokeWidth, closed = false, id = "") {
         // TODO make async animation using dash
-        let p = appData.drawingCanvas.addPathV2(segments, color, fillColor, strokeWidth, closed, id);
+        let p = AppData.instance.drawingCanvas.addPathV2(segments, color, fillColor, strokeWidth, closed, id);
         let length = 0;
         length = p.length;
         p.dashArray = [length, length];
@@ -205,7 +205,7 @@ export default class PaperCanvas {
         // p.tween({ dashArray: [10, 10] }, { dashArray: [1000, 10] }, 3000);
     }
     asyncAddPathV3(pathContent, id) {
-        let p = appData.drawingCanvas.addPathV3(pathContent, id, true);
+        let p = AppData.instance.drawingCanvas.addPathV3(pathContent, id, true);
         let l = p.length;
         p.dashArray = [l, l];
         p.tween({ dashOffset: l }, { dashOffset: 0 }, 2 * l).then(() => {
@@ -283,7 +283,7 @@ export default class PaperCanvas {
         let position = new Point(parseFloat(imageContent.position.x), parseFloat(imageContent.position.y))
         let size = new Size(parseFloat(imageContent.size.width), parseFloat(imageContent.size.height))
         if (url.split(":")[0] === "mxc") {
-            url = appData.matrixClient.client.mxcUrlToHttp(url)
+            url = AppData.instance.matrixBackend.client.mxcUrlToHttp(url)
         }
         // console.log("image URL to download: ", url)
         let image = new Raster({ source: url, position: position })
@@ -321,7 +321,7 @@ export default class PaperCanvas {
         this.displayPaths.forEach((p) => { p.remove() });
     }
     clear() {
-        let length = appData.drawingCanvas.drawLayer.removeChildren().length
+        let length = AppData.instance.drawingCanvas.drawLayer.removeChildren().length
         console.log("removded ", length, " items")
     }
     drawBoundingBox(box) {
@@ -331,7 +331,7 @@ export default class PaperCanvas {
         this.clear();
         let starttime = Date.now();
         // console.log("!! Paper Canvas redraw START");
-        appData.objectStore.allSorted().forEach(obj => {
+        AppData.instance.objectStore.allSorted().forEach(obj => {
             if (isBoardObjectEvent(obj.type)) {
                 this.drawEvent(obj, animated, false, fade);
             }

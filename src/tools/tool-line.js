@@ -44,7 +44,7 @@ export default class ToolLine extends Tool{
 
     toolup(proX, proY) {
         if (this.tool_canceled) { return; }
-        if (appData.objectStore.hasRoom(appData.matrixClient.currentRoomId)) {
+        if (AppData.instance.objectStore.hasRoom(AppData.instance.matrixBackend.currentRoomId)) {
             // let [corrected_mouse_path, pos, size] = pathPosSizeCorrection([[0,this.canvas_line.firstSegment.point.x,this.canvas_line.firstSegment.point.y,0],[0,this.canvas_line.lastSegment.point.x,this.canvas_line.lastSegment.point.y,0]]);
 
             // let paper_mouse_path = new paper.Path(corrected_mouse_path.map((s) => { return [s[1], s[2]] }));
@@ -52,12 +52,12 @@ export default class ToolLine extends Tool{
             // let [pos, size, string_path] = paperPathToString(this.canvas_line);
             // paper_mouse_path.remove();
             // let version = 2;
-            // sendPath(appData.matrixClient.client, appData.matrixClient.currentRoomId,
+            // sendPath(AppData.instance.matrixBackend.client, AppData.instance.matrixBackend.currentRoomId,
             //     string_path,
             //     GetPickerColor(),'#00000000', [pos.x,pos.y], [size.width,size.height], this.getStrokeWidth(), false, version);
             this.canvas_line.strokeWidth = this.getStrokeWidth();
             this.canvas_line.strokeColor = GetPickerColor();
-            appData.matrixClient.sendPath([this.canvas_line]);
+            AppData.instance.matrixBackend.sendPath([this.canvas_line]);
         } else {
             console.log("NO ROOM SELECTED TO DRAW IN!")
         }

@@ -23,7 +23,7 @@ export default class ToolRect extends Tool{
     tooldown(proX, proY, pressure) {
         this.tool_canceled = false;
         let pt = new paper.Point(proX, proY);
-        appData.drawingCanvas.activateToolLayer();
+        AppData.instance.drawingCanvas.activateToolLayer();
         this.canvas_rect = new paper.Path.Rectangle(pt, pt)
         let colorAlpha = setAlpha(GetPickerColor(), 0.3);
         this.canvas_rect.strokeColor = colorAlpha;
@@ -32,7 +32,7 @@ export default class ToolRect extends Tool{
         // this.mouse_path_start_time = Date.now();
         // this.last_pos = [0, pt.x, pt.y, pressure];
         // this.mouse_path = [[0, pt.x, pt.y, pressure * 4]];
-        appData.drawingCanvas.activateDrawLayer();
+        AppData.instance.drawingCanvas.activateDrawLayer();
         console.log("tooldown");
     }
     toolmove(proX, proY, pressure) {
@@ -44,7 +44,7 @@ export default class ToolRect extends Tool{
 
     toolup(proX, proY) {
         if (this.tool_canceled) { return; }
-        if (appData.objectStore.hasRoom(appData.matrixClient.currentRoomId)) {
+        if (AppData.instance.objectStore.hasRoom(AppData.instance.matrixBackend.currentRoomId)) {
             // let [corrected_mouse_path, pos, size] = pathPosSizeCorrection([[0,this.canvas_rect.firstSegment.point.x,this.canvas_rect.firstSegment.point.y,0],[0,this.canvas_rect.lastSegment.point.x,this.canvas_rect.lastSegment.point.y,0]]);
 
             // let paper_mouse_path = new paper.Path(corrected_mouse_path.map((s) => { return [s[1], s[2]] }));
@@ -57,14 +57,14 @@ export default class ToolRect extends Tool{
             let cA = setAlpha(GetPickerColor(), 0.08);
             this.canvas_rect.fillColor = colorAlpha;// setAlpha(GetPickerColor(), 0.08);
             this.canvas_rect.strokeColor = GetPickerColor();
-            appData.matrixClient.sendPath([this.canvas_rect]);
+            AppData.instance.matrixBackend.sendPath([this.canvas_rect]);
 
-            // sendPath(appData.matrixClient.client, appData.matrixClient.currentRoomId,
+            // sendPath(AppData.instance.matrixBackend.client, AppData.instance.matrixBackend.currentRoomId,
             //     string_path,
             //     GetPickerColor(), setAlpha(GetPickerColor(), 0.08),[pos.x, pos.y], [size.width, size.height], this.getStrokeWidth(), true, version);
         } else {
             console.log("NO ROOM SELECTED TO DRAW IN!")
-            appData.drawingCanvas.updateDisplay_DEPRECATED();
+            AppData.instance.drawingCanvas.updateDisplay_DEPRECATED();
         }
         this.toolcancel();
     }

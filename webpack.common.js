@@ -7,9 +7,9 @@ const CopyPlugin = require("copy-webpack-plugin");
 
 module.exports = {
     entry: {
-        shared: ['paper', 'matrix-js-sdk'],
+        shared: ['paper', 'matrix-js-sdk', 'matrix-widget-api'],
         main: {
-            import: './src/main.js',
+            import: './src/main.ts',
             dependOn: 'shared',
         },
     },
@@ -57,9 +57,14 @@ module.exports = {
                 test: /\.(png|svg|jpg|jpeg|gif)$/i,
                 type: 'asset/resource',
             },
+            {
+                test: /\.tsx?$/,
+                use: 'ts-loader',
+                exclude: /node_modules/,
+            },
         ],
     },
     resolve: {
-        extensions: ['*', '.js']
+        extensions: ['*', '.tsx', '.ts', '.js'],
     },
 };

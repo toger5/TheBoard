@@ -4,10 +4,9 @@ import ToolLine from './tools/tool-line.js'
 import ToolRect from './tools/tool-rect.js'
 import ToolText from './tools/tool-text.js'
 import { paper } from './paper-canvas'
-
-// import { drawingCanvas } from './main.js'
+// import { AppData } from './main'
 import { dist } from './helper.js'
-import ToolImage from './tools/tool-image.js'
+import ToolImage from './tools/tool-image'
 
 export let tools = {
     "tool-type-pen": new ToolPen(),
@@ -33,7 +32,7 @@ let handleTouchType = ""
 
 export function setActiveTool(id) {
     activeTool = tools[id];
-    window.appData.rightPanel.setToolPanel(activeTool.getSettingsPanel())
+    AppData.instance.rightPanel.setToolPanel(activeTool.getSettingsPanel())
 }
 
 export default function init_input(element) {
@@ -42,19 +41,19 @@ export default function init_input(element) {
     el.onpointerdown = function (e) {
         // e.preventDefault();
         console.log("onpointerdown");
-        let project_pt = appData.drawingCanvas.getTransformedPointer(e.offsetX, e.offsetY);
+        let project_pt = AppData.instance.drawingCanvas.getTransformedPointer(e.offsetX, e.offsetY);
         if (e.pointerType == "touch") {
             if (touchesCache.length == 0) {
                 activeTool.tooldown(project_pt.x, project_pt.y, e.pressure);
             } else {
                 activeTool.toolcancel();
                 viewMatrixTouchStart = new paper.Matrix(paper.view.matrix)
-                // touchZoomCache = appData.drawingCanvas.getZoom();
+                // touchZoomCache = AppData.instance.drawingCanvas.getZoom();
             }
             touchesCacheBegin.push(e);
             touchesCache.push(e);
         } else {
-            // let project_pt = appData.drawingCanvas.getTransformedPointer(e.offsetX, e.offsetY);
+            // let project_pt = AppData.instance.drawingCanvas.getTransformedPointer(e.offsetX, e.offsetY);
             activeTool.tooldown(project_pt.x, project_pt.y, e.pressure);
         }
     };
@@ -64,23 +63,23 @@ export default function init_input(element) {
         // console.log("onpointermove");
         if ((e.buttons == 1 && mouseOrPen(e)) || (e.pointerType == 'touch' && touchesCache.length < 2)) {
             if (!activeTool.tool_canceled) {
-                let project_pt = appData.drawingCanvas.getTransformedPointer(e.offsetX, e.offsetY);
+                let project_pt = AppData.instance.drawingCanvas.getTransformedPointer(e.offsetX, e.offsetY);
                 activeTool.toolmove(project_pt.x, project_pt.y, e.pressure);
             }
         } else if (e.buttons == 4 && mouseOrPen(e)) {
             let offset = new Point(e.movementX, e.movementY)
-            appData.drawingCanvas.offset(offset.divide(appData.drawingCanvas.getZoom()));
+            AppData.instance.drawingCanvas.offset(offset.divide(AppData.instance.drawingCanvas.getZoom()));
         }
         else if (touchesCache.length == 2 && e.pointerType == "touch") {
             let index = touchesCache.findIndex((el) => { return e.pointerId === el.pointerId });
             touchesCache[index] = e;
             handlePanZoom();
         }
-        activeTool.toolpreviewmove(appData.drawingCanvas.getTransformedPointer(e.offsetX, e.offsetY))
+        activeTool.toolpreviewmove(AppData.instance.drawingCanvas.getTransformedPointer(e.offsetX, e.offsetY))
     };
     el.onpointerup = function (e) {
         console.log("onpointerup");
-        let project_pt = appData.drawingCanvas.getTransformedPointer(e.offsetX, e.offsetY);
+        let project_pt = AppData.instance.drawingCanvas.getTransformedPointer(e.offsetX, e.offsetY);
         if (e.pointerType == "touch") {
             touchesCache = touchesCache.filter((cache_event) => (cache_event.pointerId !== e.pointerId));
             touchesCacheBegin = touchesCacheBegin.filter((cache_event) => (cache_event.pointerId !== e.pointerId));
@@ -98,12 +97,12 @@ export default function init_input(element) {
         e.preventDefault();
         if (e.ctrlKey) {
             // ctrl is used as the indicator for pinch gestures... (Not a fan...)
-            appData.drawingCanvas.zoom(1 + e.wheelDeltaY*ZOOM_SPEED, new Point(e.offsetX, e.offsetY))
+            AppData.instance.drawingCanvas.zoom(1 + e.wheelDeltaY*ZOOM_SPEED, new Point(e.offsetX, e.offsetY))
             // zoom(, 1 + e.wheelDeltaY);
         } else {
             let scroll_speed = 0.5;
             let offset = new Point(e.wheelDeltaX * scroll_speed, e.wheelDeltaY * scroll_speed);
-            appData.drawingCanvas.offset(offset.divide(appData.drawingCanvas.getZoom()));
+            AppData.instance.drawingCanvas.offset(offset.divide(AppData.instance.drawingCanvas.getZoom()));
         }
     };
     
@@ -156,11 +155,11 @@ function handlePanZoom() {
     }
 
     // apply the new matrix
-    appData.drawingCanvas.setMatrix(newM)
+    AppData.instance.drawingCanvas.setMatrix(newM)
 }
 
 function getTransformedPoints(matrix) {
-    let drawC = appData.drawingCanvas
+    let drawC = AppData.instance.drawingCanvas
     let cx = drawC.canvas.getBoundingClientRect().x;
     let cy = drawC.canvas.getBoundingClientRect().y;
     let start1 = matrix.inverseTransform(touchesCacheBegin[0].clientX - cx, touchesCacheBegin[0].clientY - cy);
@@ -175,7 +174,7 @@ function getTransformedPoints(matrix) {
 
 
 // function handlePanZoomSingle() {
-//     let drawC = appData.drawingCanvas
+//     let drawC = AppData.instance.drawingCanvas
 //     let cx = drawC.canvas.getBoundingClientRect().x;
 //     let cy = drawC.canvas.getBoundingClientRect().y;
 //     let canvasZoom = drawC.getZoom();
@@ -228,7 +227,7 @@ function getTransformedPoints(matrix) {
 // }
 
 // function handlePanZoomSwitch() {
-//     let drawC = appData.drawingCanvas
+//     let drawC = AppData.instance.drawingCanvas
 //     let cx = drawC.canvas.getBoundingClientRect().x;
 //     let cy = drawC.canvas.getBoundingClientRect().y;
 //     let canvasZoom = drawC.getZoom();
