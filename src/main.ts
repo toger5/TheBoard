@@ -28,12 +28,12 @@ import { MatrixBackendAccountDriverSdk, MatrixBackendRoomDriverSdk } from './bac
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-enum AppType {
+export enum AppType {
     widget = "widget",
     sdk = "sdk",
 }
 
-const APP_TYPE = AppType.widget as any;
+export const APP_TYPE = AppType.widget as any;
 
 export class AppData {
     private static internalInstance: AppData;
@@ -212,7 +212,6 @@ async function loadRoomWidget() {
     drawC.setZoom(1.0)
     drawC.reload() // load already cached messages which we won't get from scrollback events
     await AppData.instance.matrixBackend.scrollback(roomId, 1000);
-    console.log("room loaded from widget")
 }
 async function loadRoom(roomId, scrollback_count = 500, allMessages = true) {
     /*
