@@ -11,6 +11,9 @@ export class MatrixBackendRoomDriverSdk extends EventEmitter implements MatrixBa
         this.client = client;
         this.currentRoomId = currentRoomId;
     }
+    get userId(): string {
+        throw new Error('Method not implemented.');
+    }
     get roomId(): string {
         throw new Error('Method not implemented.');
     }

@@ -5,6 +5,9 @@ import { isBoardCommitEvent, isBoardObjectEvent, isBoardRoom } from "./filter";
 import { setAlpha } from "../helper";
 import * as BoardEvent from './board-event-consts'
 import { MatrixBackendDriverAccount, MatrixBackendDriverRoom } from "./matrix-backend-driver";
+// import { project } from "paper/dist/paper-core";
+export const paper = require('paper');
+
 export enum BackendEvent {
     BoardEvent = "board_event",
     BoardEventLocalEcho = "board_event_echo",
@@ -209,26 +212,31 @@ export class MatrixBackend {
         this.driverRoom.on(BackendEvent.BoardEventLocalEcho, function (msg, room, oldId, newStatus) {
             if (isBoardObjectEvent(msg.getType()) && msg.status === "sent") {
 
-                // let item = project.getItem({ match: function (item) { return item.data.id == oldId } })
-                // if (item) {
-                //     item.data.id = msg.event.event_id
-                // }
+                let item = paper.project.getItem({ match: function (item) { return item.data.id == oldId } })
+                if (item) {
+                    item.data.id = msg.event.event_id
+                    console.log("updated event Id for item")
+                }
                 AppData.instance.objectStore.add(msg.event);
             }
         })
-        // var replacedEvents = new Set();
+
         this.driverRoom.on(BackendEvent.BoardEvent, (msg: any) => {
             // let age = Date.now() - msg.getDate().getTime();
             // console.log("age ", age)
-            let animated = Date.now() - msg.getDate().getTime() < 10000;
+            let scrollbackEvent = msg.getDate().getTime() ? Date.now() - msg.getDate().getTime() < 10000 : false;
+            let yourEvent = msg.event.sender == this.driverRoom.userId;
+            const animated = !scrollbackEvent;// || yourEvent;
             let toBeginningOfTimeline = !animated;
             AppData.instance.drawingCanvas.drawEvent(msg.event, animated, toBeginningOfTimeline, false);
-            // if (msg.status == null) {
-            //     // event already has a proper ID. because it is not status == sending, but loaded from scrollback
-            //     console.log("the status from the message of the widget", msg.status)
-            //     // AppData.instance.objectStore.add(msg.event);
-            // }
-            AppData.instance.objectStore.add(msg.event);
+            if (msg.status == null) {
+                // event already has a proper ID. because it is not status == sending, but loaded from scrollback or from another user
+                console.log("the status from the message of the widget", msg.status)
+                AppData.instance.objectStore.add(msg.event);
+            }else{
+                console.log("Ev is sending so it does not get added to the objectStore (will be added during local echo)")
+            }
+            // AppData.instance.objectStore.add(msg.event);
         });
         // this.client.on("Room.timeline", function (msg, room, toStartOfTimeline) {
         //     if (msg.isRedacted()) { return; } // skipp redacted events
