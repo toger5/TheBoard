@@ -51,8 +51,8 @@ export class MatrixBackendRoomDriverWidget extends EventEmitter implements Matri
             api.requestCapabilityToReceiveEvent(BOARD_OBJECT_EVENT_NAME);
             api.requestCapabilityToSendEvent(BOARD_OBJECT_EVENT_NAME);
 
-            api.requestCapabilityToReceiveEvent("m.room.message");
-            api.requestCapabilityToSendEvent("m.room.message");
+            // api.requestCapabilityToReceiveEvent("m.room.message");
+            // api.requestCapabilityToSendEvent("m.room.message");
 
             api.requestCapabilityToReceiveState("m.room.name");
             // api.requestCapabilityToSendEvent(BOARD_COMMIT_EVENT_NAME);
@@ -93,6 +93,7 @@ export class MatrixBackendRoomDriverWidget extends EventEmitter implements Matri
                         // }
                         break;
                     case "m.room.message":
+                        // there are no permissions for this atm
                         console.log(ev.detail.data.content)
                         _this.emit(BackendEvent.RoomMessage, ev.detail.data);
                         break;
