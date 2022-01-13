@@ -62,7 +62,7 @@ export default class ToolEraser extends Tool {
             if (!hitResult) { continue }
             console.log('hitResult', hitResult);
             let objectEvent = AppData.instance.objectStore.getById(hitResult.item.data.id)
-            if (objectEvent.sender == AppData.instance.matrixBackend.client.getUserId() // TODO only filter by user when the permission settings dont allow the deletion
+            if (objectEvent.sender == AppData.instance.matrixBackend.getUserId() // TODO only filter by user when the permission settings dont allow the deletion
                 && !this.ignoredObjectTypes.has(objectEvent.content.objtype)) {
                 hitResult.item.opacity = 0.5;
                 hitResult.item.data.markedForDeletion = true
@@ -80,7 +80,7 @@ export default class ToolEraser extends Tool {
         console.log(this.idsToDelete)
         for (let id of this.idsToDelete) {
             console.log(id)
-            AppData.instance.matrixBackend.client.redactEvent(AppData.instance.matrixBackend.currentRoomId, id).then(t => {
+            AppData.instance.matrixBackend.redactEvent(AppData.instance.matrixBackend.currentRoomId, id).then(t => {
                 console.log("redacted (eraser): ", t);
             });
             // this.idsToDelete = this.idsToDelete.filter((itemId) => { return itemId == id })
@@ -117,7 +117,7 @@ export default class ToolEraser extends Tool {
             this.previewItem.visible = true
         }
 
-        AppData.instance.drawingCanvas.addFilter(new UserFilter(AppData.instance.matrixBackend.client.getUserId()))
+        AppData.instance.drawingCanvas.addFilter(new UserFilter(AppData.instance.matrixBackend.getUserId()))
         this.updateDrawFilter.call(this)
     }
     deactivate() {
