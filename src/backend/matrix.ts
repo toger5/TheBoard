@@ -193,7 +193,7 @@ export class MatrixBackend {
             const localEvent = !msg.event.sender; // the sender is not filled for local fake events
             const animated = !scrollbackEvent && !localEvent;
 
-            let item = AppData.instance.drawingCanvas.drawEvent(msg.event, animated, scrollbackEvent, false);
+            let item = AppData.instance.drawingCanvas.drawEvent(msg.event, animated, scrollbackEvent, !animated);
             if (msg.status == null || msg.status == "sent") {
                 // event already has a proper ID. because it is not status == sending, but loaded from scrollback or from another user
                 AppData.instance.objectStore.add(msg.event);
