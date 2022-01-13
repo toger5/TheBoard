@@ -26,8 +26,13 @@
         <button onclick="actions.replaceLastEvent()">Replace Last</button>
         <button onclick="actions.redactLastAction()">Redact Last</button>
         <br />
-        <button
-            onclick="actions.scrollback(AppData.instance.matrixBackend.currentRoomId, 1000).then(function(){AppData.instance.drawingCanvas.reload()});">
+        <button onclick="
+             setTimeout(()=>{
+                window.actions.showLoading('Scroll up in room timeline (Only events loaded by the client can be shown here)');
+            },2000)
+            setTimeout(()=>window.actions.hideLoading(),6000)
+            actions.scrollback(AppData.instance.matrixBackend.currentRoomId, 1000).then(function(){AppData.instance.drawingCanvas.reload()});
+            ">
             Load History</button>
         <button onclick="AppData.instance.drawingCanvas.reload();">Reload Canvas</button>
         <button onclick="AppData.instance.drawingCanvas.animateToPoint([0,0], 1, 800, true)">Go Home</button>
