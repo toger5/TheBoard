@@ -131,6 +131,7 @@ export default class PaperCanvas {
         } else {
             // addedItem.tween({ opacity: 1.0 }, { opacity: addedItem.opacity }, 400)
         }
+        return addedItem;
     }
 
     activateToolLayer() {
@@ -344,7 +345,7 @@ export default class PaperCanvas {
     }
     animateToPoint(center, zoom, duration = 800, topLeft = false) {
         let c = new Point(center);
-        let offsetSize = topLeft ? (paper.view.viewSize.multiply(0.5)) : [0,0];
+        let offsetSize = topLeft ? (paper.view.viewSize.multiply(0.5)) : [0, 0];
         let offset = new Point(offsetSize);
         c = c.add(offset);
         let startCenter = paper.view.center

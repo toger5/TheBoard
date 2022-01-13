@@ -172,24 +172,32 @@ export class MatrixBackend {
         this.driverRoom.on(BackendEvent.BoardEventLocalEcho, function (msg, room, oldId, newStatus) {
             if (isBoardObjectEvent(msg.getType()) && msg.status === "sent") {
 
-                let item = paper.project.getItem({ match: function (item) { return item.data.id == oldId } })
-                if (item) {
-                    item.data.id = msg.event.event_id
+                AppData.instance.drawingCanvas.drawEvent(msg.event, false, false, false);
+                
+                let itemOld = paper.project.getItem({ match: function (item) { return item.data.id == oldId } })
+                if (itemOld) {
+                    
+                    itemOld.data.id = msg.event.event_id
                     console.log("updated event Id for item")
                 }
+                itemOld.remove();
                 AppData.instance.objectStore.add(msg.event);
             }
         })
 
         this.driverRoom.on(BackendEvent.BoardEvent, (msg: any) => {
             let scrollbackEvent = msg.getDate().getTime() ? Date.now() - msg.getDate().getTime() < 10000 : false;
-            const animated = !scrollbackEvent;
+            const localEvent = !msg.event.sender; // the sender is not filled for local fake events
+            const animated = !scrollbackEvent && !localEvent;
 
-            AppData.instance.drawingCanvas.drawEvent(msg.event, animated, scrollbackEvent, false);
+            let item = AppData.instance.drawingCanvas.drawEvent(msg.event, animated, scrollbackEvent, false);
             if (msg.status == null || msg.status == "sent") {
                 // event already has a proper ID. because it is not status == sending, but loaded from scrollback or from another user
                 AppData.instance.objectStore.add(msg.event);
-            } else console.log("Ev is sending so it does not get added to the objectStore (will be added during local echo)");
+            } else {
+                console.log("Ev is sending so it does not get added to the objectStore (will be added during local echo)")
+                item.opacity = item.opacity * 0.65;
+            };
 
         });
         this.driverRoom.on(BackendEvent.Redact, (msg: any) => {
