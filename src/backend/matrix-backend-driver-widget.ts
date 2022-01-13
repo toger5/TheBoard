@@ -23,7 +23,7 @@ export class MatrixBackendRoomDriverWidget extends EventEmitter implements Matri
     let msg = {
         event: ev,
         status: state,
-        getDate: () => new Date(ev.origin_server_ts * 1000),
+        getDate: () => new Date(ev.origin_server_ts),
         getType: () => BOARD_OBJECT_EVENT_NAME,
         getRoomId: () => roomId,
     }

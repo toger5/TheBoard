@@ -186,7 +186,10 @@ export class MatrixBackend {
         })
 
         this.driverRoom.on(BackendEvent.BoardEvent, (msg: any) => {
-            let scrollbackEvent = msg.getDate().getTime() ? Date.now() - msg.getDate().getTime() < 10000 : false;
+            const now = Date.now();
+            const evTime = msg.getDate().getTime();
+            const diff = now - evTime;
+            let scrollbackEvent = evTime ? diff > 10000 : false;
             const localEvent = !msg.event.sender; // the sender is not filled for local fake events
             const animated = !scrollbackEvent && !localEvent;
 
