@@ -45,6 +45,9 @@ export class MatrixBackendRoomDriverSdk extends EventEmitter implements MatrixBa
             console.log(err);
         });
     }
+    redact(id: string) {
+        throw new Error('Method not implemented.');
+    }
 }
 
 

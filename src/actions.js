@@ -67,23 +67,7 @@ function toggleGrid() {
 //     // }
 //     document.getElementById("tool").innerText = "Tool: " + tool.getString();
 // }
-function redactLastAction() {
-    let id = "";
-    let roomId = AppData.instance.matrixBackend.currentRoomId;
-    let userId = AppData.instance.matrixBackend.client.getUserId();
-    let sortedEvents = AppData.instance.objectStore.allSorted();
-    for (let i = sortedEvents.length - 1; (id === "" && i >= 0); i--) {
-        let event = sortedEvents[i];
-        console.log("looping through events to find the one to redact");
-        if (isBoardObjectEvent(event.type) && event.sender == userId) {
-            id = event.event_id;
-            break;
-        }
-    }
-    AppData.instance.matrixBackend.client.redactEvent(roomId, id).then(t => {
-        console.log("redacted: ", t);
-    });
-}
+
 function sendRandomText(client, room) {
     textList = ["hallo du", "noch nen test string", "affe", "haus is gross", "wie gehts"];
     text = textList[Math.floor(Math.random() * textList.length)];
@@ -192,7 +176,7 @@ function formSubmit(e) {
 function lastEvent() {
     let lastEvent = null;
     // let room = client.getRoom(roomId);
-    let userId = AppData.instance.matrixBackend.client.getUserId();
+    let userId = AppData.instance.matrixBackend.getUserId();
     let sortedEvents = AppData.instance.objectStore.allSorted();
     for (let i = sortedEvents.length - 1; i >= 0; i--) {
         let event = sortedEvents[i];
@@ -204,11 +188,30 @@ function lastEvent() {
     }
     return lastEvent;
 }
+function redactLastAction() {
+    // let id = "";
+    // let roomId = AppData.instance.matrixBackend.currentRoomId;
+    // let userId = AppData.instance.matrixBackend.getUserId();
+    // let sortedEvents = AppData.instance.objectStore.allSorted();
+    // for (let i = sortedEvents.length - 1; (id === "" && i >= 0); i--) {
+    //     let event = sortedEvents[i];
+    //     console.log("looping through events to find the one to redact");
+    //     if (isBoardObjectEvent(event.type) && event.sender == userId) {
+    //         id = event.event_id;
+    //         break;
+    //     }
+    // }
+    let lastEv = lastEvent();
+    AppData.instance.matrixBackend.redactEvent(lastEv.room_id, lastEv.event_id).then(t => {
+        console.log("redacted: ", t);
+    });
+}
 function replaceEvent(idToReplace, newContent) {
-    AppData.instance.matrixBackend.client.sendEvent(AppData.instance.matrixBackend.currentRoomId, BoardEvent.BOARD_OBJECT_EVENT_NAME, newContent, "", (err, res) => {
+    console.error("not implemented for widgets!! matrixBackend.sendEvent")
+    AppData.instance.matrixBackend.sendEvent(AppData.instance.matrixBackend.currentRoomId, BoardEvent.BOARD_OBJECT_EVENT_NAME, newContent, "", (err, res) => {
         console.log(err);
     });
-    AppData.instance.matrixBackend.client.redactEvent(AppData.instance.matrixBackend.currentRoomId, idToReplace).then(t => {
+    AppData.instance.matrixBackend.redactEvent(AppData.instance.matrixBackend.currentRoomId, idToReplace).then(t => {
         console.log("redacted for replace ", t);
     });
 }

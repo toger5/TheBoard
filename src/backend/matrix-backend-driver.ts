@@ -16,4 +16,5 @@ export interface MatrixBackendDriverRoom extends EventEmitter {
     uploadContent(file, onlyContentUri, progressHandler: (state: { loaded: number; total: number; }) => void): Promise<any>;
     // uploadContent(file: File, onlyContentUri: boolean, progressHandler: (prog: Number)=>void );
     sendBoardObjectEvent(content: any);
+    redact(id: string);
 }

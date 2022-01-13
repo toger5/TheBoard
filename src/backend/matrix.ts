@@ -12,9 +12,10 @@ export enum BackendEvent {
     BoardEvent = "board_event",
     BoardEventLocalEcho = "board_event_echo",
     RoomMessage = "room_message",
+    Redact = "redact",
 }
 
-// supposed order of operations
+// Order of operations
 // MatrixBackend.init()
 //      driverAccount.init
 //      driverRoom.init
@@ -31,10 +32,12 @@ export class MatrixBackend {
         this.driverRoom = driverRoom;
     }
 
-    public get currentRoomId(){
+    public get currentRoomId() {
         return this.driverRoom.roomId;
     }
-
+    public getUserId() {
+        return this.driverRoom.userId;
+    }
     async init() {
         await this.driverAccount.init();
         await this.driverRoom.init();
@@ -126,68 +129,19 @@ export class MatrixBackend {
             return this.driverRoom.sendBoardObjectEvent(content)
         })
     }
+    redactEvent(roomId, id) {
+        return this.driverRoom.redact(id);
+    }
 
     updateRoomTree() {
         return this.driverAccount.updateRoomTree();
-        // let roomTree = new NotebookTree();
-        // let dateNow = Date.now()
-        // // console.log("startGettingVisibleRooms")
-        // // return new Promise( (resolve, reject) {
-        // let visibleRooms = this.client.getRooms();
-        // // console.log("got all visible rooms" + (Date.now() - dateNow))
-        // let spaces = visibleRooms.filter(r => r.currentState.events.has('m.space.child'))
-
-        // for (let room of visibleRooms) {
-        //     // console.log(Array.from(room.currentState.events.keys()))
-        //     if (!isBoardRoom(room.currentState.events)) {
-        //         continue // only show rooms which are marked as whitebaord rooms
-        //     }
-        //     let found = spaces.find(spaceRoom => spaceRoom.currentState.events.get('m.space.child').has(room.roomId))
-        //     if (found) {
-        //         if (found.roomId in roomTree.notebooks) {
-        //             roomTree.notebooks[found.roomId].push(room.roomId)
-        //         } else {
-        //             roomTree.notebooks[found.roomId] = [room.roomId]
-        //         }
-        //         console.log("whiteboard is in space!: ", found)
-        //     } else {
-        //         roomTree.whiteboards.push(room.roomId)
-        //     }
-        // }
-        // return roomTree;
     }
 
     async createWhiteboard(visibility, whiteboardName) {
         return this.driverAccount.createWhiteboard(visibility, whiteboardName);
-        // let roomOpt = {
-        //     // room_alias_name
-        //     visibility: visibility,
-        //     invite: [],
-        //     name: whiteboardName == "" ? "unnamed Whiteboard" : whiteboardName,
-        // }
-        // showLoading("Creating whiteboard with Name: " + whiteboardName)
-        // let roomCreateData = await AppData.instance.matrixBackend.client.createRoom(roomOpt);
-        // hideLoading();
-        // AppData.instance.matrixBackend.makeWhiteboardFromRoom.bind(AppData.instance.matrixBackend);
-        // return AppData.instance.matrixBackend.makeWhiteboardFromRoom(roomCreateData.room_id);
     }
     makeWhiteboardFromRoom(roomId): Promise<any> {
         return this.driverAccount.makeWhiteboardFromRoom(roomId)
-        // let content = {}
-        // let client = AppData.instance.matrixBackend.client;
-        // let stateId = await client.sendStateEvent(roomId, BoardEvent.BOARD_ROOM_STATE_NAME, content, "")
-        // showLoading("make Room " + client.getRoom(roomId).name + "a whiteboard")
-        // let prom = new Promise(function (resolve, reject) {
-        //     let listenerFunc = function (msg, state, prevEvent) {
-        //         if (msg.event.event_id == stateId.event_id) {
-        //             client.removeListener("RoomState.events", listenerFunc)
-        //             resolve()
-        //             hideLoading()
-        //         }
-        //     }
-        //     client.on("RoomState.events", listenerFunc);
-        // })
-        // return prom;
     }
 
 
@@ -222,52 +176,23 @@ export class MatrixBackend {
         })
 
         this.driverRoom.on(BackendEvent.BoardEvent, (msg: any) => {
-            // let age = Date.now() - msg.getDate().getTime();
-            // console.log("age ", age)
             let scrollbackEvent = msg.getDate().getTime() ? Date.now() - msg.getDate().getTime() < 10000 : false;
-            let yourEvent = msg.event.sender == this.driverRoom.userId;
-            const animated = !scrollbackEvent;// || yourEvent;
-            let toBeginningOfTimeline = !animated;
-            AppData.instance.drawingCanvas.drawEvent(msg.event, animated, toBeginningOfTimeline, false);
-            if (msg.status == null) {
+            const animated = !scrollbackEvent;
+
+            AppData.instance.drawingCanvas.drawEvent(msg.event, animated, scrollbackEvent, false);
+            if (msg.status == null || msg.status == "sent") {
                 // event already has a proper ID. because it is not status == sending, but loaded from scrollback or from another user
-                console.log("the status from the message of the widget", msg.status)
                 AppData.instance.objectStore.add(msg.event);
-            }else{
-                console.log("Ev is sending so it does not get added to the objectStore (will be added during local echo)")
-            }
-            // AppData.instance.objectStore.add(msg.event);
+            } else console.log("Ev is sending so it does not get added to the objectStore (will be added during local echo)");
+
         });
-        // this.client.on("Room.timeline", function (msg, room, toStartOfTimeline) {
-        //     if (msg.isRedacted()) { return; } // skipp redacted events
-        //     if (isBoardObjectEvent(msg.getType())) {
-        //         let age = Date.now() - msg.getDate().getTime();
-        //         // console.log("age ", age)
-        //         let animated = Date.now() - msg.getDate().getTime() < 10000;
-        //         let toBeginningOfTimeline = !animated;
-        //         if (msg.event.room_id === AppData.instance.matrixBackend.currentRoomId) {
-        //             AppData.instance.drawingCanvas.drawEvent(msg.event, animated, toBeginningOfTimeline, false);
-        //         }
-        //         if (msg.status == null) {
-        //             // event already has a proper ID. because it is not status == sending, but loaded from scrollback
-        //             AppData.instance.objectStore.add(msg.event);
-        //         }
-        //     }
-        //     else if (isBoardCommitEvent(msg.getType())) {
-        //         console.log("Commit Event", msg.event)
-        //     }
-        //     else if (msg.getType() == "m.room.redaction") {
-        //         let room = AppData.instance.matrixBackend.client.getRoom(msg.event.room_id)
-        //         if (room.timeline[0].getTs() < msg.getTs()) {
-        //             AppData.instance.objectStore.redactById(msg.event.redacts, msg.getRoomId());
-        //         }
-        //     }
-        //     // if (msg.getType() !== "m.room.message") {
-        //     //     return;
-        //     // }
-        // });
+        this.driverRoom.on(BackendEvent.Redact, (msg: any) => {
+            AppData.instance.objectStore.redactById(msg.event.redacts, msg.getRoomId(), true);
+        });
     }
 }
+
+
 // old stuff:
 // export default class MatrixBackend {
 //     constructor() {
