@@ -1,4 +1,5 @@
 // import { Point, Rectangle } from 'paper/dist/paper-core';
+import { Point } from 'paper/dist/paper-core';
 import { isBoardObjectEvent } from './backend/filter';
 import { parsePath, parseBezierPath, parsePoint, parsePointDeprecated } from './helper';
 export const paper = require('paper');
@@ -341,8 +342,11 @@ export default class PaperCanvas {
     getTransformedPointer(x, y) {
         return paper.view.viewToProject(new paper.Point(x, y))
     }
-    animateToPoint(center, zoom, duration = 800) {
-        let c = new Point(center)
+    animateToPoint(center, zoom, duration = 800, topLeft = false) {
+        let c = new Point(center);
+        let offsetSize = topLeft ? (paper.view.viewSize.multiply(0.5)) : [0,0];
+        let offset = new Point(offsetSize);
+        c = c.add(offset);
         let startCenter = paper.view.center
         let startZoom = paper.view.zoom
         let startTime = Date.now()

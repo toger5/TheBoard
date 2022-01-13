@@ -30,7 +30,7 @@
             onclick="actions.scrollback(AppData.instance.matrixBackend.currentRoomId, 1000).then(function(){AppData.instance.drawingCanvas.reload()});">
             Load History</button>
         <button onclick="AppData.instance.drawingCanvas.reload();">Reload Canvas</button>
-        <button onclick="AppData.instance.drawingCanvas.animateToPoint([0,0], 0.5)">Go Home</button>
+        <button onclick="AppData.instance.drawingCanvas.animateToPoint([0,0], 1, 800, true)">Go Home</button>
         <button onclick="AppData.instance.drawingCanvas.resetZoom()">Reset Zoom</button>
     </div>
 

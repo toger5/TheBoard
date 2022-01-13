@@ -1,10 +1,10 @@
-import { hideLoading, login, showLoading, /*updateAddRoomList*/ } from './main'
+import { AppData, hideLoading, showLoading, /*updateAddRoomList*/ } from './main'
 // import { matrixClient } from './main'//backend;
 import { parsePoint } from './helper'
 import { isBoardObjectEvent } from './backend/filter'
 import * as BoardEvent from './backend/board-event-consts'
 
-window.actions = {
+(window as any).actions = {
     redactLastAction: redactLastAction,
     formSubmit: formSubmit,
     replaceLastEvent: replaceLastEvent,
@@ -16,11 +16,12 @@ window.actions = {
     toggleLeftBar: toggleLeftBar,
     showLoading: showLoading,
     hideLoading: hideLoading,
-    sendImageFromFile:sendImageFromFile,
+    sendImageFromFile: sendImageFromFile,
 }
-function sendImageFromFile(file){
+
+function sendImageFromFile(file) {
     let url = URL.createObjectURL(file)
-    let img = AppData.instance.drawingCanvas.addImage({url:url},'$someID')
+    let img = AppData.instance.drawingCanvas.addImage({ url: url }, '$someID')
     AppData.instance.matrixBackend.sendImage(img, file)
     img.opacity = 0.4
     // AppData.instance.drawingCanvas.addImage({
@@ -42,6 +43,7 @@ function sendmsgs(amount, client, room) {
     }
 }
 function toggleGrid() {
+    let setting_grid;
     console.log(setting_grid);
     if (setting_grid === "") {
         setting_grid = "squares";
@@ -69,8 +71,8 @@ function toggleGrid() {
 // }
 
 function sendRandomText(client, room) {
-    textList = ["hallo du", "noch nen test string", "affe", "haus is gross", "wie gehts"];
-    text = textList[Math.floor(Math.random() * textList.length)];
+    const textList = ["hallo du", "noch nen test string", "affe", "haus is gross", "wie gehts"];
+    const text = textList[Math.floor(Math.random() * textList.length)];
     const content = {
         "body": text,
         "msgtype": "m.text"
@@ -159,7 +161,7 @@ function randomStroke() {
         var widthdiff = 0.1;
         width += (i > (len - 20) || i < 20) ? -widthdiff * Math.sign(i - len / 2) : 0;
         // width = Math.sign(width) * Math.min(Math.abs(width),8);
-        stepdist = 4 + Math.random() * 5;
+        let stepdist = 4 + Math.random() * 5;
         console.log(width)
         pos = [pos[0] + stepdist * Math.sin(angle), pos[1] + stepdist * Math.cos(angle)];
         walk += i * 0.1 + " " + pos[0] + " " + pos[1] + " " + width + " ";
@@ -189,27 +191,14 @@ function lastEvent() {
     return lastEvent;
 }
 function redactLastAction() {
-    // let id = "";
-    // let roomId = AppData.instance.matrixBackend.currentRoomId;
-    // let userId = AppData.instance.matrixBackend.getUserId();
-    // let sortedEvents = AppData.instance.objectStore.allSorted();
-    // for (let i = sortedEvents.length - 1; (id === "" && i >= 0); i--) {
-    //     let event = sortedEvents[i];
-    //     console.log("looping through events to find the one to redact");
-    //     if (isBoardObjectEvent(event.type) && event.sender == userId) {
-    //         id = event.event_id;
-    //         break;
-    //     }
-    // }
     let lastEv = lastEvent();
     AppData.instance.matrixBackend.redactEvent(lastEv.room_id, lastEv.event_id).then(t => {
         console.log("redacted: ", t);
     });
 }
 function replaceEvent(idToReplace, newContent) {
-    console.error("not implemented for widgets!! matrixBackend.sendEvent")
-    AppData.instance.matrixBackend.sendEvent(AppData.instance.matrixBackend.currentRoomId, BoardEvent.BOARD_OBJECT_EVENT_NAME, newContent, "", (err, res) => {
-        console.log(err);
+    AppData.instance.matrixBackend.sendEvent(newContent).then((err) => {
+        console.log("send new content", err);
     });
     AppData.instance.matrixBackend.redactEvent(AppData.instance.matrixBackend.currentRoomId, idToReplace).then(t => {
         console.log("redacted for replace ", t);
@@ -260,9 +249,8 @@ function hideAddRoomMenu() {
 function showSettingsMenu() {
     let settingsMenu = document.getElementById("settings-container")
     let roomId = document.getElementById('room-menu-room-id')
-    let room = AppData.instance.matrixBackend.client.getRoom(AppData.instance.matrixBackend.currentRoomId);
+    roomId.innerHTML = AppData.instance.matrixBackend.currentRoomId;
 
-    roomId.innerHTML = room.roomId
     settingsMenu.style.display = 'block'
 }
 function hideSettingsMenu() {

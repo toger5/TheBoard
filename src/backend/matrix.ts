@@ -42,13 +42,14 @@ export class MatrixBackend {
         await this.driverAccount.init();
         await this.driverRoom.init();
         this.setupClientConnections();
+        (window as any).actions.scrollback = this.scrollback;
     }
 
     login(username?, password?, baseUrl?, loginCallback?): Promise<any> {
         return this.driverAccount.login(username, password, baseUrl)
     }
 
-    scrollback(roomId, scrollback_count = 200, loadingMsg = null) {
+    scrollback = (roomId, scrollback_count = 200, loadingMsg = null) => {
         if (loadingMsg) { showLoading(loadingMsg); } else {
             showLoading("load " + scrollback_count + " elements from message history");
         }
@@ -126,9 +127,14 @@ export class MatrixBackend {
                 },
                 "objtype": "image"
             };
-            return this.driverRoom.sendBoardObjectEvent(content)
+            return this.driverRoom.sendBoardObjectEvent(content);
         })
     }
+
+    sendEvent(content): Promise<any> {
+        return this.driverRoom.sendBoardObjectEvent(content)
+    }
+
     redactEvent(roomId, id) {
         return this.driverRoom.redact(id);
     }

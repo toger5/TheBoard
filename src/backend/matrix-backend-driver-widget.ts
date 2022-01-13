@@ -16,13 +16,30 @@ export class MatrixBackendRoomDriverWidget extends EventEmitter implements Matri
         this.roomName = "unknown";
         this.echoEventMap = new Map();
     }
-    get roomId(): string {
+
+   // helper functions
+   private evToMsg(ev, state?: string) {
+    let roomId = ev.room_id;
+    let msg = {
+        event: ev,
+        status: state,
+        getDate: () => new Date(ev.origin_server_ts * 1000),
+        getType: () => BOARD_OBJECT_EVENT_NAME,
+        getRoomId: () => roomId,
+    }
+    return msg;
+}
+
+    // public: 
+    public get roomId(): string {
         return this._roomId;
     }
-    get userId(): string {
+    
+    public get userId(): string {
         return this._userId;
     }
-    init(): Promise<string> {
+
+    public init(): Promise<string> {
         const _this = this;
         return new Promise((resolve: (value?) => void) => {
             function parseFragment() {
@@ -47,10 +64,10 @@ export class MatrixBackendRoomDriverWidget extends EventEmitter implements Matri
             const api = new WidgetApi(widgetId);
             api.requestCapabilityToReceiveEvent(BOARD_OBJECT_EVENT_NAME);
             api.requestCapabilityToSendEvent(BOARD_OBJECT_EVENT_NAME);
-            
+
             api.requestCapabilityToReceiveEvent("m.room.redaction");
             api.requestCapabilityToSendEvent("m.room.redaction");
-            
+
             api.requestCapabilityToReceiveState("m.room.name");
 
             api.on("ready", function (test) {
@@ -91,7 +108,7 @@ export class MatrixBackendRoomDriverWidget extends EventEmitter implements Matri
         });
     }
 
-    scrollback = (roomId: string, scrollback_count = 200, loadingMsg = null) => {
+    public scrollback = (roomId: string, scrollback_count = 200, loadingMsg = null) => {
         // let client = this.client;
 
         return new Promise((resolve, reject) => {
@@ -108,25 +125,15 @@ export class MatrixBackendRoomDriverWidget extends EventEmitter implements Matri
             });
         });
     }
-    private evToMsg(ev, state?: string) {
-        let roomId = ev.room_id;
-        let msg = {
-            event: ev,
-            status: state,
-            getDate: () => new Date(ev.origin_server_ts * 1000),
-            getType: () => BOARD_OBJECT_EVENT_NAME,
-            getRoomId: () => roomId,
-        }
-        return msg;
-    }
-    uploadContent(file: any, onlyContentUri: any, progressHandler: (state: { loaded: number; total: number; }) => void): Promise<any> {
+
+    public uploadContent(file: any, onlyContentUri: any, progressHandler: (state: { loaded: number; total: number; }) => void): Promise<any> {
         // return this.client.uploadContent(file, { onlyContentUri: onlyContentUri, progressHandler: progressHandler })
         // (prog) => { showLoading("Upload Image: " + Math.round(prog.loaded / prog.total * 100)) + "%" }
         console.warn("Can't upload a file with the widget api.")
         return new Promise((r: (_v?) => void) => { r() });
     }
 
-    sendBoardObjectEvent(content) {
+    public sendBoardObjectEvent(content): Promise<any> {
         const tempEventId = "echoId" + Date.now()
         const roomId = this.roomId;
         let msg = this.evToMsg({
@@ -134,16 +141,15 @@ export class MatrixBackendRoomDriverWidget extends EventEmitter implements Matri
             event_id: tempEventId,
         }, "NOT_SENT")
 
-        const returnVal = this.widgetApi.sendRoomEvent(BOARD_OBJECT_EVENT_NAME, content).then((value) => {
+        this.emit(BackendEvent.BoardEvent, msg)
+        return this.widgetApi.sendRoomEvent(BOARD_OBJECT_EVENT_NAME, content).then((value) => {
             // remember the id of the event send from this widget so it can be handled as an echo when the server sends it.
             this.echoEventMap.set(value.event_id, tempEventId);
         });
-        this.emit(BackendEvent.BoardEvent, msg)
-        return returnVal;
     }
 
-    redact(id: string) {
-        return this.widgetApi.sendRoomEvent("m.room.redaction", {"redacts":id});
+    public redact(id: string): Promise<any> {
+        return this.widgetApi.sendRoomEvent("m.room.redaction", { "redacts": id });
     }
 }
 
