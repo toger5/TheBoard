@@ -26,32 +26,24 @@
         <button onclick="actions.replaceLastEvent()">Replace Last</button>
         <button onclick="actions.redactLastAction()">Redact Last</button>
         <br />
-        <button onclick="
-             setTimeout(()=>{
-                window.actions.showLoading('Scroll up in room timeline (Only events loaded by the client can be shown here)');
-            },2000)
-            setTimeout(()=>window.actions.hideLoading(),6000)
-            actions.scrollback(AppData.instance.matrixBackend.currentRoomId, 1000).then(function(){AppData.instance.drawingCanvas.reload()});
-            ">
-            Load History</button>
+        <button onclick="actions.scrollback(AppData.instance.matrixBackend.currentRoomId, 1000)">Load History</button>
         <button onclick="AppData.instance.drawingCanvas.reload();">Reload Canvas</button>
         <button onclick="AppData.instance.drawingCanvas.animateToPoint([0,0], 1, 800, true)">Go Home</button>
         <button onclick="AppData.instance.drawingCanvas.resetZoom()">Reset Zoom</button>
     </div>
 
-    <!-- <div id="leftbar" class="no-room-selected center-container">
+    <div id="leftbar" class="no-room-selected center-container">
         <div id='leftbar-header'>
             <div id="userIdLabel"></div>
             <div style="padding: 5px;"><span id="roomNameLabel" style="font-size:10px;">Select a whiteboard...</span>
             </div>
         </div>
         <div id='leftbar-expand'>
-            <div id='leftbar-body'> -->
-    <!-- <button id="add-room-button" onclick="actions.showAddRoomMenu()">+</button> -->
-    <!-- </div>
+            <div id='leftbar-body'>
+            </div>
         </div>
         <button onclick="actions.toggleLeftBar()" id='leftbar-footer'>^</button>
-    </div> -->
+    </div>
 
 
     <div style="flex-grow: 1; display: flex; flex-direction: row; min-height: 0;">
@@ -98,7 +90,7 @@
         </div>
     </div>
 
-    <!-- <login-container></login-container> -->
+    <login-container></login-container>
 
     <div class="center-container" id="settings-container" style="display: none;">
         <button style="float: right;" onclick="actions.hideSettingsMenu()">close</button>

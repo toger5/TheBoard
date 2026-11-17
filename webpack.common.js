@@ -7,7 +7,7 @@ const CopyPlugin = require("copy-webpack-plugin");
 
 module.exports = {
     entry: {
-        shared: ['paper', 'matrix-js-sdk', 'matrix-widget-api'],
+        shared: ['paper', 'matrix-js-sdk'],
         main: {
             import: './src/main.ts',
             dependOn: 'shared',

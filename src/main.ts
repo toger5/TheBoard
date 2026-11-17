@@ -12,7 +12,8 @@ import * as BoardEvent from './backend/board-event-consts';
 import './actions'
 import { posFromEv, sizeFromEv } from './helper'
 import { MatrixBackendAccountDriverWidget, MatrixBackendRoomDriverWidget } from './backend/matrix-backend-driver-widget';
-import { MatrixBackendAccountDriverSdk, MatrixBackendRoomDriverSdk } from './backend/matrix-backend-driver-sdk';
+import { MatrixBackendAccountDriverSdk, MatrixBackendRoomDriverSdk, MatrixSdkSession } from './backend/matrix-backend-driver-sdk';
+import { Color } from 'paper';
 /*
  * Copyright 2020 The Matrix.org Foundation C.I.C.
  *
@@ -33,18 +34,39 @@ export enum AppType {
     sdk = "sdk",
 }
 
-export const APP_TYPE = AppType.widget as any;
+/**
+ * `?mode=widget|sdk` decides; otherwise the board is a widget when it is embedded in a frame and
+ * logs in with matrix-js-sdk when it is opened directly.
+ */
+function detectAppType(): AppType {
+    const mode = new URLSearchParams(window.location.search).get("mode");
+    if (mode === AppType.widget || mode === AppType.sdk) return mode;
+    return window.parent !== window ? AppType.widget : AppType.sdk;
+}
+
+export const APP_TYPE: AppType = detectAppType();
+const LAST_ROOM_STORAGE_KEY = "theboard_last_room";
 
 export class AppData {
     private static internalInstance: AppData;
     public matrixBackend: MatrixBackend;
     public objectStore: ObjectStore;
     public drawingCanvas: PaperCanvas;
+    /** Only in sdk mode. */
+    public sdkSession?: MatrixSdkSession;
     constructor() {
-        this.matrixBackend = new MatrixBackend(
-            APP_TYPE == AppType.sdk ? new MatrixBackendAccountDriverSdk() : new MatrixBackendAccountDriverWidget(),
-            APP_TYPE == AppType.sdk ? new MatrixBackendRoomDriverSdk() : new MatrixBackendRoomDriverWidget(),
-        );
+        if (APP_TYPE == AppType.sdk) {
+            this.sdkSession = new MatrixSdkSession();
+            this.matrixBackend = new MatrixBackend(
+                new MatrixBackendAccountDriverSdk(this.sdkSession),
+                new MatrixBackendRoomDriverSdk(this.sdkSession),
+            );
+        } else {
+            this.matrixBackend = new MatrixBackend(
+                new MatrixBackendAccountDriverWidget(),
+                new MatrixBackendRoomDriverWidget(),
+            );
+        }
         this.objectStore = new ObjectStore();
         this.drawingCanvas = new PaperCanvas();
     }
@@ -57,134 +79,182 @@ export class AppData {
 }
 (window as any).AppData = AppData;
 window.onload = async function () {
-    console.log("A")
-    await AppData.instance.matrixBackend.init();
-    console.log("B")
-    await AppData.instance.matrixBackend.login();
-    console.log("C")
+    document.body.classList.add(APP_TYPE == AppType.widget ? "widget-mode" : "sdk-mode");
+    const backend = AppData.instance.matrixBackend;
+    try {
+        if (APP_TYPE == AppType.sdk) {
+            backend.driverAccount.on("login_required", () => {
+                hideLoading();
+                document.body.classList.add("login-required");
+            });
+        }
+        await backend.init();
+        await backend.login();
+        document.body.classList.remove("login-required");
+    } catch (e) {
+        console.error(e);
+        showLoading("The board could not start: " + (e?.message ?? e));
+        return;
+    }
     AppData.instance.drawingCanvas.init();
     init_input(document.getElementById(AppData.instance.drawingCanvas.css_id));
     init_color_picker();
     init_tool_wheel();
     init_line_style_selector();
-    loadRoomWidget();
 
-    // window.AppData.instance.rightPanel = new RightPanel()
-    // window.actions.updateRoomList = () => { updateRoomList() };
-    // window.actions.updateAddRoomList = updateAddRoomList;
+    if (APP_TYPE == AppType.widget) {
+        await loadRoom(backend.currentRoomId);
+    } else {
+        document.getElementById("userIdLabel").innerText = backend.getUserId();
+        updateRoomList();
+        const roomId = roomIdFromHash() ?? readLastRoom();
+        if (roomId && AppData.instance.sdkSession.client.getRoom(roomId)) {
+            await loadRoom(roomId);
+        } else {
+            showLoading("Select a whiteboard or create a new one");
+        }
+        window.addEventListener("hashchange", () => {
+            const id = roomIdFromHash();
+            if (id && id !== backend.currentRoomId) loadRoom(id);
+        });
+    }
 }
-/*
 
+// ---- Room selection (sdk mode) ----
 
+function roomIdFromHash(): string | undefined {
+    const match = /^#\/room\/(.+)$/.exec(window.location.hash);
+    return match ? decodeURIComponent(match[1]) : undefined;
+}
 
+function readLastRoom(): string | undefined {
+    try { return window.localStorage.getItem(LAST_ROOM_STORAGE_KEY) ?? undefined; } catch { return undefined; }
+}
 
-
+function sdkAccount(): MatrixBackendAccountDriverSdk {
+    return AppData.instance.matrixBackend.driverAccount as MatrixBackendAccountDriverSdk;
+}
 
 export function updateRoomList() {
-    let roomTree = AppData.instance.matrixBackend.updateRoomTree()
-    let leftbarBody = document.getElementById("leftbar-body")
-    leftbarBody.innerHTML = ''
+    if (APP_TYPE != AppType.sdk) return;
+    const account = sdkAccount();
+    const roomTree = account.updateRoomTree();
+    const leftbarBody = document.getElementById("leftbar-body");
+    leftbarBody.innerHTML = "";
 
-    for (let noteb of Object.keys(roomTree.notebooks)) {
-        let notebookRoom = AppData.instance.matrixBackend.client.getRoom(noteb)
-        leftbarBody.appendChild(createNotebook(notebookRoom.name, roomTree.notebooks[noteb]))
+    for (const notebookId of Object.keys(roomTree.notebooks)) {
+        const notebookRoom = account.getRoom(notebookId);
+        leftbarBody.appendChild(createNotebook(notebookRoom?.name ?? notebookId, roomTree.notebooks[notebookId]));
     }
 
-    let spacer = document.createElement('div');
-    spacer.style.height = '10px'
-    leftbarBody.appendChild(spacer)
+    const spacer = document.createElement("div");
+    spacer.style.height = "10px";
+    leftbarBody.appendChild(spacer);
 
-    for (let whiteboard of roomTree.whiteboards) {
-        leftbarBody.appendChild(createDOMWhiteboard(whiteboard, '#eee'))
+    for (const whiteboard of roomTree.whiteboards) {
+        leftbarBody.appendChild(createDOMWhiteboard(whiteboard, "#eee"));
     }
 
-    let addButton = document.createElement('button');
-    addButton.id = 'add-room-button'
-    addButton.onclick = (e) => { actions.showAddRoomMenu() }
-    addButton.innerText = '+'
-    leftbarBody.appendChild(addButton)
-    // <button id="add-room-button" onclick="actions.showAddRoomMenu()">+</button>
-    // let id = room.roomId;
-    // var roomButton = document.createElement("div");
-    // console.log(id)
-    // roomButton.onclick = function (a) { console.log(a); loadRoom(id); };
-    // roomButton.classList.add("room-button");
-    // var roomText = document.createElement("p");
-    // roomText.innerText = visibleRooms[r].name;
-    // roomButton.appendChild(roomText);
-    // leftbarBody.insertBefore(roomButton, leftbarBody.firstChild);
+    const addButton = document.createElement("button");
+    addButton.id = "add-room-button";
+    addButton.onclick = () => { (window as any).actions.showAddRoomMenu(); };
+    addButton.innerText = "+";
+    leftbarBody.appendChild(addButton);
 }
-function createNotebook(name, whiteboards) {
-    let notebook = document.createElement("div")
-    let header = document.createElement("div")
-    let list = document.createElement("div")
 
-    header.innerHTML = name;
+function createNotebook(name: string, whiteboards: string[]) {
+    const notebook = document.createElement("div");
+    const header = document.createElement("div");
+    const list = document.createElement("div");
+
+    header.innerText = name;
     header.classList.add("notebook-header");
-    let color = Color.random().toCSS()
+    const color = Color.random().toCSS(true);
     header.style.borderLeftColor = color;
 
-    function getExpandHeight(list) {
-        let height = 0
-        for (let l of list.children) {
-            height += l.getBoundingClientRect().height;
-        }
-        return height;
-    }
-    header.onclick = function (a) {
-        if (list.style.height == "") { list.style.height = getExpandHeight(list) }
-        if (list.getBoundingClientRect().height != 0) { list.style.height = 0 }
-        else { list.style.height = getExpandHeight(list) }
+    const expandedHeight = () => Array.from(list.children).reduce((h, l) => h + l.getBoundingClientRect().height, 0) + "px";
+    header.onclick = () => {
+        list.style.height = list.getBoundingClientRect().height != 0 ? "0px" : expandedHeight();
     };
     notebook.appendChild(header);
 
-    for (let id of whiteboards) {
-        list.appendChild(createDOMWhiteboard(id, color))
+    for (const id of whiteboards) {
+        list.appendChild(createDOMWhiteboard(id, color));
     }
     list.classList.add("notebook-list");
-    // list.style.height = getExpandHeight(list);
     notebook.appendChild(list);
-
     return notebook;
 }
-function createDOMWhiteboard(id, color) {
-    let whiteboardButton = document.createElement("button")
-    let room = AppData.instance.matrixBackend.client.getRoom(id);
-    whiteboardButton.onclick = function (a) { console.log(a); loadRoom(id); };
-    whiteboardButton.classList.add("room-button");
-    whiteboardButton.style.borderLeftColor = color;
-    whiteboardButton.innerHTML = room.name + "<br><span style='font-size:0.5em;color:#000'>" + room.roomId + "</span>";
-    return whiteboardButton;
+
+function createDOMWhiteboard(id: string, color: string) {
+    const button = document.createElement("button");
+    const room = sdkAccount().getRoom(id);
+    button.onclick = () => { window.location.hash = "#/room/" + encodeURIComponent(id); };
+    button.classList.add("room-button");
+    button.style.borderLeftColor = color;
+    const name = document.createElement("span");
+    name.innerText = room?.name ?? id;
+    const roomId = document.createElement("span");
+    roomId.style.fontSize = "0.5em";
+    roomId.style.color = "#000";
+    roomId.innerText = id;
+    button.append(name, document.createElement("br"), roomId);
+    return button;
 }
-export async function updateAddRoomList() {
-    let visibleRooms = AppData.instance.matrixBackend.client.getVisibleRooms();
-    let addRoomBody = document.getElementById("add-room-list");
-    addRoomBody.innerHTML = ""
-    for (let r of visibleRooms) {
-        // let room = visibleRooms[r];
-        console.log(Array.from(r.currentState.events.keys()))
-        if (r.currentState.events.has('m.space.child')
-            || isBoardRoom(r.currentState.events)) {
-            continue // only show rooms which are no spaces and are not already a whiteboard
-        }
-        let id = r.roomId;
-        var roomButton = document.createElement("div");
-        roomButton.onclick = async function (a) {
-            console.log(a);
-            a.currentTarget.style.backgroundColor = '#5e5'
-            let room = await AppData.instance.matrixBackend.makeWhiteboardFromRoom(id);
+
+export function updateAddRoomList() {
+    if (APP_TYPE != AppType.sdk) return;
+    const addRoomBody = document.getElementById("add-room-list");
+    addRoomBody.innerHTML = "";
+    for (const room of sdkAccount().convertibleRooms()) {
+        const roomButton = document.createElement("div");
+        roomButton.onclick = async (ev) => {
+            (ev.currentTarget as HTMLElement).style.backgroundColor = "#5e5";
+            showLoading("Making " + room.name + " a whiteboard");
+            await AppData.instance.matrixBackend.makeWhiteboardFromRoom(room.roomId);
+            hideLoading();
             updateAddRoomList();
             updateRoomList();
-            actions.hideAddRoomMenu();
+            (window as any).actions.hideAddRoomMenu();
         };
         roomButton.classList.add("room-button");
-        var roomText = document.createElement("p");
-        roomText.innerText = r.name;
+        const roomText = document.createElement("p");
+        roomText.innerText = room.name;
         roomButton.appendChild(roomText);
         addRoomBody.insertBefore(roomButton, addRoomBody.firstChild);
     }
 }
-*/
+
+async function createWhiteboard(visibility: string, name: string) {
+    showLoading("Creating whiteboard " + name);
+    try {
+        const roomId = await AppData.instance.matrixBackend.createWhiteboard(visibility, name);
+        updateRoomList();
+        if (roomId) window.location.hash = "#/room/" + encodeURIComponent(roomId);
+    } finally {
+        hideLoading();
+    }
+}
+
+Object.assign((window as any).actions, { updateRoomList, updateAddRoomList, createWhiteboard, loadRoom });
+
+/** Show a room: clear the canvas and load its whole history. */
+export async function loadRoom(roomId: string) {
+    const backend = AppData.instance.matrixBackend;
+    if (APP_TYPE == AppType.sdk) {
+        (backend.driverRoom as MatrixBackendRoomDriverSdk).switchRoom(roomId);
+        try { window.localStorage.setItem(LAST_ROOM_STORAGE_KEY, roomId); } catch { /* not remembered */ }
+        document.getElementById("leftbar")?.classList.remove("no-room-selected");
+        const room = sdkAccount().getRoom(roomId);
+        document.getElementById("roomNameLabel").innerText = room?.name ?? roomId;
+    }
+    const drawC = AppData.instance.drawingCanvas;
+    drawC.clear();
+    AppData.instance.objectStore.resetRoom(roomId);
+    drawC.setZoom(1.0);
+    await backend.loadHistory();
+}
+
 export function showLoading(msg) {
     let loading = document.getElementById("loading");
     // loading.style.display = "block";
@@ -197,76 +267,4 @@ export function hideLoading() {
     let loading = document.getElementById("loading");
     // loading.style.display = "none";
     loading.style.transform = 'translate(0, -80px)'
-}
-
-// function cancelRoomLoading() {
-//     return new Promise((resolve, reject) => {
-//         resolve();
-//     });
-// }
-async function loadRoomWidget() {
-    const roomId = AppData.instance.matrixBackend.currentRoomId;
-    let drawC = AppData.instance.drawingCanvas;
-    drawC.clear();
-    AppData.instance.objectStore.addRoom(roomId);
-    drawC.setZoom(1.0)
-    drawC.reload() // load already cached messages which we won't get from scrollback events
-    await AppData.instance.matrixBackend.scrollback(roomId, 1000);
-}
-async function loadRoom(roomId, scrollback_count = 500, allMessages = true) {
-    /*
-    let drawC = AppData.instance.drawingCanvas;
-    drawC.clear();
-
-    // animate class list to the left. no-room-selected class puts it in the center:
-    // document.getElementById('leftbar').classList.remove('no-room-selected');
-
-    AppData.instance.objectStore.addRoom(roomId);
-
-    AppData.instance.matrixBackend.currentRoomId = roomId;
-    drawC.setZoom(1.0)
-    let viewNeedToScrollToLastObject = centerToNewestObject()
-    drawC.reload() // load already cached messages which we won't get from scrollback events
-
-    // setup gui for the loading process
-    let room = AppData.instance.matrixBackend.client.getRoom(roomId);
-    AppData.instance.rightPanel.updateMember(roomId)
-
-    showLoading("switching Room to: " + room.name + "<span style='font-size:10px' >" + roomId + "</span>");
-    document.getElementById('roomNameLabel').innerText = room.name
-    let settings = room.currentState.events.get(BoardEvent.BOARD_ROOM_STATE_NAME);
-    if (settings && settings.has("colorpalette")) {
-        SetColorPalette(settings.get("colorpalette"))
-    }
-    showLoading("load room history");
-    const dateOptions = { year: 'numeric', month: 'numeric', day: 'numeric', hour: 'numeric' };
-    let currentScrollbackDate = new Date()
-    let nowDate = new Date();
-    let createDate = new Date(room.currentState.getStateEvents('m.room.create', "").event.origin_server_ts);
-    let totalLoaded = 0
-    while (true) {
-        let percent = 1 - ((currentScrollbackDate - createDate) / (nowDate - createDate))
-        let roomLoaded = await AppData.instance.matrixBackend.scrollback(AppData.instance.matrixBackend.currentRoomId, scrollback_count, "Loaded: " + Math.floor(percent * 100) + "% (elements: " + totalLoaded + ")</br> <span style='font-size:10px'>to Date: " + currentScrollbackDate.toLocaleDateString('de-DE', dateOptions) + "  Target: " + createDate.toLocaleDateString('de-DE', dateOptions) + "</span>");
-        if (viewNeedToScrollToLastObject) {
-            viewNeedToScrollToLastObject = centerToNewestObject()
-        }
-        currentScrollbackDate = new Date(roomLoaded.timeline[0].event.origin_server_ts);
-        if (totalLoaded === roomLoaded.timeline.length) { console.log("Stop Loading because: totalLoaded == roomLoaded.timeline.length"); break; }
-        if (roomLoaded.oldState.paginationToken == null) { console.log("Stop Loading because: paginationToken"); break; }
-        if (!allMessages) { break }
-        totalLoaded = roomLoaded.timeline.length;
-
-    }
-    function centerToNewestObject() {
-        let allSorted = AppData.instance.objectStore.allSorted()
-        if (allSorted.length > 0) {
-            let lastObj = allSorted[allSorted.length - 1]
-            let pos = posFromEv(lastObj.content);
-            let size = sizeFromEv(lastObj.content);
-            AppData.instance.drawingCanvas.setOffset(pos.add(size.multiply(0.5)))
-            return false
-        }
-        return true
-    }
-    */
 }

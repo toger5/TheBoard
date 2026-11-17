@@ -33,16 +33,22 @@ export default class ObjectStore {
             }
         }
     }
+    /** Forget everything stored for a room (before loading it again). */
+    resetRoom(roomId) {
+        delete this.data[roomId];
+        this.addRoom(roomId);
+    }
     // addToCurrent(obj) {
     //     if (!this.currentRoom().redacted.has(obj.event_id)) {
     //         this.currentRoom().all.push(obj);
     //     }
     // }
     add(obj) {
-        if (!obj.room_id in this.data) {
+        if (!(obj.room_id in this.data)) {
             this.addRoom(obj.room_id);
         }
         let room = this.data[obj.room_id];
+        if (room.redacted.has(obj.event_id)) { return; }
         // console.log("adding obj that already exists: ", room.all.some(el => el.event_id == obj.event_id));
         room.allDict[obj.event_id] = obj;
         // if (!room.redacted.has(obj.event_id)) {
@@ -85,7 +91,8 @@ export default class ObjectStore {
     redactById(id, roomId, remove = true) {
         if (!this.hasRoom(roomId)) { this.addRoom(roomId) }
         let room = this.data[roomId];
-        // room.redacted.add(id);
+        // Remembered so that the event is not added when it arrives after its redaction (history is read newest first).
+        room.redacted.add(id);
         if (remove) {
             if (id in room.allDict) {
                 delete room.allDict[id];
@@ -95,6 +102,9 @@ export default class ObjectStore {
                 console.log("unecassary redact called for id: ", id)
             }
         }
+    }
+    isRedacted(id, roomId) {
+        return this.hasRoom(roomId) && this.data[roomId].redacted.has(id);
     }
     // redact_and_remove_by_id(id){
     //     this.redacted.add(id);

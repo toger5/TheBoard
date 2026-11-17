@@ -2,7 +2,7 @@ import { Point } from 'paper'
 import { tools, activeTool } from '../input';
 import { setActiveTool } from '../input';
 import { mousePathToString, paperPathToString, pathPosSizeCorrection, setAlpha } from "../helper";
-import { APP_TYPE, AppType } from '../main';
+import { AppData } from '../main';
 
 const toolList = [
 	{ id: 'tool-type-pen', text: 'Pen' },
@@ -21,7 +21,7 @@ function toolFromObj(obj){
 	return btn;
 }
 export default function init_tool_wheel() {
-	if(APP_TYPE == AppType.sdk){
+	if (AppData.instance.matrixBackend.canUploadMedia) {
 		toolList.push({ id: 'tool-type-image', text: 'Image' })
 	}
 	let wheelContainer = document.getElementById("tool-wheel");

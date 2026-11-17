@@ -363,3 +363,19 @@ button.submit:hover {
     background-color: #fff;
 
 }
+/* Widget mode: the client picks the room and the user, so there is no login and no room list. */
+body.widget-mode #leftbar,
+body.widget-mode login-container {
+    display: none;
+}
+
+/* sdk mode: the login form only while nobody is logged in, the room list only afterwards. */
+login-container {
+    display: none;
+}
+body.login-required login-container {
+    display: block;
+}
+body.login-required #leftbar {
+    display: none;
+}

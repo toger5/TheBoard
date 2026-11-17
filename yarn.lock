@@ -3465,6 +3465,9 @@ webpack@^5.112.2:
     watchpack "^2.6.3"
     webpack-sources "^3.6.0"
 
+"widget-base-sdk@file:../matrix-widget-tools-sdk/crates/widget-base-sdk/pkg":
+  version "0.1.0"
+
 wildcard@^2.0.1:
   version "2.0.1"
   resolved "https://registry.yarnpkg.com/wildcard/-/wildcard-2.0.1.tgz#5ab10d02487198954836b6349f74fff961e10f67"

@@ -284,11 +284,14 @@ export default class PaperCanvas {
         let url = imageContent.url;
         let position = new Point(parseFloat(imageContent.position.x), parseFloat(imageContent.position.y))
         let size = new Size(parseFloat(imageContent.size.width), parseFloat(imageContent.size.height))
+        let image = new Raster({ position: position })
         if (url.split(":")[0] === "mxc") {
-            url = AppData.instance.matrixBackend.client.mxcUrlToHttp(url)
+            AppData.instance.matrixBackend.mediaUrl(url)
+                .then((httpUrl) => { image.source = httpUrl })
+                .catch((e) => console.error("Could not load image " + url, e))
+        } else {
+            image.source = url
         }
-        // console.log("image URL to download: ", url)
-        let image = new Raster({ source: url, position: position })
         if (id != "") {
             image.data.id = id
         }
