@@ -6,3 +6,5 @@ node_modules/
 dist/
 distDev/
 npm-debug.log
+test-results/
+playwright-report/
