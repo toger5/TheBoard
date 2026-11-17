@@ -23,6 +23,7 @@
     "@babel/preset-env": "^8.0.7",
     "@babel/preset-react": "^8.0.1",
     "@babel/runtime": "^8.1.2",
+    "@matrix-widget-sdk/widget": "^0.1.0",
     "babel-loader": "^10.1.1",
     "babel-plugin-polyfill-corejs3": "^1.0.0",
     "buffer": "^6.0.3",
@@ -38,8 +39,7 @@
     "ts-loader": "^9.6.2",
     "typescript": "^6",
     "webpack-dev-server": "^6.1.0",
-    "webpack-merge": "^6.0.1",
-    "widget-base-sdk": "file:../matrix-widget-tools-sdk/crates/widget-base-sdk/pkg"
+    "webpack-merge": "^6.0.1"
   },
   "private": true,
   "devDependencies": {

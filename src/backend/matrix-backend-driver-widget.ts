@@ -1,5 +1,5 @@
 import { EventEmitter } from 'events';
-import initWidgetSdk, { WidgetApi } from 'widget-base-sdk';
+import initWidgetSdk, { WidgetApi } from '@matrix-widget-sdk/widget';
 import { BOARD_OBJECT_EVENT_NAME } from './board-event-consts';
 import { isBoardObjectEvent } from './filter';
 import {
@@ -57,7 +57,7 @@ interface TimelineUpdate {
 }
 
 /**
- * Room driver for the widget mode, on widget-base-sdk (MSC4412). History is read from the client's
+ * Room driver for the widget mode, on @matrix-widget-sdk/widget (MSC4412). History is read from the client's
  * timeline cache with `read_timeline`, extended with `paginate_timeline` when it runs out
  * (spec/patch/new/timeline-reading.md in matrix-widget-tools-sdk). Live events arrive with
  * `forward_event`; both paths are deduplicated by event id.

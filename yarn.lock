@@ -1040,6 +1040,11 @@
   resolved "https://registry.yarnpkg.com/@matrix-org/matrix-sdk-crypto-wasm/-/matrix-sdk-crypto-wasm-18.9.2.tgz#b2c589b84eed2b8489e990b3defa66eb516bc422"
   integrity sha512-GHeuSeb5Fj6Wg2+NE/WoLJJs9U3nOzttO+2sj7lOaS5gNBpGIksc48N/Q/kK/Z+Lxh7YMhopB7M8b6HyASXnGQ==
 
+"@matrix-widget-sdk/widget@^0.1.0":
+  version "0.1.0"
+  resolved "https://registry.yarnpkg.com/@matrix-widget-sdk/widget/-/widget-0.1.0.tgz#fbc4387707f8a1fc3f74d41181bb754b81e5c109"
+  integrity sha512-m/oXfecqjI+DbTqF8WDPCYf92FWrvas6vkzax8K+2si1CIZtausofdbKdohY/f0FcAtE+MVIqbyQHbguftGXpw==
+
 "@noble/hashes@1.8.0":
   version "1.8.0"
   resolved "https://registry.yarnpkg.com/@noble/hashes/-/hashes-1.8.0.tgz#cee43d801fcef9644b11b8194857695acd5f815a"
@@ -3483,9 +3488,6 @@ webpack@^5.112.2:
     tapable "^2.3.0"
     watchpack "^2.6.3"
     webpack-sources "^3.6.0"
-
-"widget-base-sdk@file:../matrix-widget-tools-sdk/crates/widget-base-sdk/pkg":
-  version "0.1.0"
 
 wildcard@^2.0.1:
   version "2.0.1"

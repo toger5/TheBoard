@@ -17,18 +17,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      # widget-base-sdk is linked from a sibling checkout (package.json: file:../matrix-widget-tools-sdk/...).
-      - name: Check out matrix-widget-tools-sdk
-        run: git clone --depth 1 https://github.com/toger5/matrix-widget-sdk.git ../matrix-widget-tools-sdk
-      - uses: dtolnay/rust-toolchain@stable
-        with:
-          targets: wasm32-unknown-unknown
-      - uses: taiki-e/install-action@v2
-        with:
-          tool: wasm-pack
-      - name: Build widget-base-sdk
-        working-directory: ../matrix-widget-tools-sdk
-        run: wasm-pack build crates/widget-base-sdk --target web --release
       - uses: actions/setup-node@v4
         with:
           node-version-file: .nvmrc
@@ -50,18 +38,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      # widget-base-sdk is linked from a sibling checkout (package.json: file:../matrix-widget-tools-sdk/...).
-      - name: Check out matrix-widget-tools-sdk
-        run: git clone --depth 1 https://github.com/toger5/matrix-widget-sdk.git ../matrix-widget-tools-sdk
-      - uses: dtolnay/rust-toolchain@stable
-        with:
-          targets: wasm32-unknown-unknown
-      - uses: taiki-e/install-action@v2
-        with:
-          tool: wasm-pack
-      - name: Build widget-base-sdk
-        working-directory: ../matrix-widget-tools-sdk
-        run: wasm-pack build crates/widget-base-sdk --target web --release
       - uses: actions/setup-node@v4
         with:
           node-version-file: .nvmrc
