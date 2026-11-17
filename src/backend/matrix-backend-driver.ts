@@ -1,4 +1,4 @@
-import EventEmitter from "events";
+import { EventEmitter } from "events";
 
 export interface MatrixBackendDriverAccount extends EventEmitter {
     init(): Promise<any>;

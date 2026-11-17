@@ -1,4 +1,4 @@
-import EventEmitter from 'events';
+import { EventEmitter } from 'events';
 import { WidgetApi, WidgetApiToWidgetAction } from 'matrix-widget-api';
 import { BOARD_OBJECT_EVENT_NAME } from './board-event-consts';
 import { BackendEvent } from './matrix';
@@ -61,7 +61,10 @@ export class MatrixBackendRoomDriverWidget extends EventEmitter implements Matri
             const qs = parseFragment();
             let widgetId = assertParam(qs, 'widgetId');
             _this._userId = assertParam(qs, 'userId');
-            const api = new WidgetApi(widgetId);
+            // matrix-widget-api >= 1 needs the client origin explicitly (null would post to our own origin).
+            const parentUrl = new URLSearchParams(window.location.search).get('parentUrl');
+            const clientOrigin = parentUrl ? new URL(parentUrl).origin : '*';
+            const api = new WidgetApi(widgetId, clientOrigin);
             api.requestCapabilityToReceiveEvent(BOARD_OBJECT_EVENT_NAME);
             api.requestCapabilityToSendEvent(BOARD_OBJECT_EVENT_NAME);
 
@@ -72,8 +75,9 @@ export class MatrixBackendRoomDriverWidget extends EventEmitter implements Matri
 
             api.on("ready", function (test) {
                 api.readStateEvents("m.room.name", 1, "").then((nameEvent) => {
-                    _this._roomId = nameEvent[0].room_id;
-                    _this.roomName = nameEvent[0].content.name;
+                    const ev = nameEvent[0] as any;
+                    _this._roomId = ev.room_id;
+                    _this.roomName = ev.content.name;
                     resolve();
                 })
             });

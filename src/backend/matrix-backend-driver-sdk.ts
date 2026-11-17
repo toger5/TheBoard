@@ -1,4 +1,4 @@
-import EventEmitter from 'events'
+import { EventEmitter } from 'events';
 import { MatrixClient } from 'matrix-js-sdk';
 import { BOARD_OBJECT_EVENT_NAME } from './board-event-consts';
 import { MatrixBackendDriverAccount, MatrixBackendDriverRoom } from './matrix-backend-driver'
@@ -38,12 +38,10 @@ export class MatrixBackendRoomDriverSdk extends EventEmitter implements MatrixBa
 
     uploadContent(file, onlyContentUri, progressHandler:(state: {loaded: number;total: number;}) => void){
         //(prog) => { showLoading("Upload Image: " + Math.round(prog.loaded / prog.total * 100)) + "%" }
-        return this.client.uploadContent(file, { onlyContentUri: onlyContentUri, progressHandler: progressHandler})
+        return this.client.uploadContent(file, { progressHandler: progressHandler }).then((res) => res.content_uri)
     }
     sendBoardObjectEvent(content) {
-        return this.client.sendEvent(this.currentRoomId, BOARD_OBJECT_EVENT_NAME, content, "", (err, res) => {
-            console.log(err);
-        });
+        return this.client.sendEvent(this.currentRoomId, BOARD_OBJECT_EVENT_NAME as any, content);
     }
     redact(id: string): Promise<any> {
         throw new Error('Method not implemented.');

@@ -1,12 +1,15 @@
 {
     "compilerOptions": {
-      "outDir": "./dist/",
-      "noImplicitAny": false,
-      "module": "es6",
-      "target": "es5",
-      "jsx": "react",
-      "allowJs": true,
-      "moduleResolution": "node",
-      "allowSyntheticDefaultImports": true,
+        "outDir": "./dist/",
+        "noImplicitAny": false,
+        "strict": false,
+        "module": "esnext",
+        "target": "es2020",
+        "jsx": "react",
+        "allowJs": true,
+        "moduleResolution": "bundler",
+        "allowSyntheticDefaultImports": true,
+        "esModuleInterop": true,
+        "skipLibCheck": true
     }
-  }
+}

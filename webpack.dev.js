@@ -8,9 +8,9 @@ module.exports = merge(common, {
   devServer: {
     host: '0.0.0.0',//your ip address
     port: 8081,
-    disableHostCheck: true,
-    watchContentBase: true,
-    writeToDisk: true
+    allowedHosts: 'all',
+    static: { watch: true },
+    devMiddleware: { writeToDisk: true },
   },
   output: {
     path: path.resolve(__dirname, distName),

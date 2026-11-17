@@ -6,7 +6,8 @@ import { setAlpha } from "../helper";
 import * as BoardEvent from './board-event-consts'
 import { MatrixBackendDriverAccount, MatrixBackendDriverRoom } from "./matrix-backend-driver";
 // import { project } from "paper/dist/paper-core";
-export const paper = require('paper');
+import paper from 'paper';
+export { paper };
 
 export enum BackendEvent {
     BoardEvent = "board_event",
