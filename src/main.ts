@@ -252,7 +252,15 @@ export async function loadRoom(roomId: string) {
     drawC.clear();
     AppData.instance.objectStore.resetRoom(roomId);
     drawC.setZoom(1.0);
-    await backend.loadHistory();
+    document.body.dataset.history = "loading";
+    try {
+        await backend.loadHistory();
+        document.body.dataset.history = "loaded";
+    } catch (e) {
+        document.body.dataset.history = "failed";
+        console.error("Loading the history failed", e);
+        showLoading("Loading the history failed: " + (e?.message ?? e));
+    }
 }
 
 export function showLoading(msg) {
