@@ -32,7 +32,8 @@ let handleTouchType = ""
 
 export function setActiveTool(id) {
     activeTool = tools[id];
-    AppData.instance.rightPanel.setToolPanel(activeTool.getSettingsPanel())
+    // The right panel is not part of every layout (not in the widget).
+    AppData.instance.rightPanel?.setToolPanel(activeTool.getSettingsPanel())
 }
 
 export default function init_input(element) {
